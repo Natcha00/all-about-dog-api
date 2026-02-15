@@ -1,0 +1,40 @@
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Build output (เพราะเราจะ build ใน container)
+dist
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# Logs
+logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tests
+coverage
+*.spec.ts
+test
+
+# IDE
+.vscode
+.idea
+
+# Misc
+*.md
