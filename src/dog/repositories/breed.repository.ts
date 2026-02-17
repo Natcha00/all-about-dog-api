@@ -19,7 +19,7 @@ export class BreedRepository {
   }
 
   async findAll(){
-    return await this.breedTypeOrmRepository.find({relations:{size:true}})
+    return await this.breedTypeOrmRepository.find()
   }
 
   async findById(id:number) {

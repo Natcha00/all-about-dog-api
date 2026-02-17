@@ -1,20 +1,27 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Size } from "./size.entity";
-import { Dog } from "./dog.entity";
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Size } from '../enums/size.enum';
+import { Dog } from './dog.entity';
 
 @Entity()
-export class Breed{
-    @PrimaryGeneratedColumn()
-    id:number
-    @Column()
-    nameTh:string
-    @Column()
-    nameEng:string
+export class Breed {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @ManyToOne(()=>Size,(size)=>size.breeds)
-    size:Size
+  @Column()
+  nameTh: string;
 
-    @OneToMany(()=>Dog,(dogs)=>dogs.breed)
-    dogs:Dog[]
+  @Column()
+  nameEng: string;
 
+  @Column()
+  size: Size;
+
+  @OneToMany(() => Dog, (dogs) => dogs.breed)
+  dogs: Dog[];
 }

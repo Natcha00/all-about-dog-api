@@ -1,26 +1,38 @@
-import { Dog } from "src/dog/entities/dog.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Dog } from 'src/dog/entities/dog.entity';
+import { Reservation } from 'src/reservation/entities/reservation.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 @Entity()
 export class DogOwner {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  code:string
+
   @Column()
   firstName: string;
+
   @Column()
   lastname: string;
+
   @Column()
   email: string;
+
   @Column()
   password: string;
+
   @Column()
   phoneNumber: string;
-  @Column({nullable: true })
+
+  @Column({ nullable: true })
   address: string;
+
   @Column({ nullable: true })
   profilePictureUrl: string;
 
+  @OneToMany(() => Dog, (dogs) => dogs.dogOwner)
+  dogs: Dog[];
 
-  @OneToMany (()=>Dog,(dogs)=>dogs.dogOwner)
-  dogs:Dog[]
+  @OneToMany(() => Reservation, (reservations) => reservations.dogOwner)
+  reservations: Array<Reservation>;
 }
-
