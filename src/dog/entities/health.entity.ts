@@ -1,4 +1,13 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Dog } from './dog.entity';
 
 @Entity()
@@ -6,8 +15,8 @@ export class Health {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  detail: string;
+  @Column({ type: 'text', nullable: true })
+  detail: string | null;
 
   @Column()
   sterilization: boolean;
@@ -15,11 +24,11 @@ export class Health {
   @Column()
   microchip: boolean;
 
-  @Column()
-  underlyingDisease: string;
+  @Column({ type: 'text', nullable: true })
+  underlyingDisease: string | null;
 
-  @Column()
-  allergy: string;
+  @Column({ type: 'text', nullable: true })
+  allergy: string | null;
 
   @Column()
   bloodGroup: string;
@@ -35,7 +44,7 @@ export class Health {
 
   @Column()
   hasAfterLunch: boolean;
-  
+
   @Column()
   hasDinner: boolean;
 

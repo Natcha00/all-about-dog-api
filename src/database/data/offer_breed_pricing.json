@@ -1,0 +1,214 @@
+[
+  {
+    "normalPrice": 450,
+    "specialPrice": 450,
+    "offeringId": 4,
+    "breedId": 1
+  },
+  {
+    "normalPrice": 450,
+    "specialPrice": 450,
+    "offeringId": 4,
+    "breedId": 2
+  },
+  {
+    "normalPrice": 450,
+    "specialPrice": 450,
+    "offeringId": 4,
+    "breedId": 3
+  },
+  {
+    "normalPrice": 450,
+    "specialPrice": 450,
+    "offeringId": 4,
+    "breedId": 4
+  },
+  {
+    "normalPrice": 450,
+    "specialPrice": 450,
+    "offeringId": 4,
+    "breedId": 5
+  },
+  {
+    "normalPrice": 450,
+    "specialPrice": 450,
+    "offeringId": 4,
+    "breedId": 6
+  },
+
+  {
+    "normalPrice": 500,
+    "specialPrice": 500,
+    "offeringId": 4,
+    "breedId": 7
+  },
+  {
+    "normalPrice": 500,
+    "specialPrice": 500,
+    "offeringId": 4,
+    "breedId": 8
+  },
+  {
+    "normalPrice": 500,
+    "specialPrice": 500,
+    "offeringId": 4,
+    "breedId": 9
+  },
+  {
+    "normalPrice": 500,
+    "specialPrice": 500,
+    "offeringId": 4,
+    "breedId": 10
+  },
+  {
+    "normalPrice": 500,
+    "specialPrice": 500,
+    "offeringId": 4,
+    "breedId": 11
+  },
+  {
+    "normalPrice": 500,
+    "specialPrice": 500,
+    "offeringId": 4,
+    "breedId": 12
+  },
+  
+  {
+    "normalPrice": 550,
+    "specialPrice": 550,
+    "offeringId": 4,
+    "breedId": 13
+  },
+  {
+    "normalPrice": 550,
+    "specialPrice": 550,
+    "offeringId": 4,
+    "breedId": 14
+  },
+  {
+    "normalPrice": 550,
+    "specialPrice": 550,
+    "offeringId": 4,
+    "breedId": 15
+  },
+  {
+    "normalPrice": 550,
+    "specialPrice": 550,
+    "offeringId": 4,
+    "breedId": 16
+  },
+  {
+    "normalPrice": 550,
+    "specialPrice": 550,
+    "offeringId": 4,
+    "breedId": 17
+  },
+  
+  {
+    "normalPrice": 600,
+    "specialPrice": 600,
+    "offeringId": 4,
+    "breedId": 18
+  },
+  {
+    "normalPrice": 600,
+    "specialPrice": 600,
+    "offeringId": 4,
+    "breedId": 19
+  },
+  {
+    "normalPrice": 600,
+    "specialPrice": 600,
+    "offeringId": 4,
+    "breedId": 20
+  },
+  {
+    "normalPrice": 600,
+    "specialPrice": 600,
+    "offeringId": 4,
+    "breedId": 21
+  },
+
+  
+  {
+    "normalPrice": 650,
+    "specialPrice": 650,
+    "offeringId": 4,
+    "breedId": 22
+  },
+  {
+    "normalPrice": 650,
+    "specialPrice": 650,
+    "offeringId": 4,
+    "breedId": 23
+  },
+  {
+    "normalPrice": 650,
+    "specialPrice": 650,
+    "offeringId": 4,
+    "breedId": 24
+  },
+  {
+    "normalPrice": 650,
+    "specialPrice": 650,
+    "offeringId": 4,
+    "breedId": 25
+  },
+
+  {
+    "normalPrice": 850,
+    "specialPrice": 850,
+    "offeringId": 4,
+    "breedId": 26
+  },
+  {
+    "normalPrice": 850,
+    "specialPrice": 850,
+    "offeringId": 4,
+    "breedId": 27
+  },
+  {
+    "normalPrice": 850,
+    "specialPrice": 850,
+    "offeringId": 4,
+    "breedId": 28
+  },
+
+  {
+    "normalPrice": 950,
+    "specialPrice": 950,
+    "offeringId": 4,
+    "breedId": 29
+  },
+  {
+    "normalPrice": 950,
+    "specialPrice": 950,
+    "offeringId": 4,
+    "breedId": 30
+  },
+  {
+    "normalPrice": 950,
+    "specialPrice": 950,
+    "offeringId": 4,
+    "breedId": 31
+  },
+
+  {
+    "normalPrice": 1000,
+    "specialPrice": 1000,
+    "offeringId": 4,
+    "breedId": 32
+  },
+  {
+    "normalPrice": 1000,
+    "specialPrice": 1000,
+    "offeringId": 4,
+    "breedId": 33
+  },
+  {
+    "normalPrice": 1000,
+    "specialPrice": 1000,
+    "offeringId": 4,
+    "breedId": 34
+  }
+]

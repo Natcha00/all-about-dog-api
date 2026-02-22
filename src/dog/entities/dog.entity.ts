@@ -40,13 +40,16 @@ export class Dog {
   @Column()
   birthdate: Date;
 
+  @Column()
+  dogPictureUrl: string;
+
   @ManyToOne(() => DogOwner, (dogOwner) => dogOwner.dogs)
   dogOwner: DogOwner;
 
   @ManyToOne(() => Breed, (breed) => breed.dogs)
   breed: Breed;
 
-  @OneToOne(() => Health)
+  @OneToOne(() => Health, (health) => health.dog, { cascade: true })
   health: Health;
 
   @OneToMany(

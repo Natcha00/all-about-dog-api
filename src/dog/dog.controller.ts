@@ -1,64 +1,32 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Inject,
-  Injectable,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { DogService } from './services/dog.service';
 import { CreateDogDto } from './dtos/create-dog.dto';
-import { UpdateDogDto } from './dtos/update-dog.dto';
-import { CreateSizeDto } from './dtos/create-size.dto';
 import { CreateBreedDto } from './dtos/create-breed.dto';
-import { BreedService } from './services/breed.service';
 import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
-import { DogOwnerDec } from 'src/user/decorators/dog-owner.decorator';
+import { DogOwnerDecorator } from 'src/user/decorators/dog-owner.decorator';
+import { type IUser } from 'src/user/interfaces/user.interface';
+import { GetDogByOwnerUsecase } from './use-cases/get-dog-by-owner.use-case';
+import { CreateDogUsecase } from './use-cases/create-dog.use-case';
 
 @Controller('dog')
 export class DogController {
   constructor(
-    private readonly dogService: DogService,
-    private readonly breedService: BreedService
+    private readonly createDogUsecase: CreateDogUsecase,
+    private readonly getDogByOwnerUsecase: GetDogByOwnerUsecase,
   ) {}
 
-  @Post('breed')
-  createBreed(@Body() createBreedDto: CreateBreedDto) {
-    return this.breedService.create(createBreedDto);
-  }
-
   @Post()
-  @UseGuards(AccessTokenGuard) 
-  create(@Body() createDogDto: CreateDogDto, @DogOwnerDec() dogOwnerDec) {
-    return this.dogService.create(createDogDto, dogOwnerDec);
+  @UseGuards(AccessTokenGuard)
+  async create(
+    @Body() createDogDto: CreateDogDto,
+    @DogOwnerDecorator() dogOwner: IUser,
+  ) {
+    return await this.createDogUsecase.execute(createDogDto, dogOwner.id);
   }
-  
-  @Get('breed')
-  findBreedAll() {
-    return this.breedService.getAll();
-  }
-  
+
   @Get()
-  findAll() {
-    return this.dogService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.dogService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDogDto: UpdateDogDto) {
-    return this.dogService.update(+id, updateDogDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.dogService.remove(+id);
+  @UseGuards(AccessTokenGuard)
+  async getDogs(@DogOwnerDecorator() dogOwner: IUser) {
+    return await this.getDogByOwnerUsecase.execute(dogOwner.id);
   }
 }

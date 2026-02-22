@@ -1,0 +1,113 @@
+[
+  {
+    "code": "DO-260218-0001",
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@gmail.com",
+    "password": "1234",
+    "phoneNumber": "0123456789",
+    "address": "1234 Yannawa Rd, bangkok",
+    "profilePictureUrl": "https://example.com/profiles/john.jpg"
+  },
+
+  {
+    "code": "DO-260218-0002",
+    "firstName": "Maya",
+    "lastName": "Chen",
+    "email": "maya.chen@gmail.com",
+    "password": "pass1234",
+    "phoneNumber": "0812345678",
+    "address": "88 Sukhumvit Rd, Bangkok",
+    "profilePictureUrl": "https://example.com/profiles/maya.jpg"
+  },
+  {
+    "code": "DO-260218-0003",
+    "firstName": "Arun",
+    "lastName": "Patel",
+    "email": "arun.patel@gmail.com",
+    "password": "qwerty123",
+    "phoneNumber": "0823456789",
+    "address": "15 Silom Rd, Bangkok",
+    "profilePictureUrl": "https://example.com/profiles/arun.jpg"
+  },
+  {
+    "code": "DO-260218-0004",
+    "firstName": "Sofia",
+    "lastName": "Garcia",
+    "email": "sofia.garcia@gmail.com",
+    "password": "demo1234",
+    "phoneNumber": "0834567890",
+    "address": "200 Rama IX Rd, Bangkok",
+    "profilePictureUrl": "https://example.com/profiles/sofia.jpg"
+  },
+  {
+    "code": "DO-260218-0005",
+    "firstName": "Kenji",
+    "lastName": "Tanaka",
+    "email": "kenji.tanaka@gmail.com",
+    "password": "hello1234",
+    "phoneNumber": "0845678901",
+    "address": "9 Ratchadaphisek Rd, Bangkok",
+    "profilePictureUrl": "https://example.com/profiles/kenji.jpg"
+  },
+  {
+    "code": "DO-260218-0006",
+    "firstName": "Amina",
+    "lastName": "Khan",
+    "email": "amina.khan@gmail.com",
+    "password": "test1234",
+    "phoneNumber": "0856789012",
+    "address": "77 Ladprao Rd, Bangkok",
+    "profilePictureUrl": "https://example.com/profiles/amina.jpg"
+  },
+  {
+    "code": "DO-260218-0007",
+    "firstName": "Oliver",
+    "lastName": "Smith",
+    "email": "oliver.smith@gmail.com",
+    "password": "letmein12",
+    "phoneNumber": "0867890123",
+    "address": "310 Phahonyothin Rd, Bangkok",
+    "profilePictureUrl": "https://example.com/profiles/oliver.jpg"
+  },
+  {
+    "code": "DO-260218-0008",
+    "firstName": "Nina",
+    "lastName": "Ivanova",
+    "email": "nina.ivanova@gmail.com",
+    "password": "nina1234",
+    "phoneNumber": "0878901234",
+    "address": "45 Sathorn Rd, Bangkok",
+    "profilePictureUrl": "https://example.com/profiles/nina.jpg"
+  },
+  {
+    "code": "DO-260218-0009",
+    "firstName": "Lucas",
+    "lastName": "Martin",
+    "email": "lucas.martin@gmail.com",
+    "password": "lucas123",
+    "phoneNumber": "0889012345",
+    "address": "12 Asok Montri Rd, Bangkok",
+    "profilePictureUrl": "https://example.com/profiles/lucas.jpg"
+  },
+  {
+    "code": "DO-260218-0010",
+    "firstName": "Priya",
+    "lastName": "Nair",
+    "email": "priya.nair@gmail.com",
+    "password": "priya999",
+    "phoneNumber": "0890123456",
+    "address": "101 Bang Na-Trat Rd, Bangkok",
+    "profilePictureUrl": "https://example.com/profiles/priya.jpg"
+  },
+  {
+    "code": "DO-260218-0011",
+    "firstName": "Ethan",
+    "lastName": "Brown",
+    "email": "ethan.brown@gmail.com",
+    "password": "brown123",
+    "phoneNumber": "0901234567",
+    "address": "59 Petchaburi Rd, Bangkok",
+    "profilePictureUrl": "https://example.com/profiles/ethan.jpg"
+  }
+]

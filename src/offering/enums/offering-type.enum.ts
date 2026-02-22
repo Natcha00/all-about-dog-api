@@ -1,4 +1,4 @@
 export enum OfferingType{
-    BOARDING = "BOARDING",
-    SWIMMING = "SWIMMING"
+    BOARDING = "boarding",
+    SWIMMING = "swimming"
 }

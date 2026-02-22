@@ -1,0 +1,14 @@
+[
+  {
+    "normalPrice": 600,
+    "specialPrice": 510,
+    "size": "large",
+    "offeringId": 1
+  },
+  {
+    "normalPrice": 450,
+    "specialPrice": 380,
+    "size": "small",
+    "offeringId": 2
+  }
+]

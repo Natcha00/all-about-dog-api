@@ -13,8 +13,11 @@ export class Offering {
     @Column()
     name:string
 
+    @Column({nullable:true})
+    description:string
+
     @Column()
-    offeringTye:OfferingType
+    offeringType:OfferingType
 
     @Column()
     maxCapacity:number
@@ -31,6 +34,6 @@ export class Offering {
     @OneToMany(()=>OfferBreedPricing,(offerBreedPricing)=>offerBreedPricing.offering)
     offerBreedPricing : Array<OfferBreedPricing>
 
-    @OneToOne(()=>OfferVipPricing)
+    @OneToOne(()=>OfferVipPricing,(offerVipPricing)=>offerVipPricing.offering)
     offerVipPricing: OfferVipPricing
 }

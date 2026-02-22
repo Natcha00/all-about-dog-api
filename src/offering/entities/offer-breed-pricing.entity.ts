@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Offering } from "./offering.entity";
 import { Breed } from "src/dog/entities/breed.entity";
 
@@ -16,6 +16,7 @@ export class OfferBreedPricing {
     @ManyToOne(()=>Offering,(offering)=>offering.offerBreedPricing)
     offering:Offering
 
-    @ManyToOne(()=>Breed)
+    @OneToOne(()=>Breed,(breed)=>breed.offerBreedPricing)
+    @JoinColumn()
     breed:Breed
 }

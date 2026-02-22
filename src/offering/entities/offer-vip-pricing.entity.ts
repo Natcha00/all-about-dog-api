@@ -12,7 +12,7 @@ export class OfferVipPricing {
     @Column()
     specialPrice : number
 
-    @OneToOne(()=>Offering)
+    @OneToOne(()=>Offering,(offering)=>offering.offerVipPricing)
     @JoinColumn()
     offering:Offering
 }

@@ -1,0 +1,26 @@
+[
+    {
+        "name":"ตึกหมาใหญ่",
+        "offeringType":"boarding",
+        "maxCapacity":9,
+        "isVip":false
+    },
+    {
+        "name":"ตึกหมาเล็ก",
+        "offeringType":"boarding",
+        "maxCapacity":13,
+        "isVip":false
+    },
+    {
+        "name":"ห้อง VIP",
+        "offeringType":"boarding",
+        "maxCapacity":1,
+        "isVip":true
+    },
+    {
+        "name":"สระว่ายน้ำ",
+        "offeringType":"swimming",
+        "maxCapacity":5,
+        "isVip":false
+    }
+]

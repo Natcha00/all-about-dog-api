@@ -13,7 +13,7 @@ export class DogOwner {
   firstName: string;
 
   @Column()
-  lastname: string;
+  lastName: string;
 
   @Column()
   email: string;
@@ -31,7 +31,7 @@ export class DogOwner {
   profilePictureUrl: string;
 
   @OneToMany(() => Dog, (dogs) => dogs.dogOwner)
-  dogs: Dog[];
+  dogs: Array<Dog>;
 
   @OneToMany(() => Reservation, (reservations) => reservations.dogOwner)
   reservations: Array<Reservation>;

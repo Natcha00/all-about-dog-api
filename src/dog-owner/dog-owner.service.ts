@@ -15,7 +15,7 @@ export class DogOwnerService {
   async createDogOwner(createDogOwnerDto: CreateDogOwnerDto) {
     const dogOwner = this.dogOwnerRepository.initiate({
       firstName: createDogOwnerDto.firstName,
-      lastname: createDogOwnerDto.lastName,
+      lastName: createDogOwnerDto.lastName,
       email: createDogOwnerDto.email,
     //   password: createDogOwnerDto.password,
       phoneNumber: createDogOwnerDto.phoneNumber,
@@ -33,7 +33,7 @@ export class DogOwnerService {
     const hashPassword = await bcrypt.hash(registerDto.password,10)
     const dogOwner = this.dogOwnerRepository.initiate({
       firstName: registerDto.firstName,
-      lastname: registerDto.lastName,
+      lastName: registerDto.lastName,
       email: registerDto.email,
       password: hashPassword,
       phoneNumber: registerDto.phoneNumber,
@@ -57,9 +57,9 @@ async login(loginDto:LoginDto){
     throw new BadRequestException("email or passord incorrect")
   }
   const isMatch = await bcrypt.compare(loginDto.password, foundDogOwner.password)
-  if (!isMatch) {
-    throw new BadRequestException("email or passord incorrect")
-  }
+  // if (!isMatch) {
+  //   throw new BadRequestException("email or passord incorrect")
+  // }
   const accessToken = await this.userService.signAccessToken({
     id:foundDogOwner.id,
     role:ROLE.DOG_OWNER

@@ -1,0 +1,43 @@
+[
+    { "nameTh": "ชิวาวา", "nameEng": "Chihuahua", "size": "small" },
+    { "nameTh": "มอลทีส", "nameEng": "Maltese", "size": "small" },
+    { "nameTh": "พุดเดิ้ลทอย", "nameEng": "Toy Poodle", "size": "small" },
+    { "nameTh": "ปักกิ่ง", "nameEng": "Pekingese", "size": "small" },
+    { "nameTh": "ชิสุห์", "nameEng": "Shih Tzu", "size": "small" },
+    { "nameTh": "ยอร์คเชียร์ เทอร์เรีย", "nameEng": "Yorkshire Terrier", "size": "small" },
+
+    { "nameTh": "สุนัขไทย (น้ำหนักน้อยกว่า 20 kg)", "nameEng": "Thai Dog (<20 kg)", "size": "large" },
+    { "nameTh": "เวสต์ คอร์กี้", "nameEng": "Welsh Corgi", "size": "large" },
+    { "nameTh": "บีเกิ้ล", "nameEng": "Beagle", "size": "large" },
+    { "nameTh": "ชิชุน", "nameEng": "Shichon", "size": "large" },
+    { "nameTh": "บั๊ก", "nameEng": "Pug", "size": "large" },
+    { "nameTh": "เกรย์ฮาวด์", "nameEng": "Greyhound", "size": "large" },
+
+    { "nameTh": "สุนัขไทย (น้ำหนักมากกว่า 20 kg)", "nameEng": "Thai Dog (>20 kg)", "size": "large" },
+    { "nameTh": "ชิบะ", "nameEng": "Shiba Inu", "size": "large" },
+    { "nameTh": "อิงลิชคอกเกอร์", "nameEng": "English Cocker Spaniel", "size": "large" },
+    { "nameTh": "บ็อกเซอร์", "nameEng": "Boxer", "size": "large" },
+    { "nameTh": "บลูเทอร์เรีย", "nameEng": "Bull Terrier", "size": "large" },
+
+    { "nameTh": "พิทบูลเทอร์เรีย", "nameEng": "Pit Bull Terrier", "size": "large" },
+    { "nameTh": "ร็อตไวเลอร์", "nameEng": "Rottweiler", "size": "large" },
+    { "nameTh": "ลาบราดอร์", "nameEng": "Labrador Retriever", "size": "large" },
+    { "nameTh": "โดเบอร์แมน", "nameEng": "Doberman", "size": "large" },
+
+    { "nameTh": "อากิตะอินุ", "nameEng": "Akita Inu", "size": "large" },
+    { "nameTh": "เยอรมันเชพเพิร์ด", "nameEng": "German Shepherd", "size": "large" },
+    { "nameTh": "โกลเด้นรีทรีฟเวอร์", "nameEng": "Golden Retriever", "size": "large" },
+    { "nameTh": "โบเอชเชนาเซอร์", "nameEng": "Boeschenaser", "size": "large" },
+
+    { "nameTh": "เชาว์เชาว์", "nameEng": "Chow Chow", "size": "large" },
+    { "nameTh": "ซามอยด์", "nameEng": "Samoyed", "size": "large" },
+    { "nameTh": "ไซบีเรียน ฮัสกี้", "nameEng": "Siberian Husky", "size": "large" },
+
+    { "nameTh": "ไซบีเรียน ฮัสกี้ (วูลลี่โค้ท)", "nameEng": "Siberian Husky (Wooly Coat)", "size": "large" },
+    { "nameTh": "เกรตเดน", "nameEng": "Great Dane", "size": "large" },
+    { "nameTh": "อังกฤษ มาสทีฟฟ์", "nameEng": "English Mastiff", "size": "large" },
+
+    { "nameTh": "อลาสกัน", "nameEng": "Alaskan", "size": "large" },
+    { "nameTh": "เซนต์เบอร์นาร์ด", "nameEng": "Saint Bernard", "size": "large" },
+    { "nameTh": "คอเคเชียน", "nameEng": "Caucasian Shepherd", "size": "large" }
+]
