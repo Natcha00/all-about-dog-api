@@ -23,5 +23,6 @@ import { CreateDogUsecase } from './use-cases/create-dog.use-case';
     GetDogByOwnerUsecase,
     CreateDogUsecase,
   ],
+  exports:[DogService]
 })
 export class DogModule {}

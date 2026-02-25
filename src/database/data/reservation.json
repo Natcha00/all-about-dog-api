@@ -1,0 +1,105 @@
+[
+  {
+    "code": "RSV-20260223-0001",
+    "status": "slip_verified",
+    "start": "2026-02-16 09:00",
+    "end": "2026-02-19 18:00",
+    "remark": "",
+    "offeringType": "boarding",
+    "dogOwnerId": 2,
+    "reservationLines": [
+      {
+        "price": 1000,
+        "quantity": 1,
+        "offeringId": 1,
+        "dogId": 1,
+        "groupNumber":1
+      },
+      {
+        "price": 1000,
+        "quantity": 1,
+        "offeringId": 2,
+        "dogId": 2,
+        "groupNumber":2
+      },
+      {
+        "price": 1000,
+        "quantity": 1,
+        "offeringId": 2,
+        "dogId": 3,
+        "groupNumber":2
+      },
+      {
+        "price": 1000,
+        "quantity": 1,
+        "offeringId": 2,
+        "dogId": 4,
+        "groupNumber":3
+      }
+    ]
+  },
+  {
+    "code": "RSV-20260223-0002",
+    "status": "slip_verified",
+    "start": "2026-02-16 09:00",
+    "end": "2026-02-18 18:00",
+    "remark": "",
+    "offeringType": "boarding",
+    "dogOwnerId": 3,
+    "reservationLines": [
+      {
+        "price": 1000,
+        "quantity": 1,
+        "offeringId": 1,
+        "dogId": 1,
+        "groupNumber":1
+      },
+      {
+        "price": 1000,
+        "quantity": 1,
+        "offeringId": 2,
+        "dogId": 2,
+        "groupNumber":2
+      }
+    ]
+  },
+  {
+    "code": "RSV-20260223-0003",
+    "status": "slip_verified",
+    "start": "2026-02-15 09:00",
+    "end": "2026-02-19 18:00",
+    "remark": "",
+    "offeringType": "boarding",
+    "dogOwnerId": 4,
+    "reservationLines": [
+      {
+        "price": 1000,
+        "quantity": 1,
+        "offeringId": 1,
+        "dogId": 1,
+        "groupNumber":1
+      },
+      {
+        "price": 1000,
+        "quantity": 1,
+        "offeringId": 2,
+        "dogId": 2,
+        "groupNumber":2
+      },
+      {
+        "price": 1000,
+        "quantity": 1,
+        "offeringId": 1,
+        "dogId": 1,
+        "groupNumber":3
+      },
+      {
+        "price": 1000,
+        "quantity": 1,
+        "offeringId": 1,
+        "dogId": 1,
+        "groupNumber":4
+      }
+    ]
+  }
+]

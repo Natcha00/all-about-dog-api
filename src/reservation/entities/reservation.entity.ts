@@ -1,7 +1,14 @@
 import { ReservationStatusEnum } from 'src/reservation/enums/reservation-status.enum';
 import { DogOwner } from 'src/dog-owner/entities/dog-owner.entity';
 import { ReservationLine } from 'src/reservation/entities/reservation-line.entity';
-import { Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { CheckinHistory } from './checkin-history.entity';
 import { Offering } from 'src/offering/entities/offering.entity';
 import { PaymentSlip } from './payment-slip.entity';
@@ -28,16 +35,23 @@ export class Reservation {
   remark: string;
 
   @Column()
-  offeringType:OfferingType
+  offeringType: OfferingType;
 
-  @OneToMany(()=>ReservationLine,(reservationLines)=>reservationLines.reservation)
+  @OneToMany(
+    () => ReservationLine,
+    (reservationLines) => reservationLines.reservation,
+    { cascade: true },
+  )
   reservationLines: Array<ReservationLine>;
 
-  @OneToMany(()=>CheckinHistory,(checkinHistory)=>checkinHistory.reservation)
-  checkinHistories:Array<CheckinHistory>
+  @OneToMany(
+    () => CheckinHistory,
+    (checkinHistory) => checkinHistory.reservation,
+  )
+  checkinHistories: Array<CheckinHistory>;
 
-  @OneToOne(()=>PaymentSlip)
-  paymentSlip:PaymentSlip
+  @OneToOne(() => PaymentSlip)
+  paymentSlip: PaymentSlip;
 
   @ManyToOne(() => DogOwner, (dogOwner) => dogOwner.reservations)
   dogOwner: DogOwner;

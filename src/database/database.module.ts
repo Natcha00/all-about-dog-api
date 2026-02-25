@@ -34,7 +34,7 @@ import { Reservation } from "src/reservation/entities/reservation.entity";
               OfferSizePricing,
               OfferVipPricing,
             ],
-            synchronize: false, // สร้างตารางอัตโนมัติ (ใช้เฉพาะตอน dev)
+            synchronize: true, // สร้างตารางอัตโนมัติ (ใช้เฉพาะตอน dev)
             logging: false,
           }),
     ]

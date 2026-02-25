@@ -28,8 +28,8 @@ export class Offering {
     @OneToOne(()=>ReservationLine,(reservationLine)=>reservationLine.offering)
     reservationLine: ReservationLine
 
-    @OneToMany(()=>OfferSizePricing,(offerSizePricing)=>offerSizePricing.offering)
-    offerSizePricing : Array<OfferSizePricing>
+    @OneToOne(()=>OfferSizePricing,(offerSizePricing)=>offerSizePricing.offering)
+    offerSizePricing : OfferSizePricing
 
     @OneToMany(()=>OfferBreedPricing,(offerBreedPricing)=>offerBreedPricing.offering)
     offerBreedPricing : Array<OfferBreedPricing>

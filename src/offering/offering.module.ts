@@ -8,6 +8,10 @@ import { OfferBreedPricing } from './entities/offer-breed-pricing.entity';
 import { OfferVipPricing } from './entities/offer-vip-pricing.entity';
 import { OfferSizePricing } from './entities/offer-size-pricing.entity';
 import { Offering } from './entities/offering.entity';
+import { GetOfferAvailableUsecase } from './use-cases/get-available.use-case';
+import { GetOfferPackagePricingUsecase } from './use-cases/get-offer-package-pricing.use-case';
+import { DogModule } from 'src/dog/dog.module';
+import { ReservationModule } from 'src/reservation/reservation.module';
 
 @Module({
   imports:[
@@ -16,9 +20,17 @@ import { Offering } from './entities/offering.entity';
       OfferVipPricing,
       OfferSizePricing,
       Offering
-    ])
+    ]),
+    DogModule,
+    ReservationModule
   ],
   controllers: [OfferingController],
-  providers: [OfferingService,OfferingRepository,GetAnnouncementUsecase],
+  providers: [
+    OfferingService,
+    OfferingRepository,
+    GetAnnouncementUsecase,
+    GetOfferAvailableUsecase,
+    GetOfferPackagePricingUsecase,
+  ],
 })
 export class OfferingModule {}

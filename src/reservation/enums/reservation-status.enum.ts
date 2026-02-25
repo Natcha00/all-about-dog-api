@@ -1,9 +1,9 @@
 export enum ReservationStatusEnum {
-  PENDING = 'PENDING',
-  WAITING_SLIP = 'WAITING_SLIP',
-  SLIP_UPLOADED = 'SLIP_UPLOADED',
-  SLIP_VERIFIED = 'SLIP_VERIFIED',
-  CHECK_IN = 'CHECK_IN',
-  FINISHED = 'FINISHED',
-  CANCELLED = 'CANCELLED',
+  PENDING = 'pending',
+  WAITING_SLIP = 'waiting_slip',
+  SLIP_UPLOADED = 'slip_uploaded',
+  SLIP_VERIFIED = 'slip_verified',
+  CHECK_IN = 'check_in',
+  FINISHED = 'finished',
+  CANCELLED = 'cancelled',
 }

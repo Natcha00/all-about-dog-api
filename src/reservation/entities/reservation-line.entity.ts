@@ -24,6 +24,9 @@ export class ReservationLine {
   @Column()
   quantity: number;
 
+  @Column()
+  groupNumber:number;
+
   @OneToOne(()=>Offering,(offering)=>offering.reservationLine)
   @JoinColumn()
   offering:Offering

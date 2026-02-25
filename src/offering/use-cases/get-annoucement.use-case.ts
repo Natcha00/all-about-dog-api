@@ -13,7 +13,7 @@ export class GetAnnouncementUsecase {
 
   async execute(): Promise<GetAnnouncementResponse> {
     const swimmingPricing = await this.offeringRepository.getBreedPricing();
-    const minPrice = await this.swimmingPricingMinPrice(swimmingPricing);
+    const minPrice =  this.swimmingPricingMinPrice(swimmingPricing);
     const groupSwimmingPricing =
       this.swimmingPricingGroupByPrice(swimmingPricing);
     const swimmingContents = this.getSwimmingContents(groupSwimmingPricing);

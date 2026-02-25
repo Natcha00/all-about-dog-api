@@ -1,4 +1,23 @@
-export class LoginDto{
-    email:string
-    password:string
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
+
+export class LoginRequest {
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  password: string;
+}
+
+export class LoginResponse {
+  accessToken: string;
+  refreshToken: string;
 }

@@ -1,0 +1,157 @@
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { DogService } from 'src/dog/services/dog.service';
+import {
+  GetOfferAvailableRequest,
+  GetOfferAvailableResponse,
+} from '../dtos/get-offer-available.dto';
+import { BoardingSummary } from 'src/reservation/types/boarding-summary';
+import { BoardingCounter } from '../types/boarding-counter.type';
+import { OfferingType } from '../enums/offering-type.enum';
+import { OfferingRepository } from '../offering.repository';
+import { OfferingService } from '../offering.service';
+import { ReservationService } from 'src/reservation/reservation.service';
+
+@Injectable()
+export class GetOfferAvailableUsecase {
+  constructor(
+    private readonly dogService: DogService,
+    private readonly offeringRepository: OfferingRepository,
+    private readonly offeringService: OfferingService,
+    private readonly reservationService: ReservationService,
+  ) {}
+
+  /** สร้าง BoardingSummary เฉพาะคืนที่อยู่ระหว่าง start–end (ไม่รวมวัน checkout)
+   *  เช่น start=2026-02-25T09:00, end=2026-02-27T18:00 → แสดง 2026-02-25, 2026-02-26
+   */
+  private getBoardingSummariesInRange(
+    startStr: string,
+    endStr: string,
+    summaryByDate: Map<string, BoardingCounter>,
+  ): BoardingSummary[] {
+    const empty: BoardingCounter = { LARGE: 0, SMALL: 0, VIP: 0 };
+    const result: BoardingSummary[] = [];
+    const start = new Date(startStr);
+    const end = new Date(endStr);
+    const current = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, 0, 0);
+    const endDateOnly = new Date(end.getFullYear(), end.getMonth(), end.getDate(), 0, 0, 0, 0);
+
+    while (current.getTime() < endDateOnly.getTime()) {
+      const dateKey = this.toLocalDateString(current);
+      result.push({
+        date: dateKey,
+        boardingCounter: summaryByDate.get(dateKey) ?? { ...empty },
+      });
+      current.setDate(current.getDate() + 1);
+    }
+    return result;
+  }
+
+  /** รูป YYYY-MM-DD ตาม timezone ปัจจุบัน (Bangkok) */
+  private toLocalDateString(d: Date): string {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  async execute(
+    getOfferAvailableRequest: GetOfferAvailableRequest,
+    dogOwnerId: number,
+  ) {
+    //query dogs
+    const dogs = await this.dogService.getDogByIds(
+      getOfferAvailableRequest.dogIds,
+      dogOwnerId,
+    );
+
+    /* 
+        Match dogs with available offerings.
+        Offerings are divided into:
+        - Swimming offering
+        - Boarding offering
+
+        For boarding offering:
+        - Dogs are categorized as small or large.
+        - Customers can choose either:
+            • Standard accommodation (one dog per room), or
+            • Shared accommodation (two dogs per room at a discounted price).
+    */
+
+    if (getOfferAvailableRequest.offeringType == OfferingType.BOARDING) {
+      // assign dogs to offerings
+      const offerings = await this.offeringRepository.getBoardingOffering();
+      const assignDogs = this.offeringService.assignDogs(
+        dogs,
+        offerings,
+        getOfferAvailableRequest.package,
+      );
+      const need = this.offeringService.boardingSummary(assignDogs);
+
+      // count nights
+      const nights = this.offeringService.countByRange(
+        {
+          start: getOfferAvailableRequest.start,
+          end: getOfferAvailableRequest.end,
+        },
+        OfferingType.BOARDING,
+      );
+
+      // get reservations by period
+      const reservations = await this.reservationService.getReservationByPeriod(
+        new Date(getOfferAvailableRequest.start),
+        new Date(getOfferAvailableRequest.end),
+      );
+
+      // summarize boarding by date
+      const allSummaries =
+        this.reservationService.summarizeBoardingByDate(reservations);
+
+      // แสดงเฉพาะช่วงวันที่ user เลือก (start <= date < end)
+      const startStr = getOfferAvailableRequest.start.slice(0, 10);
+      const endStr = getOfferAvailableRequest.end.slice(0, 10);
+      const summaryByDate = new Map<string, BoardingCounter>(
+        allSummaries.map((s) => [s.date, s.boardingCounter]),
+      );
+      const boardingSummariesInRange = this.getBoardingSummariesInRange(
+        startStr,
+        endStr,
+        summaryByDate,
+      );
+
+      const fails = this.offeringService.checkBoardingAvailability(
+        assignDogs,
+        boardingSummariesInRange,
+      );
+      const available = fails.every((f) => f.status === 'sufficient');
+
+      const result: GetOfferAvailableResponse = {
+        available,
+        message: this.getBoardingAvailabilityMessage(available).message,
+        hint: this.getBoardingAvailabilityMessage(available).hint,
+        range: {
+          start: getOfferAvailableRequest.start,
+          end: getOfferAvailableRequest.end,
+        },
+        nights,
+        roomPerNight: need,
+        package: getOfferAvailableRequest.package,
+        need,
+        fails:available ? [] : fails,
+      };
+      return result;
+    } else if (getOfferAvailableRequest.offeringType == OfferingType.SWIMMING) {
+    } else {
+      throw new BadRequestException('offer type is invalid');
+    }
+
+    return dogs as any;
+  }
+
+  private getBoardingAvailabilityMessage(isAvailable: boolean): {message: string, hint: string  } {
+    if (isAvailable) {
+      return {message: 'ห้องว่างตลอดช่วงที่เลือก ✅', hint: ''};
+    } else {
+      return {message: 'ห้องไม่ว่างครบทุกคืน ❌', hint: 'กรุณาเลือกวันใหม่ (มีอย่างน้อย 1 คืนที่ห้องไม่พอ)'};
+    }
+  }
+}

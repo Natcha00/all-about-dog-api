@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Offering } from "./offering.entity";
 import { Size } from "src/dog/enums/size.enum";
 
@@ -16,7 +16,8 @@ export class OfferSizePricing {
     @Column()
     size:Size
 
-    @ManyToOne(()=>Offering,(offering)=>offering.offerSizePricing)
+    @OneToOne(()=>Offering,(offering)=>offering.offerSizePricing)
+    @JoinColumn()
     offering:Offering
 
 }

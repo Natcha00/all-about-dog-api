@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { DogOwnerService } from './dog-owner.service';
 import { CreateDogOwnerDto } from './dtos/create-dog-owner.dto';
 import { RegisterDto } from './dtos/register.dto';
-import { LoginDto } from './dtos/login.dto';
+import { LoginRequest } from './dtos/login.dto';
 import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
 import { DogOwnerDecorator } from 'src/user/decorators/dog-owner.decorator';
 
@@ -28,8 +28,8 @@ export class DogOwnerController {
   }
   
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
-    return await this.dogOwnerService.login(loginDto);
+  async login(@Body() loginRequest: LoginRequest) {
+    return await this.dogOwnerService.login(loginRequest);
   }
 
   @Get('profile')
