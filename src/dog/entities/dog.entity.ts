@@ -40,8 +40,8 @@ export class Dog {
   @Column()
   birthdate: Date;
 
-  @Column()
-  dogPictureUrl: string;
+  @Column({ type: 'text', nullable: true })
+  dogPictureUrl: string | null;
 
   @ManyToOne(() => DogOwner, (dogOwner) => dogOwner.dogs)
   dogOwner: DogOwner;
