@@ -25,8 +25,8 @@ export class Offering {
     @Column()
     isVip:boolean
 
-    @OneToOne(()=>ReservationLine,(reservationLine)=>reservationLine.offering)
-    reservationLine: ReservationLine
+    @OneToMany(() => ReservationLine, (reservationLine) => reservationLine.offering)
+    reservationLines: ReservationLine[]
 
     @OneToOne(()=>OfferSizePricing,(offerSizePricing)=>offerSizePricing.offering)
     offerSizePricing : OfferSizePricing
