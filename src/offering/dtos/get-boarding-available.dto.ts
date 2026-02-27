@@ -13,7 +13,7 @@ import { OfferingType } from '../enums/offering-type.enum';
 import { OfferingPackage } from '../enums/offering-package.enum';
 import { BoardingCounter } from '../types/boarding-counter.type';
 
-export class GetOfferAvailableRequest {
+export class GetBoardingAvailableRequest {
   @Transform(({ value }) =>
     typeof value === 'string'
       ? value.split(',').map((v: string) => Number(v.trim()))
@@ -37,7 +37,7 @@ export class GetOfferAvailableRequest {
   package: OfferingPackage;
 }
 
-export class GetOfferAvailableResponse {
+export class GetBoardingAvailableResponse {
   available: boolean;
   message: string;
   hint: string;

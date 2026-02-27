@@ -1,15 +1,15 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { GetAnnouncementUsecase } from './use-cases/get-annoucement.use-case';
 import {
-  GetOfferAvailableRequest,
-  GetOfferAvailableResponse,
-} from './dtos/get-offer-available.dto';
-import { GetOfferAvailableUsecase } from './use-cases/get-available.use-case';
+  GetBoardingAvailableRequest,
+  GetBoardingAvailableResponse,
+} from './dtos/get-boarding-available.dto';
+import { GetBoardingAvailableUsecase } from './use-cases/get-boarding-available.use-case';
 import {
-  GetOfferPackagePricingRequest,
-  GetOfferPackagePricingResponse,
-} from './dtos/get-offer-package-pricing.dto';
-import { GetOfferPackagePricingUsecase } from './use-cases/get-offer-package-pricing.use-case';
+  GetBoardingPackagePricingRequest,
+  GetBoardingPackagePricingResponse,
+} from './dtos/get-boarding-package-pricing.dto';
+import { GetBoardingPackagePricingUsecase } from './use-cases/get-boarding-package-pricing.use-case';
 import { DogOwnerDecorator } from 'src/user/decorators/dog-owner.decorator';
 import { type IUser } from 'src/user/interfaces/user.interface';
 import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
@@ -18,8 +18,8 @@ import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
 export class OfferingController {
   constructor(
     private readonly getAnnouncementUsecase: GetAnnouncementUsecase,
-    private readonly getOfferAvailableUsecase: GetOfferAvailableUsecase,
-    private readonly getOfferPackagePricingUsecase: GetOfferPackagePricingUsecase,
+    private readonly getBoardingAvailableUsecase: GetBoardingAvailableUsecase,
+    private readonly getBoardingPackagePricingUsecase: GetBoardingPackagePricingUsecase,
   ) {}
 
   @Get('/announcement')
@@ -27,21 +27,21 @@ export class OfferingController {
     return this.getAnnouncementUsecase.execute();
   }
 
-  @Get('/available')
+  @Get('/boarding/available')
   @UseGuards(AccessTokenGuard)
   async getAvailable(
-    @Query() query: GetOfferAvailableRequest,
+    @Query() query: GetBoardingAvailableRequest,
     @DogOwnerDecorator() dogOwner: IUser,
-  ): Promise<GetOfferAvailableResponse> {
-    return await this.getOfferAvailableUsecase.execute(query, dogOwner.id);
+  ): Promise<GetBoardingAvailableResponse> {
+    return await this.getBoardingAvailableUsecase.execute(query, dogOwner.id);
   }
 
-  @Get('/package-pricing')
+  @Get('/boarding/package-pricing')
   @UseGuards(AccessTokenGuard)
   async getPackagePricing(
-    @Query() query: GetOfferPackagePricingRequest,
+    @Query() query: GetBoardingPackagePricingRequest,
     @DogOwnerDecorator() dogOwner: IUser,
-  ): Promise<GetOfferPackagePricingResponse> {
-    return await this.getOfferPackagePricingUsecase.execute(query, dogOwner.id);
+  ): Promise<GetBoardingPackagePricingResponse> {
+    return await this.getBoardingPackagePricingUsecase.execute(query, dogOwner.id);
   }
 }
