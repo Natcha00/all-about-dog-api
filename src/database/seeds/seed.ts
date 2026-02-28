@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+import * as dotenv from 'dotenv';
+dotenv.config();
 import '../../set-timezone';
 import { Breed } from 'src/dog/entities/breed.entity';
 import { DataSource, In, MoreThan } from 'typeorm';
@@ -28,8 +30,13 @@ import { ReservationStatusEnum } from 'src/reservation/enums/reservation-status.
 import { faker } from '@faker-js/faker';
 
 const AppDataSource = new DataSource({
-  type: 'sqlite',
-  database: 'database.sqlite', // ชื่อไฟล์ SQLite
+  type: 'mysql',
+  host: process.env.DB_HOST ?? 'localhost',
+  port: parseInt(process.env.DB_PORT ?? '3306', 10),
+  username: process.env.DB_USERNAME ?? 'app',
+  password: process.env.DB_PASSWORD ?? 'app',
+  database: process.env.DB_DATABASE ?? 'all_about_dog',
+  timezone: 'Asia/Bangkok',
   synchronize: true, // ❗ production ใช้ migration แทน
   entities: [
     Dog,
@@ -54,7 +61,7 @@ async function seedBreeds() {
   const repo = AppDataSource.getRepository(Breed);
   const breeds = repo.create(breedData as Breed[]); //breedData.map((b) => repo.create(b));
   await repo.save(breeds);
-  console.log('🌱 SQLite breed seeding completed!');
+  console.log('🌱 MySQL breed seeding completed!');
   await AppDataSource.destroy();
 }
 
@@ -64,7 +71,7 @@ async function seedDogOwner() {
   const repo = AppDataSource.getRepository(DogOwner);
   const dogOwners = repo.create(dogOwnerData);
   await repo.save(dogOwners);
-  console.log('🌱 SQLite dog owner seeding completed!');
+  console.log('🌱 MySQL dog owner seeding completed!');
   await AppDataSource.destroy();
 }
 
@@ -86,7 +93,7 @@ async function seedDog() {
   }));
   const dogs = repo.create(transform);
   await repo.save(dogs);
-  console.log('🌱 SQLite dogs seeding completed!');
+  console.log('🌱 MySQL dogs seeding completed!');
   await AppDataSource.destroy();
 }
 
@@ -130,7 +137,7 @@ async function seedOffering() {
   await offerVipPricingRepo.save(offerVipPricingTransform);
   await offerSizePricingRepo.save(offerSizePricingTransform);
 
-  console.log('🌱 SQLite offering seeding completed!');
+  console.log('🌱 MySQL offering seeding completed!');
   await AppDataSource.destroy();
 }
 
@@ -281,7 +288,7 @@ async function seedReservation() {
   }
 
   await reservationRepo.save(reservationsToSave);
-  console.log('🌱 SQLite reservation seeding completed!');
+  console.log('🌱 MySQL reservation seeding completed!');
   await AppDataSource.destroy();
 }
 
@@ -315,7 +322,7 @@ async function run() {
       await seedDogOwner();
       await seedDog();
       await seedOffering();
-      console.log('🌱 SQLite seeding with no case!');
+      console.log('🌱 MySQL seeding with no case!');
       break;
   }
 
