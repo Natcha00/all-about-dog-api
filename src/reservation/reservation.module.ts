@@ -6,6 +6,7 @@ import { ReservationRepository } from './reservation.repository';
 import { Reservation } from './entities/reservation.entity';
 import { ReservationLine } from './entities/reservation-line.entity';
 import { UserModule } from 'src/user/user.module';
+import { ConfirmReservationUsecase } from './use-cases/confirm-reservation.use-case';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { UserModule } from 'src/user/user.module';
     UserModule,
   ],
   controllers: [ReservationController],
-  providers: [ReservationService, ReservationRepository],
+  providers: [ReservationService, ReservationRepository, ConfirmReservationUsecase],
   exports: [ReservationService],
 })
 export class ReservationModule {}

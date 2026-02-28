@@ -5,10 +5,14 @@ import { ConfirmReservationRequest } from './dtos/confirm-reservation.dto';
 import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
 import { DogOwnerDecorator } from 'src/user/decorators/dog-owner.decorator';
 import { type IUser } from 'src/user/interfaces/user.interface';
+import { ConfirmReservationUsecase } from './use-cases/confirm-reservation.use-case';
 
 @Controller('reservation')
 export class ReservationController {
-  constructor(private readonly reservationService: ReservationService) {}
+  constructor(
+    private readonly reservationService: ReservationService,
+    private readonly confirmReservationUsecase: ConfirmReservationUsecase,
+  ) {}
 
   @Post()
   createReservation(@Body() reservationBody: Reservation) {
@@ -21,6 +25,6 @@ export class ReservationController {
     @Body() body: ConfirmReservationRequest,
     @DogOwnerDecorator() user: IUser,
   ): Promise<Reservation> {
-    return this.reservationService.confirmReservation(body, user.id);
+    return this.confirmReservationUsecase.execute(body, user.id);
   }
 }

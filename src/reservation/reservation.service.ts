@@ -6,7 +6,6 @@ import { BoardingSummary } from './types/boarding-summary';
 import { BoardingCounter } from 'src/offering/types/boarding-counter.type';
 import { ReservationStatusEnum } from './enums/reservation-status.enum';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
-import { ConfirmReservationRequest } from './dtos/confirm-reservation.dto';
 import { SwimmingCounter } from 'src/offering/types/swimming-counter.type';
 import { SwimmingSummary } from './types/swimming-summary';
 import { Dog } from 'src/dog/entities/dog.entity';
@@ -246,49 +245,6 @@ export class ReservationService {
     });
   }
 
-  async confirmReservation(
-    body: ConfirmReservationRequest,
-    dogOwnerId: number,
-  ): Promise<Reservation> {
-    const code = await this.generateReservationCode(body.period.start);
-    const startDateTime = new Date(body.period.start);
-    const endDateTime = new Date(body.period.end);
-
-    const reservationLines = body.lines.map((line) => ({
-      price: line.price,
-      quantity: body.nights,
-      groupNumber: line.groupNumber,
-      offering: { id: line.offeringId } as ReservationLine['offering'],
-      dog: { id: line.dogId } as ReservationLine['dog'],
-    }));
-
-    const reservation = {
-      code,
-      status: ReservationStatusEnum.PENDING,
-      startDateTime,
-      endDateTime,
-      remark: body.remark ?? '',
-      offeringType: body.offerType,
-      dogOwner: { id: dogOwnerId },
-      reservationLines,
-    } as Reservation;
-
-    return this.reservationRepository.saveReservation(reservation);
-  }
-
-  /**
-   * สร้าง code รูป RSV-YYYYMMDD-NNNN โดย NNNN เป็น run number ต่อเรื่อยๆ ตามวันที่ (รีเซ็ตทุกวัน)
-   */
-  private async generateReservationCode(dateStr: string): Promise<string> {
-    const datePart = dateStr.slice(0, 10).replace(/-/g, '');
-    const run = await this.reservationRepository.getLatestRunNumberForDate(
-      dateStr,
-    );
-    const nextRun = run + 1;
-    const runStr = String(nextRun).padStart(4, '0');
-    return `RSV-${datePart}-${runStr}`;
-  }
-
   async getReservationByPeriod(
     start: Date,
     end: Date,
@@ -297,6 +253,18 @@ export class ReservationService {
     return this.reservationRepository.findByPeriod(start, end, offeringType);
   }
 
+  /**
+   * สร้าง code รูป RSV-YYYYMMDD-NNNN โดย NNNN เป็น run number ต่อเรื่อยๆ ตามวันที่ (รีเซ็ตทุกวัน)
+   */
+  async generateReservationCode(dateStr: string): Promise<string> {
+    const datePart = dateStr.slice(0, 10).replace(/-/g, '');
+    const run = await this.reservationRepository.getLatestRunNumberForDate(
+      dateStr,
+    );
+    const nextRun = run + 1;
+    const runStr = String(nextRun).padStart(4, '0');
+    return `RSV-${datePart}-${runStr}`;
+  }
 
   summarizeBoardingByDate(
     reservations: Array<Reservation>,

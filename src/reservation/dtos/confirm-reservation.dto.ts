@@ -47,9 +47,10 @@ export class ConfirmReservationRequest {
   @Type(() => ConfirmReservationPeriodDto)
   period: ConfirmReservationPeriodDto;
 
+  @IsOptional()
   @IsInt()
   @Min(1)
-  nights: number;
+  nights?: number;
 
   @IsOptional()
   @IsString()
