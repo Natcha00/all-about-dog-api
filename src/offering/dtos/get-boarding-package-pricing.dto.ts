@@ -3,7 +3,7 @@ import { IsArray, IsDateString, IsEnum, IsInt, Min } from 'class-validator';
 import { OfferingPackage } from '../enums/offering-package.enum';
 import { OfferingType } from '../enums/offering-type.enum';
 
-export class GetOfferPackagePricingRequest {
+export class GetBoardingPackagePricingRequest {
   @Transform(({ value }) =>
     typeof value === 'string'
       ? value.split(',').map((v: string) => Number(v.trim()))
@@ -73,7 +73,7 @@ export class ReservationLineDto {
   groupNumber: number;
 }
 
-export class GetOfferPackagePricingResponse {
+export class GetBoardingPackagePricingResponse {
   offerType: string;
   period: PeriodDto;
   package: string;

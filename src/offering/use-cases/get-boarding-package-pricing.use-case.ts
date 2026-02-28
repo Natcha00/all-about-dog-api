@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import {
-  GetOfferPackagePricingRequest,
-  GetOfferPackagePricingResponse,
+  GetBoardingPackagePricingRequest,
+  GetBoardingPackagePricingResponse,
   GroupDto,
   GroupDogDto,
   ReservationLineDto,
-} from '../dtos/get-offer-package-pricing.dto';
+} from '../dtos/get-boarding-package-pricing.dto';
 import { AssignDogs } from '../types/assign-dog.type';
 import { Offering } from '../entities/offering.entity';
 import { OfferingService } from '../offering.service';
@@ -13,7 +13,7 @@ import { DogService } from 'src/dog/services/dog.service';
 import { OfferingRepository } from '../offering.repository';
 
 @Injectable()
-export class GetOfferPackagePricingUsecase {
+export class GetBoardingPackagePricingUsecase {
   constructor(
     private readonly offeringService: OfferingService,
     private readonly dogService: DogService,
@@ -21,9 +21,9 @@ export class GetOfferPackagePricingUsecase {
   ) {}
 
   async execute(
-    request: GetOfferPackagePricingRequest,
+    request: GetBoardingPackagePricingRequest,
     dogOwnerId: number,
-  ): Promise<GetOfferPackagePricingResponse> {
+  ): Promise<GetBoardingPackagePricingResponse> {
     // count nights
     const nights = this.offeringService.countByRange(
       { start: request.start, end: request.end },

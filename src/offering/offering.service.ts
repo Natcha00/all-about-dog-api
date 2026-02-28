@@ -6,7 +6,7 @@ import { AssignDogs } from './types/assign-dog.type';
 import { OfferingType } from './enums/offering-type.enum';
 import { BoardingCounter } from './types/boarding-counter.type';
 import { BoardingSummary } from 'src/reservation/types/boarding-summary';
-import { FailDetail } from './dtos/get-offer-available.dto';
+import { FailDetail } from './dtos/get-boarding-available.dto';
 
 @Injectable()
 export class OfferingService {

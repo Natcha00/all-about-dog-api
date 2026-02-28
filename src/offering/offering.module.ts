@@ -8,8 +8,8 @@ import { OfferBreedPricing } from './entities/offer-breed-pricing.entity';
 import { OfferVipPricing } from './entities/offer-vip-pricing.entity';
 import { OfferSizePricing } from './entities/offer-size-pricing.entity';
 import { Offering } from './entities/offering.entity';
-import { GetOfferAvailableUsecase } from './use-cases/get-available.use-case';
-import { GetOfferPackagePricingUsecase } from './use-cases/get-offer-package-pricing.use-case';
+import { GetBoardingAvailableUsecase } from './use-cases/get-boarding-available.use-case';
+import { GetBoardingPackagePricingUsecase } from './use-cases/get-boarding-package-pricing.use-case';
 import { DogModule } from 'src/dog/dog.module';
 import { ReservationModule } from 'src/reservation/reservation.module';
 
@@ -29,8 +29,8 @@ import { ReservationModule } from 'src/reservation/reservation.module';
     OfferingService,
     OfferingRepository,
     GetAnnouncementUsecase,
-    GetOfferAvailableUsecase,
-    GetOfferPackagePricingUsecase,
+    GetBoardingAvailableUsecase,
+    GetBoardingPackagePricingUsecase,
   ],
 })
 export class OfferingModule {}

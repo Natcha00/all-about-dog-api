@@ -8,7 +8,6 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -25,15 +24,15 @@ export class ReservationLine {
   quantity: number;
 
   @Column()
-  groupNumber:number;
+  groupNumber: number;
 
-  @OneToOne(()=>Offering,(offering)=>offering.reservationLine)
+  @ManyToOne(() => Offering, (offering) => offering.reservationLines)
   @JoinColumn()
-  offering:Offering
+  offering: Offering;
 
-  @OneToOne(()=>Dog)
+  @ManyToOne(() => Dog)
   @JoinColumn()
-  dog:Dog
+  dog: Dog;
 
   @ManyToOne(() => Reservation, (reservation) => reservation.reservationLines)
   reservation: Reservation;
