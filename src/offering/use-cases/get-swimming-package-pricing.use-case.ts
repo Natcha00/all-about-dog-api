@@ -71,6 +71,7 @@ export class GetSwimmingPackagePricingUsecase {
       const counter = summaryByHour.get(slot.time) ?? { LARGE: 0, SMALL: 0 };
       return {
         ...slot,
+        isFull: counter.LARGE + counter.SMALL >= slot.remaining,
         sizeBooked: { large: counter.LARGE, small: counter.SMALL },
       };
     });   
@@ -125,6 +126,8 @@ export class GetSwimmingPackagePricingUsecase {
         reservationLines: [
           { id: 1, offering: { id: 3 }, dog: { id: 1, breed: { size: 'large' } } },
           { id: 2, offering: { id: 3 }, dog: { id: 2, breed: { size: 'small' } } },
+          { id: 3, offering: { id: 3 }, dog: { id: 3, breed: { size: 'small' } } },
+          { id: 4, offering: { id: 3 }, dog: { id: 4, breed: { size: 'small' } } },
         ],
         offeringType: OfferingType.SWIMMING,
         status: ReservationStatusEnum.SLIP_VERIFIED,
