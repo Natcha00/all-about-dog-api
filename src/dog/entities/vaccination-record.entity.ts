@@ -13,7 +13,14 @@ export class VaccinationRecord {
   clinicName: string;
 
   @Column()
-  note: string;
+  dose: number;
+
+  @Column()
+  evidenceImageUrl: string;
+
+  @Column()
+  vaccineDate: Date;
+
 
   @ManyToOne(() => Dog, (dog) => dog.vaccinationRecords)
   dog: Dog;
@@ -27,3 +34,4 @@ export class VaccinationRecord {
   @DeleteDateColumn()
   deletedAt: Date;
 }
+ 

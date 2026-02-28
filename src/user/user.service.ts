@@ -13,7 +13,7 @@ export class UserService {
 
     async signAccessToken(tokenPayload: IUser): Promise<string> {
        return this.jwtService.sign(tokenPayload, { 
-            expiresIn: '15m',
+            expiresIn: '30d',
             secret : this.configService.getOrThrow('ACCESS_TOKEN_PRIVATE_KEY'),
             algorithm: 'RS256',
         });
@@ -21,7 +21,7 @@ export class UserService {
 
     async signRefreshToken(tokenPayload: IUser): Promise<string> {
         return this.jwtService.sign(tokenPayload, { 
-            expiresIn: '7d',
+            expiresIn: '30d',
             secret : this.configService.getOrThrow('REFRESH_TOKEN_PRIVATE_KEY'),
             algorithm: 'RS256',
         });

@@ -25,7 +25,10 @@ export class CreateDogUsecase {
       throw new BadRequestException('Breed invalid');
     }
 
+    const code = await this.dogRepository.getNextDogCode();
+
     const dog = this.dogRepository.create({
+      code,
       name: createDogDto.name,
       gender: createDogDto.gender,
       breed: breed,

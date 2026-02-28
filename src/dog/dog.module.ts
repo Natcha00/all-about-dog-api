@@ -10,6 +10,8 @@ import { VaccinationRecord } from './entities/vaccination-record.entity';
 import { DogOwnerModule } from 'src/dog-owner/dog-owner.module';
 import { GetDogByOwnerUsecase } from './use-cases/get-dog-by-owner.use-case';
 import { CreateDogUsecase } from './use-cases/create-dog.use-case';
+import { GetDogProfileUsecase } from './use-cases/get-dog-profile.use-case';
+import { CreateVaccinationRecordUsecase } from './use-cases/create-vaccination-record.use-case';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { CreateDogUsecase } from './use-cases/create-dog.use-case';
     DogRepository,
     GetDogByOwnerUsecase,
     CreateDogUsecase,
+    GetDogProfileUsecase,
+    CreateVaccinationRecordUsecase,
   ],
   exports:[DogService]
 })
