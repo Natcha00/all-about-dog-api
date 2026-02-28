@@ -7,11 +7,15 @@ import { OfferingType } from './enums/offering-type.enum';
 import { BoardingCounter } from './types/boarding-counter.type';
 import { BoardingSummary } from 'src/reservation/types/boarding-summary';
 import { FailDetail } from './dtos/get-boarding-available.dto';
+import { Slot } from './types/slot.type';
+import { SwimmingSummary } from 'src/reservation/types/swimming-summary';
 
 @Injectable()
 export class OfferingService {
   private readonly MAXIMUM_SHARED = 2; //จำนวนอยู่ด้วยกันสูงสุด
   private readonly MAXIMUM_VIP_SHARED = 5; //จำนวนอยู่ด้วยกันในห้อง VIP สูงสุด
+  private readonly MAXIMUM_SWIMMING_CAPACITY = 5; //จำนวนสุนัขสูงสุดในรอบการสวมพรม
+  private readonly SWIMMING_HOURS = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
   /*
         บอกได้ว่า ต้องใช้ offer อะไรกับสุนัขกี่ตัว
     */
@@ -220,4 +224,40 @@ export class OfferingService {
       };
     });
   }
+  
+  /**
+   * ตรวจสอบความพร้อมของสระว่ายน้ำแต่ละรอบ (ชั่วโมง)
+   * ใช้ swimmingSummaries จาก summarizeSwimmingByHour และ hours เป็นรายการเวลารอบที่ต้องการ
+   */
+  checkSwimmingAvailability(
+    swimmingSummaries: SwimmingSummary[]
+  ): Slot[] {
+    const summaryByHour = new Map(
+      swimmingSummaries.map((s) => [s.hour, s.swimmingCounter]),
+    );
+    const capacity = this.MAXIMUM_SWIMMING_CAPACITY;
+
+    return this.SWIMMING_HOURS.map((time) => {
+      const counter = summaryByHour.get(time) ?? { LARGE: 0, SMALL: 0 };
+      const booked = counter.LARGE + counter.SMALL;
+      const remaining = Math.max(0, capacity - booked);
+      const isFull = remaining === 0;
+      const isEmpty = booked === 0;
+      let statusLabel: string;
+      if (isEmpty) statusLabel = 'ว่าง';
+      else if (isFull) statusLabel = 'เต็ม';
+      else statusLabel = `เหลืออีก ${remaining} ที่`;
+
+      return {
+        time,
+        capacity,
+        booked,
+        remaining,
+        statusLabel,
+        isFull,
+        isEmpty,
+      };
+    });
+  }
+
 }

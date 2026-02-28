@@ -13,6 +13,8 @@ import { GetBoardingPackagePricingUsecase } from './use-cases/get-boarding-packa
 import { DogOwnerDecorator } from 'src/user/decorators/dog-owner.decorator';
 import { type IUser } from 'src/user/interfaces/user.interface';
 import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
+import { GetSwimmingPackagePricingRequest, GetSwimmingPackagePricingResponse } from './dtos/get-swimming-package-pricing.dto';
+import { GetSwimmingPackagePricingUsecase } from './use-cases/get-swimming-package-pricing.use-case';
 
 @Controller('offering')
 export class OfferingController {
@@ -20,6 +22,7 @@ export class OfferingController {
     private readonly getAnnouncementUsecase: GetAnnouncementUsecase,
     private readonly getBoardingAvailableUsecase: GetBoardingAvailableUsecase,
     private readonly getBoardingPackagePricingUsecase: GetBoardingPackagePricingUsecase,
+    private readonly getSwimmingPackagePricingUsecase: GetSwimmingPackagePricingUsecase,
   ) {}
 
   @Get('/announcement')
@@ -29,7 +32,7 @@ export class OfferingController {
 
   @Get('/boarding/available')
   @UseGuards(AccessTokenGuard)
-  async getAvailable(
+  async getBoardingAvailable(
     @Query() query: GetBoardingAvailableRequest,
     @DogOwnerDecorator() dogOwner: IUser,
   ): Promise<GetBoardingAvailableResponse> {
@@ -38,10 +41,20 @@ export class OfferingController {
 
   @Get('/boarding/package-pricing')
   @UseGuards(AccessTokenGuard)
-  async getPackagePricing(
+  async getBoardingPackagePricing(
     @Query() query: GetBoardingPackagePricingRequest,
     @DogOwnerDecorator() dogOwner: IUser,
   ): Promise<GetBoardingPackagePricingResponse> {
     return await this.getBoardingPackagePricingUsecase.execute(query, dogOwner.id);
+  }
+
+
+  @Get('/swimming/package-pricing')
+  @UseGuards(AccessTokenGuard)
+  async getSwimmingPackagePricing(
+    @Query() query: GetSwimmingPackagePricingRequest,
+    @DogOwnerDecorator() dogOwner: IUser,
+  ): Promise<GetSwimmingPackagePricingResponse> {
+    return await this.getSwimmingPackagePricingUsecase.execute(query, dogOwner.id);
   }
 }

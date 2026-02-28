@@ -7,6 +7,8 @@ import { BoardingCounter } from 'src/offering/types/boarding-counter.type';
 import { ReservationStatusEnum } from './enums/reservation-status.enum';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
 import { ConfirmReservationRequest } from './dtos/confirm-reservation.dto';
+import { SwimmingCounter } from 'src/offering/types/swimming-counter.type';
+import { SwimmingSummary } from './types/swimming-summary';
 
 @Injectable()
 export class ReservationService {
@@ -127,6 +129,81 @@ export class ReservationService {
       .map(([date, boardingCounter]) => ({
         date,
         boardingCounter,
+      }));
+  }
+
+
+  /**
+   * นับจำนวนสุนัขในสระ (แยกขนาด LARGE/SMALL) ต่อชั่วโมง
+   * ใช้ช่วง startDateTime–endDateTime ของแต่ละการจอง กระจายเข้าแต่ละชั่วโมงที่การจองครอบคลุม
+   */
+  summarizeSwimmingByHour(
+    reservations: Array<Reservation>,
+  ): Array<SwimmingSummary> {
+    const resultMap = new Map<string, SwimmingCounter>();
+
+    for (const reservation of reservations) {
+      if (reservation.offeringType !== OfferingType.SWIMMING) continue;
+      if (
+        reservation.status !== ReservationStatusEnum.SLIP_VERIFIED &&
+        reservation.status !== ReservationStatusEnum.CHECK_IN &&
+        reservation.status !== ReservationStatusEnum.FINISHED
+      )
+        continue;
+
+      const start = new Date(reservation.startDateTime);
+      const end = new Date(reservation.endDateTime);
+
+      // ปัด start ลงเป็นต้นชั่วโมง (เช่น 10:30 → 10:00)
+      const slotStart = new Date(
+        start.getFullYear(),
+        start.getMonth(),
+        start.getDate(),
+        start.getHours(),
+        0,
+        0,
+        0,
+      );
+      const slotEnd = new Date(
+        end.getFullYear(),
+        end.getMonth(),
+        end.getDate(),
+        end.getHours(),
+        0,
+        0,
+        0,
+      );
+
+      const lineCount = { LARGE: 0, SMALL: 0 };
+      for (const line of reservation.reservationLines) {
+        const size = line.dog?.breed?.size?.toLowerCase?.();
+        if (size === 'large') lineCount.LARGE += 1;
+        else if (size === 'small') lineCount.SMALL += 1;
+      }
+
+      // กระจายจำนวนเข้าแต่ละชั่วโมงที่การจองครอบคลุม
+      const current = new Date(slotStart);
+      while (current.getTime() < slotEnd.getTime()) {
+        const dateKey = current.toISOString().slice(0, 10);
+        const hourStr = String(current.getHours()).padStart(2, '0') + ':00';
+        const key = `${dateKey} ${hourStr}`;
+
+        if (!resultMap.has(key)) {
+          resultMap.set(key, { LARGE: 0, SMALL: 0 });
+        }
+        const counter = resultMap.get(key)!;
+        counter.LARGE += lineCount.LARGE;
+        counter.SMALL += lineCount.SMALL;
+
+        current.setHours(current.getHours() + 1);
+      }
+    }
+
+    return Array.from(resultMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, swimmingCounter]) => ({
+        hour: key.includes(' ') ? key.split(' ')[1] : key,
+        swimmingCounter,
       }));
   }
 }

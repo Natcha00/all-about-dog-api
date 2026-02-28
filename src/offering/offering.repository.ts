@@ -37,4 +37,12 @@ export class OfferingRepository {
       },
     });
   }
+
+  async getSwimmingOffering() {
+    return await this.offeringTypeormRepository.findOne({
+      where: {
+        offeringType: OfferingType.SWIMMING,
+      },
+    });
+  }
 }

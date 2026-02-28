@@ -51,6 +51,7 @@ export class ReservationRepository {
         'reservationLines',
         'reservationLines.offering',
         'reservationLines.dog',
+        'reservationLines.dog.breed',
         'dogOwner',
       ],
     });
