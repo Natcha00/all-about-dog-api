@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { OfferingService } from './offering.service';
 import { OfferingController } from './offering.controller';
 import { OfferingRepository } from './offering.repository';
 import { GetAnnouncementUsecase } from './use-cases/get-annoucement.use-case';
@@ -27,7 +26,6 @@ import { GetSwimmingPackagePricingUsecase } from './use-cases/get-swimming-packa
   ],
   controllers: [OfferingController],
   providers: [
-    OfferingService,
     OfferingRepository,
     GetAnnouncementUsecase,
     GetBoardingAvailableUsecase,

@@ -8,14 +8,14 @@ import {
 } from '../dtos/get-boarding-package-pricing.dto';
 import { AssignDogs } from '../types/assign-dog.type';
 import { Offering } from '../entities/offering.entity';
-import { OfferingService } from '../offering.service';
 import { DogService } from 'src/dog/services/dog.service';
 import { OfferingRepository } from '../offering.repository';
+import { ReservationService } from 'src/reservation/reservation.service';
 
 @Injectable()
 export class GetBoardingPackagePricingUsecase {
   constructor(
-    private readonly offeringService: OfferingService,
+    private readonly reservationService: ReservationService,
     private readonly dogService: DogService,
     private readonly offeringRepository: OfferingRepository,
   ) {}
@@ -25,7 +25,7 @@ export class GetBoardingPackagePricingUsecase {
     dogOwnerId: number,
   ): Promise<GetBoardingPackagePricingResponse> {
     // count nights
-    const nights = this.offeringService.countByRange(
+    const nights = this.reservationService.countByRange(
       { start: request.start, end: request.end },
       request.offeringType,
     );
@@ -34,7 +34,7 @@ export class GetBoardingPackagePricingUsecase {
 
     // assign dogs to offerings
     const offerings = await this.offeringRepository.getBoardingOffering();
-    const assignDogs = this.offeringService.assignDogs(
+    const assignDogs = this.reservationService.assignDogs(
       dogs,
       offerings,
       request.package,

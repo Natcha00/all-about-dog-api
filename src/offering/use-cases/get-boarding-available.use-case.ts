@@ -8,7 +8,6 @@ import { BoardingSummary } from 'src/reservation/types/boarding-summary';
 import { BoardingCounter } from '../types/boarding-counter.type';
 import { OfferingType } from '../enums/offering-type.enum';
 import { OfferingRepository } from '../offering.repository';
-import { OfferingService } from '../offering.service';
 import { ReservationService } from 'src/reservation/reservation.service';
 
 @Injectable()
@@ -16,7 +15,6 @@ export class GetBoardingAvailableUsecase {
   constructor(
     private readonly dogService: DogService,
     private readonly offeringRepository: OfferingRepository,
-    private readonly offeringService: OfferingService,
     private readonly reservationService: ReservationService,
   ) {}
 
@@ -95,15 +93,15 @@ export class GetBoardingAvailableUsecase {
 
     // assign dogs to offerings
     const offerings = await this.offeringRepository.getBoardingOffering();
-    const assignDogs = this.offeringService.assignDogs(
+    const assignDogs = this.reservationService.assignDogs(
       dogs,
       offerings,
       getBoardingAvailableRequest.package,
     );
-    const need = this.offeringService.boardingSummary(assignDogs);
+    const need = this.reservationService.boardingSummary(assignDogs);
 
     // count nights
-    const nights = this.offeringService.countByRange(
+    const nights = this.reservationService.countByRange(
       {
         start: getBoardingAvailableRequest.start,
         end: getBoardingAvailableRequest.end,
@@ -133,7 +131,7 @@ export class GetBoardingAvailableUsecase {
       summaryByDate,
     );
 
-    const fails = this.offeringService.checkBoardingAvailability(
+    const fails = this.reservationService.checkBoardingAvailability(
       assignDogs,
       boardingSummariesInRange,
     );

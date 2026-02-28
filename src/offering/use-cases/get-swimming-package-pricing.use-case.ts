@@ -5,7 +5,6 @@ import {
   ReservationLineDto,
   SwimmingPricingItemDto,
 } from '../dtos/get-swimming-package-pricing.dto';
-import { OfferingService } from '../offering.service';
 import { DogService } from 'src/dog/services/dog.service';
 import { ReservationService } from 'src/reservation/reservation.service';
 import { OfferingType } from '../enums/offering-type.enum';
@@ -16,13 +15,11 @@ import { Dog } from 'src/dog/entities/dog.entity';
 import { OfferBreedPricing } from '../entities/offer-breed-pricing.entity';
 import { Offering } from '../entities/offering.entity';
 
-
 @Injectable()
 export class GetSwimmingPackagePricingUsecase {
   constructor(
-    private readonly offeringService: OfferingService,
-    private readonly dogService: DogService,
     private readonly reservationService: ReservationService,
+    private readonly dogService: DogService,
     private readonly offeringRepository: OfferingRepository,
   ) {}
 
@@ -61,8 +58,8 @@ export class GetSwimmingPackagePricingUsecase {
     const swimmingSummaries =
       this.reservationService.summarizeSwimmingByHour(reservationsForSummary);
 
-    const slotsRaw = this.offeringService.checkSwimmingAvailability(
-      swimmingSummaries
+    const slotsRaw = this.reservationService.checkSwimmingAvailability(
+      swimmingSummaries,
     );
     const summaryByHour = new Map(
       swimmingSummaries.map((s) => [s.hour, s.swimmingCounter]),
