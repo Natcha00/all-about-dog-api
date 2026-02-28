@@ -15,6 +15,8 @@ export class DogRepository {
     private readonly breedTypeormRepository: Repository<Breed>,
     @InjectRepository(Health)
     private readonly healthTypeormRepository: Repository<Health>,
+    @InjectRepository(VaccinationRecord)
+    private readonly vaccinationRepository: Repository<VaccinationRecord>,
   ) {}
 
   create(dogObjectEntity: Partial<Dog>): Dog {
@@ -29,16 +31,15 @@ export class DogRepository {
       where: {
         dogOwner: {
           id: dogOwnerId,
-        }
+        },
       },
-      relations:{
-        breed:true,
-        health:true
-      }
+      relations: {
+        breed: true,
+        health: true,
+      },
     });
   }
 
- 
   async find() {
     await this.dogTypeormRepository.find();
   }
@@ -77,8 +78,8 @@ export class DogRepository {
   }
 
   //health
-  createHealth(healthObjectEntity: Partial<Health>):Health{
-    return this.healthTypeormRepository.create(healthObjectEntity)
+  createHealth(healthObjectEntity: Partial<Health>): Health {
+    return this.healthTypeormRepository.create(healthObjectEntity);
   }
 
   async findOneByIdWithRelations(dogId: number) {
@@ -93,5 +94,14 @@ export class DogRepository {
         vaccinationRecords: true,
       },
     });
+  }
+  createVaccination(
+    VaccinationObjectEntity: Partial<VaccinationRecord>,
+  ): VaccinationRecord {
+    return this.vaccinationRepository.create(VaccinationObjectEntity);
+  }
+
+  async saveVaccination(VaccinationObjectEntity: VaccinationRecord) {
+    return this.vaccinationRepository.save(VaccinationObjectEntity);
   }
 }

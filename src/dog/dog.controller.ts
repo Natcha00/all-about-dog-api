@@ -9,6 +9,8 @@ import { GetDogByOwnerUsecase } from './use-cases/get-dog-by-owner.use-case';
 import { CreateDogUsecase } from './use-cases/create-dog.use-case';
 import { GetDogProfileUsecase } from './use-cases/get-dog-profile.use-case';
 import { GetDogProfileResponse } from './dtos/get-dog-profile.dto';
+import { CreateVaccinationRecordDto } from './dtos/create-vaccination-record.dto';
+import { CreateVaccinationRecordUsecase } from './use-cases/create-vaccination-record.use-case';
 
 @Controller('dog')
 export class DogController {
@@ -16,6 +18,7 @@ export class DogController {
     private readonly createDogUsecase: CreateDogUsecase,
     private readonly getDogByOwnerUsecase: GetDogByOwnerUsecase,
     private readonly getDogProfileUsecase: GetDogProfileUsecase,
+    private readonly createVaccinationRecordUsecase: CreateVaccinationRecordUsecase,
   ) {}
 
   @Post('/create-dog')
@@ -39,10 +42,20 @@ export class DogController {
     @Param('id') dogId: string,
     @DogOwnerDecorator() dogOwner: IUser,
   ): Promise<GetDogProfileResponse> {
-    return await this.getDogProfileUsecase.execute(
+    return await this.getDogProfileUsecase.execute(Number(dogId), dogOwner.id);
+  }
+
+  @Post(':id/vaccinations')
+  @UseGuards(AccessTokenGuard)
+  async addVaccination(
+    @Param('id') dogId: string,
+    @Body() createVaccinationRecordDto: CreateVaccinationRecordDto,
+    @DogOwnerDecorator() dogOwner: IUser,
+  ) {
+    return await this.createVaccinationRecordUsecase.execute(
       Number(dogId),
       dogOwner.id,
+      createVaccinationRecordDto,
     );
-
   }
 }
