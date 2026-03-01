@@ -19,17 +19,21 @@ export class PaymentSlip {
   @Column()
   slipUrl: string;
 
-  @Column()
-  isApproved:boolean
+  @Column({ default: false })
+  isApproved: boolean;
 
-  @Column()
-  approveBy: string;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  approveBy: string | null;
 
-  @Column()
-  updateBy: string;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  updateBy: string | null;
 
-  @OneToOne(() => Reservation)
-  @JoinColumn()
+  @Column({ type: 'text', nullable: true })
+  rejectedReason: string | null;
+
+
+  @OneToOne(() => Reservation, (reservation) => reservation.paymentSlip)
+  @JoinColumn({ name: 'reservationId' })
   reservation: Reservation;
 
   @CreateDateColumn()

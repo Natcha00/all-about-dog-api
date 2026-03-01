@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { OfferingModule } from './offering/offering.module';
 import { DogModule } from './dog/dog.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { DogModule } from './dog/dog.module';
     }),
     DatabaseModule,
     DogModule,
-    OfferingModule
+    OfferingModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

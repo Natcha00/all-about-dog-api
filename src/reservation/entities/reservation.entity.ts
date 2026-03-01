@@ -10,8 +10,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { CheckinHistory } from './checkin-history.entity';
-import { Offering } from 'src/offering/entities/offering.entity';
 import { PaymentSlip } from './payment-slip.entity';
+import { ReservationStatusLog } from './reservation-status-log.entity';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
 
 @Entity()
@@ -50,7 +50,14 @@ export class Reservation {
   )
   checkinHistories: Array<CheckinHistory>;
 
-  @OneToOne(() => PaymentSlip)
+  @OneToMany(
+    () => ReservationStatusLog,
+    (log) => log.reservation,
+    { cascade: true },
+  )
+  statusLogs: Array<ReservationStatusLog>;
+
+  @OneToOne(() => PaymentSlip, (slip) => slip.reservation, { cascade: true })
   paymentSlip: PaymentSlip;
 
   @ManyToOne(() => DogOwner, (dogOwner) => dogOwner.reservations)

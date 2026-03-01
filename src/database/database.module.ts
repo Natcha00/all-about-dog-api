@@ -12,6 +12,7 @@ import { OfferVipPricing } from 'src/offering/entities/offer-vip-pricing.entity'
 import { Offering } from 'src/offering/entities/offering.entity';
 import { CheckinHistory } from 'src/reservation/entities/checkin-history.entity';
 import { PaymentSlip } from 'src/reservation/entities/payment-slip.entity';
+import { ReservationStatusLog } from 'src/reservation/entities/reservation-status-log.entity';
 import { ReservationLine } from 'src/reservation/entities/reservation-line.entity';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 
@@ -37,12 +38,13 @@ import { Reservation } from 'src/reservation/entities/reservation.entity';
           ReservationLine,
           CheckinHistory,
           PaymentSlip,
+          ReservationStatusLog,
           Offering,
           OfferBreedPricing,
           OfferSizePricing,
           OfferVipPricing,
         ],
-        synchronize: false,
+        synchronize: true,
         logging: configService.get<boolean>('DB_LOGGING', false),
       }),
     }),
