@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Dog } from './dog.entity';
+import { BloodGroup } from '../enums/blood-group.enum';
 
 @Entity()
 export class Health {
@@ -30,9 +31,9 @@ export class Health {
   @Column({ type: 'text', nullable: true })
   allergy: string | null;
 
-  @Column()
-  bloodGroup: string;
-
+  @Column({ type: 'enum', enum: BloodGroup })
+  bloodGroup: BloodGroup;
+  
   @Column()
   hasBreakfast: boolean;
 

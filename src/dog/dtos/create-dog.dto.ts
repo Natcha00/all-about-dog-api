@@ -7,7 +7,10 @@ import {
   IsDate,
   ValidateNested,
   IsOptional,
+  IsEnum,
+  IsUrl,
 } from 'class-validator';
+import { BloodGroup } from '../enums/blood-group.enum';
 
 export class HealthInfoDto {
   @IsBoolean()
@@ -18,9 +21,9 @@ export class HealthInfoDto {
   @IsNotEmpty()
   microchip: boolean;
 
-  @IsString()
   @IsNotEmpty()
-  bloodGroup: string;
+  @IsEnum(BloodGroup)
+  bloodGroup: BloodGroup;
 
   @IsString()
   underlyingDisease: string;
@@ -66,8 +69,8 @@ export class CreateDogDto {
   breedId: number;
 
   @IsString()
-  @IsNotEmpty()
-  color: string;
+  @IsOptional()
+  color?: string;
 
   @IsNumber()
   @IsNotEmpty()
@@ -81,6 +84,11 @@ export class CreateDogDto {
   @IsDate()
   @IsNotEmpty()
   birthdate: Date;
+
+  @IsOptional()
+  @IsString()
+  @IsUrl()
+  dogPictureUrl?: string;
 
   @ValidateNested()
   @Type(() => HealthInfoDto)

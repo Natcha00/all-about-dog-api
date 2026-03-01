@@ -10,7 +10,7 @@ import { DogOwnerDecorator } from 'src/user/decorators/dog-owner.decorator';
 export class DogOwnerController {
   constructor(private readonly dogOwnerService: DogOwnerService) {}
 
-  @Get('dog-owner')
+  @Get()
   findDogOwners() {
     return this.dogOwnerService.getAll();
   }
