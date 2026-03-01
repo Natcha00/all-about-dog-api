@@ -56,4 +56,45 @@ export class ReservationRepository {
       ],
     });
   }
+
+  async findByDogOwnerId(dogOwnerId: number): Promise<Reservation[]> {
+    return this.repo.find({
+      where: { dogOwner: { id: dogOwnerId } },
+      relations: [
+        'reservationLines',
+        'reservationLines.offering',
+        'reservationLines.dog',
+        'reservationLines.dog.breed',
+        'dogOwner',
+      ],
+      order: { startDateTime: 'DESC' },
+    });
+  }
+
+  async findOneByCodeAndDogOwnerId(
+    code: string,
+    dogOwnerId: number,
+  ): Promise<Reservation | null> {
+    return this.repo.findOne({
+      where: { code, dogOwner: { id: dogOwnerId } },
+      relations: [
+        'reservationLines',
+        'reservationLines.offering',
+        'reservationLines.offering.offerSizePricing',
+        'reservationLines.dog',
+        'reservationLines.dog.breed',
+        'dogOwner',
+        'paymentSlip',
+        'statusLogs',
+      ],
+    });
+  }
+
+  /** ดึงการจองตาม code เท่านั้น (สำหรับ staff ยืนยัน/ปฏิเสธสลิป) */
+  async findOneByCode(code: string): Promise<Reservation | null> {
+    return this.repo.findOne({
+      where: { code },
+      relations: ['paymentSlip', 'statusLogs'],
+    });
+  }
 }
