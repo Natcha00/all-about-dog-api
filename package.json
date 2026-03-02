@@ -10,7 +10,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
-    "dev": "concurrently \"npm run start:dev\" \"cloudflared access tcp --hostname database.cinecus-lab.site --url 127.0.0.1:3307\"",
+    "dev":"nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "seed": "ts-node -r tsconfig-paths/register src/database/seeds/seed.ts",

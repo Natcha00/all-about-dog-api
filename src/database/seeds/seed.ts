@@ -10,6 +10,7 @@ import { Health } from 'src/dog/entities/health.entity';
 import { VaccinationRecord } from 'src/dog/entities/vaccination-record.entity';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { ReservationLine } from 'src/reservation/entities/reservation-line.entity';
+import { ReservationStatusLog } from 'src/reservation/entities/reservation-status-log.entity';
 import { CheckinHistory } from 'src/reservation/entities/checkin-history.entity';
 import { PaymentSlip } from 'src/reservation/entities/payment-slip.entity';
 import { Offering } from 'src/offering/entities/offering.entity';
@@ -46,6 +47,7 @@ const AppDataSource = new DataSource({
     VaccinationRecord,
     Reservation,
     ReservationLine,
+    ReservationStatusLog,
     CheckinHistory,
     PaymentSlip,
     Offering,
@@ -89,7 +91,7 @@ async function seedDog() {
     breed: breedRepo.create({
       id: dog.breed,
     }),
-    health: healthRepo.create(dog.health),
+    health: healthRepo.create(dog.health as Health),
   }));
   const dogs = repo.create(transform);
   await repo.save(dogs);
