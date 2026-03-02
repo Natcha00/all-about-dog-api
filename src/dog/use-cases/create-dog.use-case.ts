@@ -44,7 +44,7 @@ export class CreateDogUsecase {
       health: this.dogRepository.createHealth({
         sterilization: createDogDto.healthInfo.sterilization,
         microchip: createDogDto.healthInfo.microchip,
-        bloodGroup: createDogDto.healthInfo.bloodGroup,
+        bloodGroup: createDogDto.healthInfo.bloodGroup ?? BloodGroup.UNKNOWN,
         underlyingDisease: createDogDto.healthInfo.underlyingDisease,
         allergy: createDogDto.healthInfo.allergy,
         hasBreakfast: createDogDto.healthInfo.hasBreakfast,

@@ -31,9 +31,9 @@ export class Health {
   @Column({ type: 'text', nullable: true })
   allergy: string | null;
 
-  @Column({ type: 'enum', enum: BloodGroup })
-  bloodGroup: BloodGroup;
-  
+  @Column({ type: 'varchar', length: 30 })
+  bloodGroup: BloodGroup | null;
+
   @Column()
   hasBreakfast: boolean;
 

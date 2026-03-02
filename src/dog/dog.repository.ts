@@ -53,6 +53,13 @@ export class DogRepository {
     });
   }
 
+  async findAllBreeds() {
+    return this.breedTypeormRepository.find({
+      select: ['id', 'nameTh', 'nameEng', 'size'],
+      order: { id: 'ASC' },
+    });
+  }
+
   /** Generate next dog code in format DG-YYMMDD-NNNN (year/month/day, e.g. DG-260227-0001) */
   async getNextDogCode(): Promise<string> {
     const now = new Date();

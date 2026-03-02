@@ -10,6 +10,7 @@ import {
   IsEnum,
   IsUrl,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { BloodGroup } from '../enums/blood-group.enum';
 
 export class HealthInfoDto {
@@ -21,15 +22,20 @@ export class HealthInfoDto {
   @IsNotEmpty()
   microchip: boolean;
 
-  @IsNotEmpty()
+  @IsOptional()
+  @Transform(({ value }) =>
+    value === '' || value == null ? BloodGroup.UNKNOWN : value,
+  )
   @IsEnum(BloodGroup)
-  bloodGroup: BloodGroup;
+  bloodGroup?: BloodGroup;
 
   @IsString()
-  underlyingDisease: string;
+  @IsOptional()
+  underlyingDisease?: string;
 
   @IsString()
-  allergy: string;
+  @IsOptional()
+  allergy?: string;
 
   @IsBoolean()
   @IsNotEmpty()
@@ -52,7 +58,8 @@ export class HealthInfoDto {
   hasDinner: boolean;
 
   @IsString()
-  detail: string;
+  @IsOptional()
+  detail?: string;
 }
 
 export class CreateDogDto {

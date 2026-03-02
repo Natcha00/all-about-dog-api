@@ -188,7 +188,7 @@ async function seedReservation() {
     health: Record<string, unknown>;
   }> = [];
   const colors = ['orange', 'brown', 'white', 'black', 'gray', 'cream', 'golden', 'tan'];
-  const bloodGroups = ['DEA1', 'DEA2', 'DEA3', 'DEA4'];
+  const bloodGroups = ['DEA 1.1', 'DEA 1.2', 'DEA 3', 'DEA 4', 'DEA 5', 'DEA 6', 'DEA 7', 'DEA 8', 'UNKNOWN'];
 
   let dogIndex = 0;
   for (let o = 0; o < savedOwners.length; o++) {

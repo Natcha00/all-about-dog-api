@@ -11,6 +11,8 @@ import { GetDogProfileUsecase } from './use-cases/get-dog-profile.use-case';
 import { GetDogProfileResponse } from './dtos/get-dog-profile.dto';
 import { CreateVaccinationRecordDto } from './dtos/create-vaccination-record.dto';
 import { CreateVaccinationRecordUsecase } from './use-cases/create-vaccination-record.use-case';
+import { GetBreedsUsecase } from './use-cases/get-breeds.use-case';
+import { BloodGroup } from './enums/blood-group.enum';
 
 @Controller('dog')
 export class DogController {
@@ -19,6 +21,7 @@ export class DogController {
     private readonly getDogByOwnerUsecase: GetDogByOwnerUsecase,
     private readonly getDogProfileUsecase: GetDogProfileUsecase,
     private readonly createVaccinationRecordUsecase: CreateVaccinationRecordUsecase,
+    private readonly getBreedsUsecase: GetBreedsUsecase,
   ) {}
 
   @Post('/create-dog')
@@ -34,6 +37,18 @@ export class DogController {
   @UseGuards(AccessTokenGuard)
   async getDogs(@DogOwnerDecorator() dogOwner: IUser) {
     return await this.getDogByOwnerUsecase.execute(dogOwner.id);
+  }
+
+  @Get('options/blood-groups')
+  @UseGuards(AccessTokenGuard)
+  getBloodGroups(): { value: string; label: string }[] {
+    return Object.values(BloodGroup).map((value) => ({ value, label: value }));
+  }
+
+  @Get('breeds')
+  @UseGuards(AccessTokenGuard)
+  async getBreeds() {
+    return await this.getBreedsUsecase.execute();
   }
 
   @Get(':id/profile')
