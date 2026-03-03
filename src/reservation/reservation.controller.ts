@@ -31,6 +31,8 @@ import { VerifySlipRequest, RejectSlipRequest } from './dtos/verify-reject-slip.
 import { CheckInReservationRequest, CheckOutReservationRequest } from './dtos/checkin-checkout.dto';
 import { CheckInReservationUsecase } from './use-cases/checkin-reservation.use-case';
 import { CheckOutReservationUsecase } from './use-cases/checkout-reservation.use-case';
+import { SearchReservationRequest } from './dtos/search-reservation.dto';
+import { SearchReservationsUsecase } from './use-cases/search-reservations.use-case';
 
 @Controller('reservation')
 export class ReservationController {
@@ -45,6 +47,7 @@ export class ReservationController {
     private readonly rejectPaymentSlipUsecase: RejectPaymentSlipUsecase,
     private readonly checkInReservationUsecase: CheckInReservationUsecase,
     private readonly checkOutReservationUsecase: CheckOutReservationUsecase,
+    private readonly searchReservationsUsecase: SearchReservationsUsecase,
   ) {}
 
   @Post()
@@ -59,6 +62,14 @@ export class ReservationController {
     @DogOwnerDecorator() user: IUser,
   ): Promise<GetReservationsResponse> {
     return this.getReservationsUsecase.execute(user.id, query.tab);
+  }
+
+  @Get('search')
+  @UseGuards(AccessTokenGuard)
+  async searchReservations(
+    @Query() query: SearchReservationRequest,
+  ): Promise<Reservation[]> {
+    return this.searchReservationsUsecase.execute(query);
   }
 
   @Get('detail')

@@ -97,4 +97,51 @@ export class ReservationRepository {
       relations: ['paymentSlip', 'statusLogs'],
     });
   }
+
+  /**
+   * ค้นหาการจองจาก key แต่ละแบบ
+   * - code
+   * - dogName
+   * - dogOwnerName (firstName / lastName)
+   * - phone (phoneNumber)
+   * ถ้าไม่ได้ส่ง key ใดเลยจะคืน [] เพื่อป้องกันการโหลดทั้งหมด
+   */
+  async searchAdvanced(params: {
+    code?: string;
+    dogName?: string;
+    dogOwnerName?: string;
+    phone?: string;
+  }): Promise<Reservation[]> {
+    const { code, dogName, dogOwnerName, phone } = params;
+    const qb = this.repo
+      .createQueryBuilder('r')
+      .leftJoinAndSelect('r.dogOwner', 'o')
+      .leftJoinAndSelect('r.reservationLines', 'rl')
+      .leftJoinAndSelect('rl.dog', 'd');
+
+    const hasAny =
+      !!code || !!dogName || !!dogOwnerName || !!phone;
+    if (!hasAny) {
+      return [];
+    }
+
+    if (code) {
+      qb.andWhere('r.code LIKE :code', { code: `%${code}%` });
+    }
+    if (dogName) {
+      qb.andWhere('d.name LIKE :dogName', { dogName: `%${dogName}%` });
+    }
+    if (dogOwnerName) {
+      qb.andWhere(
+        '(o.firstName LIKE :owner OR o.lastName LIKE :owner)',
+        { owner: `%${dogOwnerName}%` },
+      );
+    }
+    if (phone) {
+      qb.andWhere('o.phoneNumber LIKE :phone', { phone: `%${phone}%` });
+    }
+
+    qb.orderBy('r.startDateTime', 'DESC');
+    return qb.getMany();
+  }
 }

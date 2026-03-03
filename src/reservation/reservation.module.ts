@@ -19,6 +19,7 @@ import { RejectPaymentSlipUsecase } from './use-cases/reject-payment-slip.use-ca
 import { ApproveReservationUsecase } from './use-cases/approve-reservation.use-case';
 import { CheckInReservationUsecase } from './use-cases/checkin-reservation.use-case';
 import { CheckOutReservationUsecase } from './use-cases/checkout-reservation.use-case';
+import { SearchReservationsUsecase } from './use-cases/search-reservations.use-case';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { CheckOutReservationUsecase } from './use-cases/checkout-reservation.use
     UploadPaymentSlipUsecase,
     VerifyPaymentSlipUsecase,
     RejectPaymentSlipUsecase,
+    SearchReservationsUsecase,
     CheckInReservationUsecase,
     CheckOutReservationUsecase,
   ],
