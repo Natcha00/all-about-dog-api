@@ -15,6 +15,7 @@ import { PaymentSlip } from 'src/reservation/entities/payment-slip.entity';
 import { ReservationStatusLog } from 'src/reservation/entities/reservation-status-log.entity';
 import { ReservationLine } from 'src/reservation/entities/reservation-line.entity';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
+import { Staff } from 'src/staff/entities/staff.entity';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { Reservation } from 'src/reservation/entities/reservation.entity';
           OfferBreedPricing,
           OfferSizePricing,
           OfferVipPricing,
+          Staff,
         ],
         synchronize: true,
         logging: configService.get<boolean>('DB_LOGGING', false),

@@ -17,6 +17,8 @@ import { Offering } from 'src/offering/entities/offering.entity';
 import { OfferBreedPricing } from 'src/offering/entities/offer-breed-pricing.entity';
 import { OfferSizePricing } from 'src/offering/entities/offer-size-pricing.entity';
 import { OfferVipPricing } from 'src/offering/entities/offer-vip-pricing.entity';
+import { Staff } from 'src/staff/entities/staff.entity';
+import * as bcrypt from 'bcrypt';
 import breedData from '../data/breed.json';
 import dogOwnerData from '../data/dog-owner.json';
 import dogData from '../data/dog.json';
@@ -54,6 +56,7 @@ const AppDataSource = new DataSource({
     OfferBreedPricing,
     OfferSizePricing,
     OfferVipPricing,
+    Staff,
   ],
 });
 
@@ -140,6 +143,35 @@ async function seedOffering() {
   await offerSizePricingRepo.save(offerSizePricingTransform);
 
   console.log('🌱 MySQL offering seeding completed!');
+  await AppDataSource.destroy();
+}
+
+async function seedStaff() {
+  await AppDataSource.initialize();
+
+  const repo = AppDataSource.getRepository(Staff);
+  const hashedPassword = await bcrypt.hash('password123', 10);
+
+  const staffList = [
+    {
+      email: 'staff@example.com',
+      password: hashedPassword,
+      firstName: 'Staff',
+      lastName: 'One',
+      phoneNumber: '0812345678',
+    },
+    {
+      email: 'admin@example.com',
+      password: hashedPassword,
+      firstName: 'Admin',
+      lastName: 'User',
+      phoneNumber: '0898765432',
+    },
+  ];
+
+  const entities = repo.create(staffList);
+  await repo.save(entities);
+  console.log('🌱 MySQL staff seeding completed!');
   await AppDataSource.destroy();
 }
 
@@ -319,11 +351,16 @@ async function run() {
       await seedReservation();
       break;
 
+    case 'staff':
+      await seedStaff();
+      break;
+
     default:
       await seedBreeds();
       await seedDogOwner();
       await seedDog();
       await seedOffering();
+      await seedStaff();
       console.log('🌱 MySQL seeding with no case!');
       break;
   }
