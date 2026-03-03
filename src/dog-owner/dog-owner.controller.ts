@@ -1,5 +1,4 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
-import { DogOwnerService } from './dog-owner.service';
 import { CreateDogOwnerDto } from './dtos/create-dog-owner.dto';
 import { RegisterDto } from './dtos/register.dto';
 import { LoginRequest } from './dtos/login.dto';
@@ -8,14 +7,26 @@ import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
 import { DogOwnerDecorator } from 'src/user/decorators/dog-owner.decorator';
 import { StaffGuard } from 'src/staff/guards/staff.guard';
 import { DogOwnerGuard } from 'src/user/guards/dog-owner.guard';
+import { CreateDogOwnerUsecase } from './use-cases/create-dog-owner.use-case';
+import { RegisterDogOwnerUsecase } from './use-cases/register-dog-owner.use-case';
+import { LoginDogOwnerUsecase } from './use-cases/login-dog-owner.use-case';
+import { GetAllDogOwnersUsecase } from './use-cases/get-all-dog-owners.use-case';
+import { SearchDogOwnerUsecase } from './use-cases/search-dog-owner.use-case';
+import { type IUser } from 'src/user/interfaces/user.interface';
 
 @Controller('dog-owner')
 export class DogOwnerController {
-  constructor(private readonly dogOwnerService: DogOwnerService) {}
+  constructor(
+    private readonly createDogOwnerUsecase: CreateDogOwnerUsecase,
+    private readonly registerDogOwnerUsecase: RegisterDogOwnerUsecase,
+    private readonly loginDogOwnerUsecase: LoginDogOwnerUsecase,
+    private readonly getAllDogOwnersUsecase: GetAllDogOwnersUsecase,
+    private readonly searchDogOwnerUsecase: SearchDogOwnerUsecase,
+  ) {}
 
   @Get()
   findDogOwners() {
-    return this.dogOwnerService.getAll();
+    return this.getAllDogOwnersUsecase.execute();
   }
 
   @Get('search')
@@ -23,31 +34,27 @@ export class DogOwnerController {
   async search(
     @Query() query: SearchDogOwnerRequest,
   ): Promise<SearchDogOwnerItemDto[]> {
-    return this.dogOwnerService.search(query.keyword);
+    return this.searchDogOwnerUsecase.execute(query.keyword);
   }
 
   @Post('create-dog-owner')
-  async create(@Body() createDogOwnerDto: CreateDogOwnerDto) {
-    await this.dogOwnerService.createDogOwner(createDogOwnerDto);
-    return
+  async create(@Body() body: CreateDogOwnerDto) {
+    await this.createDogOwnerUsecase.execute(body);
   }
 
   @Post('register')
-  async register(@Body() registerDto: RegisterDto) {
-    await this.dogOwnerService.register(registerDto);
-    return
+  async register(@Body() body: RegisterDto) {
+    await this.registerDogOwnerUsecase.execute(body);
   }
-  
+
   @Post('login')
-  async login(@Body() loginRequest: LoginRequest) {
-    return await this.dogOwnerService.login(loginRequest);
+  async login(@Body() body: LoginRequest) {
+    return this.loginDogOwnerUsecase.execute(body);
   }
 
   @Get('profile')
   @UseGuards(AccessTokenGuard, DogOwnerGuard)
-  async profile(@DogOwnerDecorator() dogOwnerDec){
-    return dogOwnerDec
+  async profile(@DogOwnerDecorator() user: IUser) {
+    return user;
   }
-
-  
 }

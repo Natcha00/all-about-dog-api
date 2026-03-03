@@ -5,18 +5,18 @@ import {
 } from '@nestjs/common';
 import { DogRepository } from '../dog.repository';
 import { CreateDogDto } from '../dtos/create-dog.dto';
-import { DogOwnerService } from 'src/dog-owner/dog-owner.service';
+import { GetDogOwnerByIdUsecase } from 'src/dog-owner/use-cases/get-dog-owner-by-id.use-case';
 import { BloodGroup } from '../enums/blood-group.enum';
 
 @Injectable()
 export class CreateDogUsecase {
   constructor(
     private readonly dogRepository: DogRepository,
-    private readonly dogOwnerService: DogOwnerService,
+    private readonly getDogOwnerByIdUsecase: GetDogOwnerByIdUsecase,
   ) {}
 
   async execute(createDogDto: CreateDogDto, dogOwnerId: number) {
-    const foundDogOwner = await this.dogOwnerService.getById(dogOwnerId);
+    const foundDogOwner = await this.getDogOwnerByIdUsecase.execute(dogOwnerId);
 
     if (!foundDogOwner) {
       throw new NotFoundException('not found DogOwner');

@@ -9,7 +9,6 @@ import { UpdateDogDto } from '../dtos/update-dog.dto';
 import { DogRepository } from '../dog.repository';
 import { CreateBreedDto } from '../dtos/create-breed.dto';
 import { IUser } from 'src/user/interfaces/user.interface';
-import { DogOwnerService } from 'src/dog-owner/dog-owner.service';
 import { Dog } from '../entities/dog.entity';
 
 @Injectable()
