@@ -68,7 +68,7 @@ export class GetSwimmingPackagePricingUsecase {
       const counter = summaryByHour.get(slot.time) ?? { LARGE: 0, SMALL: 0 };
       return {
         ...slot,
-        isFull: counter.LARGE + counter.SMALL >= slot.remaining,
+        isFull: totalPets > slot.remaining,
         sizeBooked: { large: counter.LARGE, small: counter.SMALL },
       };
     });   
