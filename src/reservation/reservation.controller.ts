@@ -33,6 +33,8 @@ import { CheckInReservationUsecase } from './use-cases/checkin-reservation.use-c
 import { CheckOutReservationUsecase } from './use-cases/checkout-reservation.use-case';
 import { SearchReservationRequest } from './dtos/search-reservation.dto';
 import { SearchReservationsUsecase } from './use-cases/search-reservations.use-case';
+import { CancelReservationRequest } from './dtos/cancel-reservation.dto';
+import { CancelReservationUsecase } from './use-cases/cancel-reservation.use-case';
 
 @Controller('reservation')
 export class ReservationController {
@@ -48,6 +50,7 @@ export class ReservationController {
     private readonly checkInReservationUsecase: CheckInReservationUsecase,
     private readonly checkOutReservationUsecase: CheckOutReservationUsecase,
     private readonly searchReservationsUsecase: SearchReservationsUsecase,
+    private readonly cancelReservationUsecase: CancelReservationUsecase,
   ) {}
 
   @Post()
@@ -89,6 +92,15 @@ export class ReservationController {
     @DogOwnerDecorator() user: IUser,
   ): Promise<Reservation> {
     return this.confirmReservationUsecase.execute(body, user.id);
+  }
+
+  @Post('cancel')
+  @UseGuards(AccessTokenGuard)
+  async cancelReservation(
+    @Body() body: CancelReservationRequest,
+    @DogOwnerDecorator() user: IUser,
+  ): Promise<{ success: boolean }> {
+    return this.cancelReservationUsecase.execute(body.code, user.id);
   }
 
   @Post('approve')

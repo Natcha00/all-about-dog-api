@@ -20,6 +20,7 @@ import { ApproveReservationUsecase } from './use-cases/approve-reservation.use-c
 import { CheckInReservationUsecase } from './use-cases/checkin-reservation.use-case';
 import { CheckOutReservationUsecase } from './use-cases/checkout-reservation.use-case';
 import { SearchReservationsUsecase } from './use-cases/search-reservations.use-case';
+import { CancelReservationUsecase } from './use-cases/cancel-reservation.use-case';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { SearchReservationsUsecase } from './use-cases/search-reservations.use-c
     SearchReservationsUsecase,
     CheckInReservationUsecase,
     CheckOutReservationUsecase,
+    CancelReservationUsecase,
   ],
   exports: [ReservationService],
 })
