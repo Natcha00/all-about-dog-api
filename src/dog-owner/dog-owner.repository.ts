@@ -35,4 +35,18 @@ export class DogOwnerRepository {
       },
     });
   }
+
+  /** ค้นหาจาก keyword ตรงกับ phoneNumber หรือ firstName หรือ lastName */
+  async searchByKeyword(keyword: string): Promise<DogOwner[]> {
+    const kw = `%${keyword}%`;
+    return this.dogOwnerRepository
+      .createQueryBuilder('o')
+      .where(
+        'o.phoneNumber LIKE :kw OR o.firstName LIKE :kw OR o.lastName LIKE :kw',
+        { kw },
+      )
+      .orderBy('o.firstName', 'ASC')
+      .addOrderBy('o.lastName', 'ASC')
+      .getMany();
+  }
 }

@@ -4,6 +4,7 @@ import { CreateDogOwnerDto } from './dtos/create-dog-owner.dto';
 import { RegisterDto } from './dtos/register.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginRequest } from './dtos/login.dto';
+import { SearchDogOwnerItemDto } from './dtos/search-dog-owner.dto';
 import { UserService } from 'src/user/user.service';
 import { ROLE } from 'src/user/enums/role.enum';
 
@@ -53,6 +54,21 @@ export class DogOwnerService {
 
   async getById(id: number) {
     return await this.dogOwnerRepository.findById(id);
+  }
+
+  /** ค้นหา owner จาก keyword (phoneNumber หรือ name) – สำหรับ staff */
+  async search(keyword: string): Promise<SearchDogOwnerItemDto[]> {
+    const owners = await this.dogOwnerRepository.searchByKeyword(keyword);
+    return owners.map((o) => ({
+      id: o.id,
+      code: o.code,
+      firstName: o.firstName,
+      lastName: o.lastName,
+      email: o.email,
+      phoneNumber: o.phoneNumber,
+      address: o.address ?? null,
+      profilePictureUrl: o.profilePictureUrl ?? null,
+    }));
   }
 
   async login(loginRequest: LoginRequest) {

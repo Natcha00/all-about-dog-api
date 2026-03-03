@@ -5,6 +5,7 @@ import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AccessTokenJwtStrategy } from './strategies/access-token-jwt.strategies';
 import { RefreshTokenJwtStrategy } from './strategies/refresh-token-jwt.strategies';
+import { DogOwnerGuard } from './guards/dog-owner.guard';
 
 @Module({
   imports: [JwtModule.registerAsync({
@@ -38,7 +39,7 @@ import { RefreshTokenJwtStrategy } from './strategies/refresh-token-jwt.strategi
     },
   }),],
   controllers: [UserController],
-  providers: [UserService, AccessTokenJwtStrategy,RefreshTokenJwtStrategy],
-  exports:[UserService]
+  providers: [UserService, AccessTokenJwtStrategy, RefreshTokenJwtStrategy, DogOwnerGuard],
+  exports: [UserService, DogOwnerGuard],
 })
 export class UserModule {}

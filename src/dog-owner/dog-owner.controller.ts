@@ -1,10 +1,13 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { DogOwnerService } from './dog-owner.service';
 import { CreateDogOwnerDto } from './dtos/create-dog-owner.dto';
 import { RegisterDto } from './dtos/register.dto';
 import { LoginRequest } from './dtos/login.dto';
+import { SearchDogOwnerRequest, SearchDogOwnerItemDto } from './dtos/search-dog-owner.dto';
 import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
 import { DogOwnerDecorator } from 'src/user/decorators/dog-owner.decorator';
+import { StaffGuard } from 'src/staff/guards/staff.guard';
+import { DogOwnerGuard } from 'src/user/guards/dog-owner.guard';
 
 @Controller('dog-owner')
 export class DogOwnerController {
@@ -13,6 +16,14 @@ export class DogOwnerController {
   @Get()
   findDogOwners() {
     return this.dogOwnerService.getAll();
+  }
+
+  @Get('search')
+  @UseGuards(AccessTokenGuard, StaffGuard)
+  async search(
+    @Query() query: SearchDogOwnerRequest,
+  ): Promise<SearchDogOwnerItemDto[]> {
+    return this.dogOwnerService.search(query.keyword);
   }
 
   @Post('create-dog-owner')
@@ -33,8 +44,10 @@ export class DogOwnerController {
   }
 
   @Get('profile')
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, DogOwnerGuard)
   async profile(@DogOwnerDecorator() dogOwnerDec){
     return dogOwnerDec
   }
+
+  
 }

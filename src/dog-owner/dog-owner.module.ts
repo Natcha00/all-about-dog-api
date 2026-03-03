@@ -6,11 +6,14 @@ import { DogOwner } from './entities/dog-owner.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Dog } from 'src/dog/entities/dog.entity';
 import { UserModule } from 'src/user/user.module';
+import { StaffModule } from 'src/staff/staff.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([DogOwner]),
-  UserModule
-],
+  imports: [
+    TypeOrmModule.forFeature([DogOwner]),
+    UserModule,
+    StaffModule,
+  ],
   controllers: [DogOwnerController],
   providers: [DogOwnerService, DogOwnerRepository],
   exports:[DogOwnerService]

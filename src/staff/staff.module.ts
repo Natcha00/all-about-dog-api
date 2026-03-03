@@ -4,6 +4,7 @@ import { Staff } from './entities/staff.entity';
 import { StaffController } from './staff.controller';
 import { StaffService } from './staff.service';
 import { StaffRepository } from './staff.repository';
+import { StaffGuard } from './guards/staff.guard';
 import { UserModule } from 'src/user/user.module';
 
 @Module({
@@ -12,7 +13,7 @@ import { UserModule } from 'src/user/user.module';
     UserModule,
   ],
   controllers: [StaffController],
-  providers: [StaffService, StaffRepository],
-  exports: [StaffService],
+  providers: [StaffService, StaffRepository, StaffGuard],
+  exports: [StaffService, StaffGuard],
 })
 export class StaffModule {}
