@@ -16,6 +16,9 @@ import { GetReservationDetailUsecase } from './use-cases/get-reservation-detail.
 import { UploadPaymentSlipUsecase } from './use-cases/upload-payment-slip.use-case';
 import { VerifyPaymentSlipUsecase } from './use-cases/verify-payment-slip.use-case';
 import { RejectPaymentSlipUsecase } from './use-cases/reject-payment-slip.use-case';
+import { ApproveReservationUsecase } from './use-cases/approve-reservation.use-case';
+import { CheckInReservationUsecase } from './use-cases/checkin-reservation.use-case';
+import { CheckOutReservationUsecase } from './use-cases/checkout-reservation.use-case';
 
 @Module({
   imports: [
@@ -33,12 +36,15 @@ import { RejectPaymentSlipUsecase } from './use-cases/reject-payment-slip.use-ca
     ReservationRepository,
     PaymentSlipRepository,
     ReservationStatusLogRepository,
+    ApproveReservationUsecase,
     ConfirmReservationUsecase,
     GetReservationsUsecase,
     GetReservationDetailUsecase,
     UploadPaymentSlipUsecase,
     VerifyPaymentSlipUsecase,
     RejectPaymentSlipUsecase,
+    CheckInReservationUsecase,
+    CheckOutReservationUsecase,
   ],
   exports: [ReservationService],
 })

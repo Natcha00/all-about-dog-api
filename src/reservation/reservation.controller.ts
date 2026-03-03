@@ -25,7 +25,12 @@ import { GetReservationDetailResponse } from './dtos/get-reservation-detail.dto'
 import { UploadPaymentSlipUsecase } from './use-cases/upload-payment-slip.use-case';
 import { VerifyPaymentSlipUsecase } from './use-cases/verify-payment-slip.use-case';
 import { RejectPaymentSlipUsecase } from './use-cases/reject-payment-slip.use-case';
+import { ApproveReservationUsecase } from './use-cases/approve-reservation.use-case';
+import { ApproveReservationRequest } from './dtos/approve-reservation.dto';
 import { VerifySlipRequest, RejectSlipRequest } from './dtos/verify-reject-slip.dto';
+import { CheckInReservationRequest, CheckOutReservationRequest } from './dtos/checkin-checkout.dto';
+import { CheckInReservationUsecase } from './use-cases/checkin-reservation.use-case';
+import { CheckOutReservationUsecase } from './use-cases/checkout-reservation.use-case';
 
 @Controller('reservation')
 export class ReservationController {
@@ -34,9 +39,12 @@ export class ReservationController {
     private readonly confirmReservationUsecase: ConfirmReservationUsecase,
     private readonly getReservationsUsecase: GetReservationsUsecase,
     private readonly getReservationDetailUsecase: GetReservationDetailUsecase,
+    private readonly approveReservationUsecase: ApproveReservationUsecase,
     private readonly uploadPaymentSlipUsecase: UploadPaymentSlipUsecase,
     private readonly verifyPaymentSlipUsecase: VerifyPaymentSlipUsecase,
     private readonly rejectPaymentSlipUsecase: RejectPaymentSlipUsecase,
+    private readonly checkInReservationUsecase: CheckInReservationUsecase,
+    private readonly checkOutReservationUsecase: CheckOutReservationUsecase,
   ) {}
 
   @Post()
@@ -72,7 +80,16 @@ export class ReservationController {
     return this.confirmReservationUsecase.execute(body, user.id);
   }
 
-  @Post('slip')
+  @Post('approve')
+  @UseGuards(AccessTokenGuard)
+  async approveReservation(
+    @Body() body: ApproveReservationRequest,
+    @DogOwnerDecorator() user: IUser,
+  ): Promise<{ success: boolean }> {
+    return this.approveReservationUsecase.execute(body.code, user.id);
+  }
+
+  @Post('slip/upload')
   @UseGuards(AccessTokenGuard)
   @UseInterceptors(
     FileInterceptor('file', {
@@ -101,6 +118,24 @@ export class ReservationController {
     @DogOwnerDecorator() user: IUser,
   ): Promise<{ success: boolean }> {
     return this.verifyPaymentSlipUsecase.execute(body.code, user.id);
+  }
+
+  @Post('checkin')
+  @UseGuards(AccessTokenGuard)
+  async checkIn(
+    @Body() body: CheckInReservationRequest,
+    @DogOwnerDecorator() user: IUser,
+  ): Promise<{ success: boolean }> {
+    return this.checkInReservationUsecase.execute(body.code, user.id);
+  }
+
+  @Post('checkout')
+  @UseGuards(AccessTokenGuard)
+  async checkOut(
+    @Body() body: CheckOutReservationRequest,
+    @DogOwnerDecorator() user: IUser,
+  ): Promise<{ success: boolean }> {
+    return this.checkOutReservationUsecase.execute(body.code, user.id);
   }
 
   @Post('slip/reject')
