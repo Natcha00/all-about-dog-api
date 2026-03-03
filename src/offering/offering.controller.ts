@@ -15,6 +15,8 @@ import { type IUser } from 'src/user/interfaces/user.interface';
 import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
 import { GetSwimmingPackagePricingRequest, GetSwimmingPackagePricingResponse } from './dtos/get-swimming-package-pricing.dto';
 import { GetSwimmingPackagePricingUsecase } from './use-cases/get-swimming-package-pricing.use-case';
+import { GetOfferingAvailableRequest, GetOfferingAvailableResponse } from './dtos/get-offering-available.dto';
+import { GetOfferingAvailableUsecase } from './use-cases/get-offering-available.use-case';
 
 @Controller('offering')
 export class OfferingController {
@@ -23,6 +25,7 @@ export class OfferingController {
     private readonly getBoardingAvailableUsecase: GetBoardingAvailableUsecase,
     private readonly getBoardingPackagePricingUsecase: GetBoardingPackagePricingUsecase,
     private readonly getSwimmingPackagePricingUsecase: GetSwimmingPackagePricingUsecase,
+    private readonly getOfferingAvailableUsecase: GetOfferingAvailableUsecase,
   ) {}
 
   @Get('/announcement')
@@ -48,7 +51,6 @@ export class OfferingController {
     return await this.getBoardingPackagePricingUsecase.execute(query, dogOwner.id);
   }
 
-
   @Get('/swimming/package-pricing')
   @UseGuards(AccessTokenGuard)
   async getSwimmingPackagePricing(
@@ -56,5 +58,13 @@ export class OfferingController {
     @DogOwnerDecorator() dogOwner: IUser,
   ): Promise<GetSwimmingPackagePricingResponse> {
     return await this.getSwimmingPackagePricingUsecase.execute(query, dogOwner.id);
+  }
+
+  @Get('/available')
+  @UseGuards(AccessTokenGuard)
+  async getOfferingAvailable(
+    @Query() query: GetOfferingAvailableRequest,
+  ): Promise<GetOfferingAvailableResponse> {
+    return this.getOfferingAvailableUsecase.execute(query);
   }
 }

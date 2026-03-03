@@ -12,6 +12,7 @@ import { GetBoardingPackagePricingUsecase } from './use-cases/get-boarding-packa
 import { DogModule } from 'src/dog/dog.module';
 import { ReservationModule } from 'src/reservation/reservation.module';
 import { GetSwimmingPackagePricingUsecase } from './use-cases/get-swimming-package-pricing.use-case';
+import { GetOfferingAvailableUsecase } from './use-cases/get-offering-available.use-case';
 
 @Module({
   imports:[
@@ -31,6 +32,7 @@ import { GetSwimmingPackagePricingUsecase } from './use-cases/get-swimming-packa
     GetBoardingAvailableUsecase,
     GetBoardingPackagePricingUsecase,
     GetSwimmingPackagePricingUsecase,
+    GetOfferingAvailableUsecase,
   ],
 })
 export class OfferingModule {}
