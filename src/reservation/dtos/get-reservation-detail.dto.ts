@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ReservationStatusEnum } from '../enums/reservation-status.enum';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
 
@@ -6,6 +7,13 @@ export class GetReservationDetailRequest {
   @IsString()
   @IsNotEmpty()
   code: string;
+
+  /** สำหรับ staff: ระบุ dogOwnerId เพื่อดูรายละเอียดการจองของลูกค้า */
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  dogOwnerId?: number;
 }
 
 // --- Result (nested DTOs) ---

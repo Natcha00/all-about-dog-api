@@ -1,4 +1,4 @@
-import { IsArray, IsDateString, IsEnum, IsInt, Min } from "class-validator";
+import { IsArray, IsDateString, IsEnum, IsInt, IsOptional, Min } from "class-validator";
 import { OfferingType } from "../enums/offering-type.enum";
 import { Transform } from "class-transformer";
 import { OfferingPackage } from "../enums/offering-package.enum";
@@ -22,6 +22,13 @@ export class GetSwimmingPackagePricingRequest {
 
     @IsEnum(OfferingPackage)
     package: OfferingPackage;
+
+    /** สำหรับ staff: ระบุ dogOwnerId เพื่อดูข้อมูลของลูกค้า */
+    @IsOptional()
+    @Transform(({ value }) => (value !== undefined && value !== '' ? Number(value) : undefined))
+    @IsInt()
+    @Min(1)
+    dogOwnerId?: number;
 }
 
 // --- Response DTOs ---

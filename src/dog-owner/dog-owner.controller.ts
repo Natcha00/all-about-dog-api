@@ -24,11 +24,6 @@ export class DogOwnerController {
     private readonly searchDogOwnerUsecase: SearchDogOwnerUsecase,
   ) {}
 
-  @Get()
-  findDogOwners() {
-    return this.getAllDogOwnersUsecase.execute();
-  }
-
   @Get('search')
   @UseGuards(AccessTokenGuard, StaffGuard)
   async search(
@@ -37,7 +32,8 @@ export class DogOwnerController {
     return this.searchDogOwnerUsecase.execute(query.keyword);
   }
 
-  @Post('create-dog-owner')
+  @Post('create')
+  @UseGuards(AccessTokenGuard, StaffGuard)
   async create(@Body() body: CreateDogOwnerDto) {
     await this.createDogOwnerUsecase.execute(body);
   }

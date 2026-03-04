@@ -9,6 +9,8 @@ import {
   IsOptional,
   IsEnum,
   IsUrl,
+  IsInt,
+  Min,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { BloodGroup } from '../enums/blood-group.enum';
@@ -101,4 +103,10 @@ export class CreateDogDto {
   @Type(() => HealthInfoDto)
   @IsNotEmpty()
   healthInfo: HealthInfoDto;
+
+  /** สำหรับ staff: ระบุ dogOwnerId เพื่อสร้างสุนัขให้ลูกค้า */
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  dogOwnerId?: number;
 }

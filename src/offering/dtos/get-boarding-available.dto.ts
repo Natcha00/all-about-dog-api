@@ -35,6 +35,13 @@ export class GetBoardingAvailableRequest {
 
   @IsEnum(OfferingPackage)
   package: OfferingPackage;
+
+  /** สำหรับ staff: ระบุ dogOwnerId เพื่อดูข้อมูลของลูกค้า */
+  @IsOptional()
+  @Transform(({ value }) => (value !== undefined && value !== '' ? Number(value) : undefined))
+  @IsInt()
+  @Min(1)
+  dogOwnerId?: number;
 }
 
 export class GetBoardingAvailableResponse {

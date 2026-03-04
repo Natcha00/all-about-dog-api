@@ -1,10 +1,18 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ReservationStatusEnum } from '../enums/reservation-status.enum';
 
 export class GetReservationsRequest {
   @IsOptional()
   @IsString()
   tab?: string;
+
+  /** สำหรับ staff: ระบุ dogOwnerId เพื่อดูรายการจองของลูกค้า */
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  dogOwnerId?: number;
 }
 
 /** Counts ตรงกับ ReservationStatusEnum (หนึ่งฟิลด์ต่อ status) */

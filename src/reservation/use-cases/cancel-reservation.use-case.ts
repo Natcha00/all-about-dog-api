@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Reservation } from '../entities/reservation.entity';
 import { ReservationRepository } from '../reservation.repository';
 import { ReservationStatusLogRepository } from '../reservation-status-log.repository';
 import { ReservationStatusEnum } from '../enums/reservation-status.enum';
@@ -14,28 +15,48 @@ export class CancelReservationUsecase {
     private readonly statusLogRepository: ReservationStatusLogRepository,
   ) {}
 
-  async execute(code: string, dogOwnerId: number): Promise<{ success: boolean }> {
-    const reservation = await this.reservationRepository.findOneByCodeAndDogOwnerId(
-      code,
-      dogOwnerId,
-    );
-    if (!reservation) {
-      throw new NotFoundException('ไม่พบการจอง');
-    }
-    if (reservation.status !== ReservationStatusEnum.PENDING) {
-      throw new BadRequestException(
-        'ยกเลิกได้เฉพาะการจองที่อยู่ในสถานะรอการยืนยันเท่านั้น',
+  async execute(
+    code: string,
+    dogOwnerId: number,
+    performedByStaff: boolean,
+  ): Promise<{ success: boolean }> {
+    let reservation: Reservation | null;
+
+    if (performedByStaff) {
+      reservation = await this.reservationRepository.findOneByCodeAndDogOwnerId(
+        code,
+        dogOwnerId,
       );
+      if (!reservation) {
+        throw new NotFoundException('ไม่พบการจอง');
+      }
+      // staff สามารถยกเลิกได้ทุกสถานะ (ไม่เช็ค PENDING)
+    } else {
+      reservation = await this.reservationRepository.findOneByCodeAndDogOwnerId(
+        code,
+        dogOwnerId,
+      );
+      if (!reservation) {
+        throw new NotFoundException('ไม่พบการจอง');
+      }
+      if (reservation.status !== ReservationStatusEnum.PENDING) {
+        throw new BadRequestException(
+          'ยกเลิกได้เฉพาะการจองที่อยู่ในสถานะรอการยืนยันเท่านั้น',
+        );
+      }
     }
 
     reservation.status = ReservationStatusEnum.CANCELLED;
     await this.reservationRepository.saveReservation(reservation);
 
+    const label = performedByStaff
+      ? 'ยกเลิกการจองโดยพนักงาน'
+      : 'ยกเลิกการจองโดยลูกค้า';
     await this.statusLogRepository.createAndSave(
       String(reservation.id),
       ReservationStatusEnum.CANCELLED,
       String(dogOwnerId),
-      'ยกเลิกการจองโดยลูกค้า',
+      label,
     );
 
     return { success: true };

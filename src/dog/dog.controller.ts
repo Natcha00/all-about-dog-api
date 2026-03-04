@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, UseGuards, Param } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { DogService } from './services/dog.service';
 import { CreateDogDto } from './dtos/create-dog.dto';
 import { CreateBreedDto } from './dtos/create-breed.dto';
@@ -13,6 +22,7 @@ import { CreateVaccinationRecordDto } from './dtos/create-vaccination-record.dto
 import { CreateVaccinationRecordUsecase } from './use-cases/create-vaccination-record.use-case';
 import { GetBreedsUsecase } from './use-cases/get-breeds.use-case';
 import { BloodGroup } from './enums/blood-group.enum';
+import { ROLE } from 'src/user/enums/role.enum';
 
 @Controller('dog')
 export class DogController {
@@ -28,15 +38,28 @@ export class DogController {
   @UseGuards(AccessTokenGuard)
   async create(
     @Body() createDogDto: CreateDogDto,
-    @DogOwnerDecorator() dogOwner: IUser,
+    @DogOwnerDecorator() user: IUser,
   ) {
-    return await this.createDogUsecase.execute(createDogDto, dogOwner.id);
+    const dogOwnerId = this.resolveDogOwnerId(
+      user,
+      createDogDto.dogOwnerId,
+      'create-dog',
+    );
+    return await this.createDogUsecase.execute(createDogDto, dogOwnerId);
   }
 
   @Get()
   @UseGuards(AccessTokenGuard)
-  async getDogs(@DogOwnerDecorator() dogOwner: IUser) {
-    return await this.getDogByOwnerUsecase.execute(dogOwner.id);
+  async getDogs(
+    @Query('dogOwnerId') dogOwnerIdQuery: string | undefined,
+    @DogOwnerDecorator() user: IUser,
+  ) {
+    const dogOwnerId = this.resolveDogOwnerIdFromQuery(
+      user,
+      dogOwnerIdQuery,
+      'getDogs',
+    );
+    return await this.getDogByOwnerUsecase.execute(dogOwnerId);
   }
 
   @Get('options/blood-groups')
@@ -55,9 +78,15 @@ export class DogController {
   @UseGuards(AccessTokenGuard)
   async getProfile(
     @Param('id') dogId: string,
-    @DogOwnerDecorator() dogOwner: IUser,
+    @Query('dogOwnerId') dogOwnerIdQuery: string | undefined,
+    @DogOwnerDecorator() user: IUser,
   ): Promise<GetDogProfileResponse> {
-    return await this.getDogProfileUsecase.execute(Number(dogId), dogOwner.id);
+    const dogOwnerId = this.resolveDogOwnerIdFromQuery(
+      user,
+      dogOwnerIdQuery,
+      'getProfile',
+    );
+    return await this.getDogProfileUsecase.execute(Number(dogId), dogOwnerId);
   }
 
   @Post(':id/vaccinations')
@@ -65,12 +94,56 @@ export class DogController {
   async addVaccination(
     @Param('id') dogId: string,
     @Body() createVaccinationRecordDto: CreateVaccinationRecordDto,
-    @DogOwnerDecorator() dogOwner: IUser,
+    @DogOwnerDecorator() user: IUser,
   ) {
+    const dogOwnerId = this.resolveDogOwnerId(
+      user,
+      createVaccinationRecordDto.dogOwnerId,
+      'addVaccination',
+    );
     return await this.createVaccinationRecordUsecase.execute(
       Number(dogId),
-      dogOwner.id,
+      dogOwnerId,
       createVaccinationRecordDto,
     );
+  }
+
+  private resolveDogOwnerId(
+    user: IUser,
+    value: number | undefined,
+    endpoint: string,
+  ): number {
+    if (user.role === ROLE.DOG_OWNER) {
+      return user.id;
+    }
+    if (user.role === ROLE.STAFF) {
+      if (value == null) {
+        throw new BadRequestException(
+          `กรุณาระบุ dogOwnerId เมื่อเรียก ${endpoint} จากฝั่ง staff`,
+        );
+      }
+      return value;
+    }
+    throw new BadRequestException(`ไม่สามารถเรียก ${endpoint} สำหรับ role นี้ได้`);
+  }
+
+  private resolveDogOwnerIdFromQuery(
+    user: IUser,
+    queryValue: string | undefined,
+    endpoint: string,
+  ): number {
+    if (user.role === ROLE.DOG_OWNER) {
+      return user.id;
+    }
+    if (user.role === ROLE.STAFF) {
+      const id = queryValue != null ? Number(queryValue) : NaN;
+      if (!Number.isInteger(id) || id < 1) {
+        throw new BadRequestException(
+          `กรุณาระบุ dogOwnerId เมื่อเรียก ${endpoint} จากฝั่ง staff`,
+        );
+      }
+      return id;
+    }
+    throw new BadRequestException(`ไม่สามารถเรียก ${endpoint} สำหรับ role นี้ได้`);
   }
 }

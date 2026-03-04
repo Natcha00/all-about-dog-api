@@ -1,4 +1,10 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { GetAnnouncementUsecase } from './use-cases/get-annoucement.use-case';
 import {
   GetBoardingAvailableRequest,
@@ -17,6 +23,8 @@ import { GetSwimmingPackagePricingRequest, GetSwimmingPackagePricingResponse } f
 import { GetSwimmingPackagePricingUsecase } from './use-cases/get-swimming-package-pricing.use-case';
 import { GetOfferingAvailableRequest, GetOfferingAvailableResponse } from './dtos/get-offering-available.dto';
 import { GetOfferingAvailableUsecase } from './use-cases/get-offering-available.use-case';
+import { StaffGuard } from 'src/staff/guards/staff.guard';
+import { ROLE } from 'src/user/enums/role.enum';
 
 @Controller('offering')
 export class OfferingController {
@@ -37,31 +45,53 @@ export class OfferingController {
   @UseGuards(AccessTokenGuard)
   async getBoardingAvailable(
     @Query() query: GetBoardingAvailableRequest,
-    @DogOwnerDecorator() dogOwner: IUser,
+    @DogOwnerDecorator() user: IUser,
   ): Promise<GetBoardingAvailableResponse> {
-    return await this.getBoardingAvailableUsecase.execute(query, dogOwner.id);
+    const dogOwnerId = this.resolveDogOwnerId(user, query.dogOwnerId, 'boarding/available');
+    return await this.getBoardingAvailableUsecase.execute(query, dogOwnerId);
   }
 
   @Get('/boarding/package-pricing')
   @UseGuards(AccessTokenGuard)
   async getBoardingPackagePricing(
     @Query() query: GetBoardingPackagePricingRequest,
-    @DogOwnerDecorator() dogOwner: IUser,
+    @DogOwnerDecorator() user: IUser,
   ): Promise<GetBoardingPackagePricingResponse> {
-    return await this.getBoardingPackagePricingUsecase.execute(query, dogOwner.id);
+    const dogOwnerId = this.resolveDogOwnerId(user, query.dogOwnerId, 'boarding/package-pricing');
+    return await this.getBoardingPackagePricingUsecase.execute(query, dogOwnerId);
   }
 
   @Get('/swimming/package-pricing')
   @UseGuards(AccessTokenGuard)
   async getSwimmingPackagePricing(
     @Query() query: GetSwimmingPackagePricingRequest,
-    @DogOwnerDecorator() dogOwner: IUser,
+    @DogOwnerDecorator() user: IUser,
   ): Promise<GetSwimmingPackagePricingResponse> {
-    return await this.getSwimmingPackagePricingUsecase.execute(query, dogOwner.id);
+    const dogOwnerId = this.resolveDogOwnerId(user, query.dogOwnerId, 'swimming/package-pricing');
+    return await this.getSwimmingPackagePricingUsecase.execute(query, dogOwnerId);
+  }
+
+  private resolveDogOwnerId(
+    user: IUser,
+    dogOwnerIdFromQuery: number | undefined,
+    endpoint: string,
+  ): number {
+    if (user.role === ROLE.DOG_OWNER) {
+      return user.id;
+    }
+    if (user.role === ROLE.STAFF) {
+      if (dogOwnerIdFromQuery == null) {
+        throw new BadRequestException(
+          `กรุณาระบุ dogOwnerId เมื่อเรียก ${endpoint} จากฝั่ง staff`,
+        );
+      }
+      return dogOwnerIdFromQuery;
+    }
+    throw new BadRequestException(`ไม่สามารถเรียก ${endpoint} สำหรับ role นี้ได้`);
   }
 
   @Get('/available')
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, StaffGuard)
   async getOfferingAvailable(
     @Query() query: GetOfferingAvailableRequest,
   ): Promise<GetOfferingAvailableResponse> {

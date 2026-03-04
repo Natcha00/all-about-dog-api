@@ -10,6 +10,8 @@ import { PaymentSlip } from './entities/payment-slip.entity';
 import { PaymentSlipRepository } from './payment-slip.repository';
 import { ReservationStatusLogRepository } from './reservation-status-log.repository';
 import { UserModule } from 'src/user/user.module';
+import { DogModule } from 'src/dog/dog.module';
+import { StaffModule } from 'src/staff/staff.module';
 import { ConfirmReservationUsecase } from './use-cases/confirm-reservation.use-case';
 import { GetReservationsUsecase } from './use-cases/get-reservations.use-case';
 import { GetReservationDetailUsecase } from './use-cases/get-reservation-detail.use-case';
@@ -31,6 +33,8 @@ import { CancelReservationUsecase } from './use-cases/cancel-reservation.use-cas
       PaymentSlip,
     ]),
     UserModule,
+    DogModule,
+    StaffModule,
   ],
   controllers: [ReservationController],
   providers: [

@@ -15,13 +15,17 @@ import { ReservationService } from './reservation.service';
 import { Reservation } from './entities/reservation.entity';
 import { ConfirmReservationRequest } from './dtos/confirm-reservation.dto';
 import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
+import { StaffGuard } from 'src/staff/guards/staff.guard';
 import { DogOwnerDecorator } from 'src/user/decorators/dog-owner.decorator';
 import { type IUser } from 'src/user/interfaces/user.interface';
 import { ConfirmReservationUsecase } from './use-cases/confirm-reservation.use-case';
 import { GetReservationsUsecase } from './use-cases/get-reservations.use-case';
 import { GetReservationsRequest, GetReservationsResponse } from './dtos/get-reservations.dto';
 import { GetReservationDetailUsecase } from './use-cases/get-reservation-detail.use-case';
-import { GetReservationDetailResponse } from './dtos/get-reservation-detail.dto';
+import {
+  GetReservationDetailRequest,
+  GetReservationDetailResponse,
+} from './dtos/get-reservation-detail.dto';
 import { UploadPaymentSlipUsecase } from './use-cases/upload-payment-slip.use-case';
 import { VerifyPaymentSlipUsecase } from './use-cases/verify-payment-slip.use-case';
 import { RejectPaymentSlipUsecase } from './use-cases/reject-payment-slip.use-case';
@@ -35,6 +39,7 @@ import { SearchReservationRequest } from './dtos/search-reservation.dto';
 import { SearchReservationsUsecase } from './use-cases/search-reservations.use-case';
 import { CancelReservationRequest } from './dtos/cancel-reservation.dto';
 import { CancelReservationUsecase } from './use-cases/cancel-reservation.use-case';
+import { ROLE } from 'src/user/enums/role.enum';
 
 @Controller('reservation')
 export class ReservationController {
@@ -53,22 +58,32 @@ export class ReservationController {
     private readonly cancelReservationUsecase: CancelReservationUsecase,
   ) {}
 
-  @Post()
-  createReservation(@Body() reservationBody: Reservation) {
-    // return this.reservationService.createReservation(reservationBody)
-  }
-
   @Get()
   @UseGuards(AccessTokenGuard)
   async getReservations(
     @Query() query: GetReservationsRequest,
     @DogOwnerDecorator() user: IUser,
   ): Promise<GetReservationsResponse> {
-    return this.getReservationsUsecase.execute(user.id, query.tab);
+    let dogOwnerId: number;
+
+    if (user.role === ROLE.DOG_OWNER) {
+      dogOwnerId = user.id;
+    } else if (user.role === ROLE.STAFF) {
+      if (query.dogOwnerId == null) {
+        throw new BadRequestException(
+          'กรุณาระบุ dogOwnerId เมื่อดูรายการจองจากฝั่ง staff',
+        );
+      }
+      dogOwnerId = query.dogOwnerId;
+    } else {
+      throw new BadRequestException('ไม่สามารถดูรายการจองสำหรับ role นี้ได้');
+    }
+
+    return this.getReservationsUsecase.execute(dogOwnerId, query.tab);
   }
 
   @Get('search')
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, StaffGuard)
   async searchReservations(
     @Query() query: SearchReservationRequest,
   ): Promise<Reservation[]> {
@@ -78,10 +93,30 @@ export class ReservationController {
   @Get('detail')
   @UseGuards(AccessTokenGuard)
   async getReservationDetail(
-    @Query('code') code: string,
+    @Query() query: GetReservationDetailRequest,
     @DogOwnerDecorator() user: IUser,
   ): Promise<GetReservationDetailResponse> {
-    const result = await this.getReservationDetailUsecase.execute(code, user.id);
+    let dogOwnerId: number;
+
+    if (user.role === ROLE.DOG_OWNER) {
+      dogOwnerId = user.id;
+    } else if (user.role === ROLE.STAFF) {
+      if (query.dogOwnerId == null) {
+        throw new BadRequestException(
+          'กรุณาระบุ dogOwnerId เมื่อดูรายละเอียดการจองจากฝั่ง staff',
+        );
+      }
+      dogOwnerId = query.dogOwnerId;
+    } else {
+      throw new BadRequestException(
+        'ไม่สามารถดูรายละเอียดการจองสำหรับ role นี้ได้',
+      );
+    }
+
+    const result = await this.getReservationDetailUsecase.execute(
+      query.code,
+      dogOwnerId,
+    );
     return { statusCode: 200, result };
   }
 
@@ -91,7 +126,22 @@ export class ReservationController {
     @Body() body: ConfirmReservationRequest,
     @DogOwnerDecorator() user: IUser,
   ): Promise<Reservation> {
-    return this.confirmReservationUsecase.execute(body, user.id);
+    let dogOwnerId: number;
+
+    if (user.role === ROLE.DOG_OWNER) {
+      dogOwnerId = user.id;
+    } else if (user.role === ROLE.STAFF) {
+      if (!body.dogOwnerId) {
+        throw new BadRequestException(
+          'กรุณาระบุ dogOwnerId เมื่อยืนยันจากฝั่ง staff',
+        );
+      }
+      dogOwnerId = body.dogOwnerId;
+    } else {
+      throw new BadRequestException('ไม่สามารถยืนยันการจองสำหรับ role นี้ได้');
+    }
+
+    return this.confirmReservationUsecase.execute(body, dogOwnerId);
   }
 
   @Post('cancel')
@@ -100,16 +150,37 @@ export class ReservationController {
     @Body() body: CancelReservationRequest,
     @DogOwnerDecorator() user: IUser,
   ): Promise<{ success: boolean }> {
-    return this.cancelReservationUsecase.execute(body.code, user.id);
+    let dogOwnerId: number;
+    let performedByStaff: boolean;
+
+    if (user.role === ROLE.DOG_OWNER) {
+      dogOwnerId = user.id;
+      performedByStaff = false;
+    } else if (user.role === ROLE.STAFF) {
+      if (body.dogOwnerId == null) {
+        throw new BadRequestException(
+          'กรุณาระบุ dogOwnerId เมื่อยกเลิกจากฝั่ง staff',
+        );
+      }
+      dogOwnerId = body.dogOwnerId;
+      performedByStaff = true;
+    } else {
+      throw new BadRequestException('ไม่สามารถยกเลิกการจองสำหรับ role นี้ได้');
+    }
+
+    return this.cancelReservationUsecase.execute(
+      body.code,
+      dogOwnerId,
+      performedByStaff,
+    );
   }
 
   @Post('approve')
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, StaffGuard)
   async approveReservation(
     @Body() body: ApproveReservationRequest,
-    @DogOwnerDecorator() user: IUser,
   ): Promise<{ success: boolean }> {
-    return this.approveReservationUsecase.execute(body.code, user.id);
+    return this.approveReservationUsecase.execute(body.code, body.dogOwnerId);
   }
 
   @Post('slip/upload')
@@ -135,30 +206,27 @@ export class ReservationController {
   }
 
   @Post('slip/verify')
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, StaffGuard)
   async verifySlip(
     @Body() body: VerifySlipRequest,
-    @DogOwnerDecorator() user: IUser,
   ): Promise<{ success: boolean }> {
-    return this.verifyPaymentSlipUsecase.execute(body.code, user.id);
+    return this.verifyPaymentSlipUsecase.execute(body.code, body.dogOwnerId);
   }
 
   @Post('checkin')
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, StaffGuard)
   async checkIn(
     @Body() body: CheckInReservationRequest,
-    @DogOwnerDecorator() user: IUser,
   ): Promise<{ success: boolean }> {
-    return this.checkInReservationUsecase.execute(body.code, user.id);
+    return this.checkInReservationUsecase.execute(body.code, body.dogOwnerId);
   }
 
   @Post('checkout')
-  @UseGuards(AccessTokenGuard)
+  @UseGuards(AccessTokenGuard, StaffGuard)
   async checkOut(
     @Body() body: CheckOutReservationRequest,
-    @DogOwnerDecorator() user: IUser,
   ): Promise<{ success: boolean }> {
-    return this.checkOutReservationUsecase.execute(body.code, user.id);
+    return this.checkOutReservationUsecase.execute(body.code, body.dogOwnerId);
   }
 
   @Post('slip/reject')

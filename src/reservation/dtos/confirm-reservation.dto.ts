@@ -56,6 +56,12 @@ export class ConfirmReservationRequest {
   @IsString()
   remark?: string;
 
+   /** สำหรับกรณี staff ยืนยันแทนลูกค้า */
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  dogOwnerId?: number;
+
   @IsEnum(OfferingPackage)
   package: OfferingPackage;
 

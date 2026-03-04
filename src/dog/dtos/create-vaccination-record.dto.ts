@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl, IsInt, Min } from "class-validator";
 
 export class CreateVaccinationRecordDto {
 
@@ -24,4 +24,10 @@ clinicName: string;
 @IsOptional()
 @IsUrl()
 evidenceImageUrl: string;
+
+/** สำหรับ staff: ระบุ dogOwnerId ของเจ้าของสุนัข */
+@IsOptional()
+@IsInt()
+@Min(1)
+dogOwnerId?: number;
 }

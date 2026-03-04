@@ -6,6 +6,7 @@ import { ReservationLine } from '../entities/reservation-line.entity';
 import { ConfirmReservationRequest } from '../dtos/confirm-reservation.dto';
 import { ReservationStatusEnum } from '../enums/reservation-status.enum';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
+import { DogService } from 'src/dog/services/dog.service';
 
 @Injectable()
 export class ConfirmReservationUsecase {
@@ -23,12 +24,20 @@ export class ConfirmReservationUsecase {
   constructor(
     private readonly reservationRepository: ReservationRepository,
     private readonly reservationService: ReservationService,
+    private readonly dogService: DogService,
   ) {}
 
   async execute(
     body: ConfirmReservationRequest,
     dogOwnerId: number,
   ): Promise<Reservation> {
+    // validate that all dogs in lines belong to this owner
+    const dogIds = body.lines.map((line) => line.dogId);
+    if (dogIds.length === 0) {
+      throw new BadRequestException('ต้องมีสุนัขอย่างน้อย 1 ตัวในรายการจอง');
+    }
+    await this.dogService.getDogByIds(dogIds, dogOwnerId);
+
     const code = await this.reservationService.generateReservationCode(
       new Date().toISOString(),
     );
