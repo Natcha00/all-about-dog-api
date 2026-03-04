@@ -63,6 +63,8 @@ export class GetReservationDetailTimelineItemDto {
   label: string;
   at: string | null;
   by?: string | null;
+  /** รายละเอียดเพิ่มเติมของเหตุการณ์ เช่น เหตุผลที่ยกเลิก / ปฏิเสธสลิป */
+  detail?: string | null;
 }
 
 export class GetReservationDetailResultResponse {

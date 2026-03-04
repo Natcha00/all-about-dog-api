@@ -56,6 +56,7 @@ const TIMELINE_STEPS: { key: ReservationStatusEnum; label: string }[] = [
   { key: ReservationStatusEnum.SLIP_VERIFIED, label: 'ยืนยันการชำระเงินโดยพนักงาน' },
   { key: ReservationStatusEnum.CHECK_IN, label: 'Check-in' },
   { key: ReservationStatusEnum.FINISHED, label: 'จบการใช้บริการ' },
+  { key: ReservationStatusEnum.CANCELLED, label: 'ยกเลิกการจอง' },
 ];
 
 @Injectable()
@@ -168,7 +169,8 @@ export class GetReservationDetailUsecase {
         ? new Date(log.occurredAt).toISOString().replace('Z', '+07:00')
         : null;
       const by = log?.performedBy ?? null;
-      return { key, label, at, by };
+      const detail = log?.label ?? null;
+      return { key, label, at, by, detail };
     });
   }
 

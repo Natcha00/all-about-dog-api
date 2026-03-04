@@ -19,7 +19,17 @@ export class CancelReservationUsecase {
     code: string,
     dogOwnerId: number,
     performedByStaff: boolean,
+    cancelReason?: string,
   ): Promise<{ success: boolean }> {
+    if (performedByStaff) {
+      const reason = cancelReason?.trim();
+      if (!reason) {
+        throw new BadRequestException(
+          'กรุณาระบุหมายเหตุเหตุผลที่ยกเลิกเมื่อยกเลิกโดยพนักงาน',
+        );
+      }
+    }
+
     let reservation: Reservation | null;
 
     if (performedByStaff) {
@@ -50,7 +60,7 @@ export class CancelReservationUsecase {
     await this.reservationRepository.saveReservation(reservation);
 
     const label = performedByStaff
-      ? 'ยกเลิกการจองโดยพนักงาน'
+      ? `ยกเลิกการจองโดยพนักงาน: ${cancelReason!.trim()}`
       : 'ยกเลิกการจองโดยลูกค้า';
     await this.statusLogRepository.createAndSave(
       String(reservation.id),

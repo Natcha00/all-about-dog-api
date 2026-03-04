@@ -28,12 +28,13 @@ export class GetReservationsUsecase {
   ) {}
 
   async execute(
-    dogOwnerId: number,
+    dogOwnerId: number | undefined,
     tab?: string,
   ): Promise<GetReservationsResponse> {
-    const reservations = await this.reservationRepository.findByDogOwnerId(
-      dogOwnerId,
-    );
+    const reservations =
+      dogOwnerId != null
+        ? await this.reservationRepository.findByDogOwnerId(dogOwnerId)
+        : await this.reservationRepository.findAll();
 
     const counts = this.buildCounts(reservations);
     let items = reservations.map((r) => this.toItem(r));
@@ -114,6 +115,11 @@ export class GetReservationsUsecase {
       dogsLabel,
       totalPrice,
     };
+    const owner = r.dogOwner as { id?: number; firstName?: string; lastName?: string } | undefined;
+    if (owner?.id != null) {
+      item.dogOwnerId = owner.id;
+      item.dogOwnerLabel = [owner.firstName, owner.lastName].filter(Boolean).join(' ') || undefined;
+    }
 
     if (r.offeringType === OfferingType.SWIMMING) {
       item.date = toDateStr(start);

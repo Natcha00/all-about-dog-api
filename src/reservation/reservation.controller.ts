@@ -64,16 +64,11 @@ export class ReservationController {
     @Query() query: GetReservationsRequest,
     @DogOwnerDecorator() user: IUser,
   ): Promise<GetReservationsResponse> {
-    let dogOwnerId: number;
+    let dogOwnerId: number | undefined;
 
     if (user.role === ROLE.DOG_OWNER) {
       dogOwnerId = user.id;
     } else if (user.role === ROLE.STAFF) {
-      if (query.dogOwnerId == null) {
-        throw new BadRequestException(
-          'กรุณาระบุ dogOwnerId เมื่อดูรายการจองจากฝั่ง staff',
-        );
-      }
       dogOwnerId = query.dogOwnerId;
     } else {
       throw new BadRequestException('ไม่สามารถดูรายการจองสำหรับ role นี้ได้');
@@ -162,6 +157,11 @@ export class ReservationController {
           'กรุณาระบุ dogOwnerId เมื่อยกเลิกจากฝั่ง staff',
         );
       }
+      if (!body.cancelReason?.trim()) {
+        throw new BadRequestException(
+          'กรุณาระบุหมายเหตุเหตุผลที่ยกเลิกเมื่อยกเลิกโดยพนักงาน',
+        );
+      }
       dogOwnerId = body.dogOwnerId;
       performedByStaff = true;
     } else {
@@ -172,6 +172,7 @@ export class ReservationController {
       body.code,
       dogOwnerId,
       performedByStaff,
+      body.cancelReason,
     );
   }
 

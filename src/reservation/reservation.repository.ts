@@ -71,6 +71,20 @@ export class ReservationRepository {
     });
   }
 
+  /** ดึงการจองทั้งหมด (สำหรับ staff ไม่เจาะจง dogOwner) */
+  async findAll(): Promise<Reservation[]> {
+    return this.repo.find({
+      relations: [
+        'reservationLines',
+        'reservationLines.offering',
+        'reservationLines.dog',
+        'reservationLines.dog.breed',
+        'dogOwner',
+      ],
+      order: { startDateTime: 'DESC' },
+    });
+  }
+
   async findOneByCodeAndDogOwnerId(
     code: string,
     dogOwnerId: number,

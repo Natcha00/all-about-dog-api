@@ -7,7 +7,7 @@ export class GetReservationsRequest {
   @IsString()
   tab?: string;
 
-  /** สำหรับ staff: ระบุ dogOwnerId เพื่อดูรายการจองของลูกค้า */
+  /** สำหรับ staff: ไม่ส่ง = ดูทุกลูกค้า, ส่ง = เจาะจงลูกค้าที่ระบุ */
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -47,6 +47,9 @@ export class GetReservationItemDto {
   timeSlot?: GetReservationsTimeSlotDto;
   checkInDate?: string;
   checkOutDate?: string;
+  /** เจ้าของการจอง (มีเมื่อ staff ดูรายการทั้งหมด) */
+  dogOwnerId?: number;
+  dogOwnerLabel?: string;
 }
 
 export class GetReservationsResponse {
