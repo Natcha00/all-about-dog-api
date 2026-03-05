@@ -163,6 +163,11 @@ export class GetReservationDetailUsecase {
     for (const log of logs) {
       byStatus.set(log.status, log);
     }
+    const owner = r.dogOwner as { id?: number; firstName?: string; lastName?: string } | undefined;
+    const ownerId = owner?.id ?? null;
+    const ownerName =
+      [owner?.firstName, owner?.lastName].filter(Boolean).join(' ') || null;
+
     return TIMELINE_STEPS.map(({ key, label }) => {
       const log = byStatus.get(key);
       const at = log?.occurredAt
@@ -170,7 +175,11 @@ export class GetReservationDetailUsecase {
         : null;
       const by = log?.performedBy ?? null;
       const detail = log?.label ?? null;
-      return { key, label, at, by, detail };
+      let actorRole: string | null = null;
+      if (by != null && ownerId != null) {
+        actorRole = Number(by) === ownerId ? 'DOG_OWNER' : 'STAFF';
+      }
+      return { key, label, at, by, detail, actorRole, ownerId, ownerName };
     });
   }
 

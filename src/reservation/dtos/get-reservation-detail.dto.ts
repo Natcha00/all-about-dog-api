@@ -65,6 +65,11 @@ export class GetReservationDetailTimelineItemDto {
   by?: string | null;
   /** รายละเอียดเพิ่มเติมของเหตุการณ์ เช่น เหตุผลที่ยกเลิก / ปฏิเสธสลิป */
   detail?: string | null;
+  /** บทบาทของผู้ที่ทำเหตุการณ์ เช่น DOG_OWNER หรือ STAFF (ถ้ารู้ได้) */
+  actorRole?: string | null;
+  /** เจ้าของการจอง (ใช้แสดงว่า action นี้ทำแทนใคร) */
+  ownerId?: number | null;
+  ownerName?: string | null;
 }
 
 export class GetReservationDetailResultResponse {

@@ -24,6 +24,8 @@ export class UploadPaymentSlipUsecase {
   async execute(
     code: string,
     dogOwnerId: number,
+    performedByUserId: number,
+    performedByStaff: boolean,
     file: Express.Multer.File,
   ): Promise<{ slipUrl: string }> {
     const reservation =
@@ -62,13 +64,13 @@ export class UploadPaymentSlipUsecase {
 
     if (reservation.paymentSlip) {
       reservation.paymentSlip.slipUrl = slipUrl;
-      reservation.paymentSlip.updateBy = String(dogOwnerId);
+      reservation.paymentSlip.updateBy = String(performedByUserId);
     } else {
       const slip = this.paymentSlipRepository.create({
         slipUrl,
         isApproved: false,
         approveBy: null,
-        updateBy: String(dogOwnerId),
+        updateBy: String(performedByUserId),
         rejectedReason: null,
       });
       slip.reservation = reservation;
@@ -78,11 +80,15 @@ export class UploadPaymentSlipUsecase {
     reservation.status = ReservationStatusEnum.SLIP_UPLOADED;
     await this.reservationRepository.saveReservation(reservation);
 
+    const label = performedByStaff
+      ? 'อัปโหลดสลิปแล้ว โดยพนักงาน'
+      : 'อัปโหลดสลิปแล้ว โดยลูกค้า';
+
     await this.statusLogRepository.createAndSave(
       String(reservation.id),
       ReservationStatusEnum.SLIP_UPLOADED,
-      String(dogOwnerId),
-      'อัปโหลดสลิปแล้ว',
+      String(performedByUserId),
+      label,
     );
 
     return { slipUrl };

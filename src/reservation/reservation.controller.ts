@@ -126,7 +126,7 @@ export class ReservationController {
     if (user.role === ROLE.DOG_OWNER) {
       dogOwnerId = user.id;
     } else if (user.role === ROLE.STAFF) {
-      if (!body.dogOwnerId) {
+      if (body.dogOwnerId == null) {
         throw new BadRequestException(
           'กรุณาระบุ dogOwnerId เมื่อยืนยันจากฝั่ง staff',
         );
@@ -194,6 +194,7 @@ export class ReservationController {
   )
   async uploadSlip(
     @Body('code') code: string,
+    @Body('dogOwnerId') bodyDogOwnerId: number | undefined,
     @UploadedFile() file: Express.Multer.File,
     @DogOwnerDecorator() user: IUser,
   ): Promise<{ slipUrl: string }> {
@@ -203,9 +204,34 @@ export class ReservationController {
     if (!file?.buffer) {
       throw new BadRequestException('กรุณาแนบไฟล์รูปภาพ');
     }
-    return this.uploadPaymentSlipUsecase.execute(code, user.id, file);
-  }
 
+    let dogOwnerId: number;
+    const performedByUserId = user.id;
+    let performedByStaff = false;
+
+    if (user.role === ROLE.DOG_OWNER) {
+      dogOwnerId = user.id;
+      performedByStaff = false;
+    } else if (user.role === ROLE.STAFF) {
+      if (bodyDogOwnerId == null) {
+        throw new BadRequestException(
+          'กรุณาระบุ dogOwnerId เมื่อแนบสลิปจากฝั่ง staff',
+        );
+      }
+      dogOwnerId = bodyDogOwnerId;
+      performedByStaff = true;
+    } else {
+      throw new BadRequestException('ไม่สามารถแนบสลิปสำหรับ role นี้ได้');
+    }
+
+    return this.uploadPaymentSlipUsecase.execute(
+      code,
+      dogOwnerId,
+      performedByUserId,
+      performedByStaff,
+      file,
+    );
+  }
   @Post('slip/verify')
   @UseGuards(AccessTokenGuard, StaffGuard)
   async verifySlip(
