@@ -49,6 +49,7 @@ export class RejectPaymentSlipUsecase {
       ReservationStatusEnum.WAITING_SLIP,
       String(staffId),
       `ปฏิเสธสลิป: ${reason.trim() || 'ไม่มีเหตุผล'}`,
+      'STAFF',
     );
 
     return { success: true };

@@ -33,6 +33,7 @@ export class CheckInReservationUsecase {
       ReservationStatusEnum.CHECK_IN,
       String(staffId),
       'Check-in แล้ว',
+      'STAFF',
     );
 
     return { success: true };

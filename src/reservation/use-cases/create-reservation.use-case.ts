@@ -7,6 +7,7 @@ import { CreateReservationRequest } from '../dtos/confirm-reservation.dto';
 import { ReservationStatusEnum } from '../enums/reservation-status.enum';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
 import { DogService } from 'src/dog/services/dog.service';
+import { ReservationStatusLogRepository } from '../reservation-status-log.repository';
 
 @Injectable()
 export class CreateReservationUsecase {
@@ -25,11 +26,14 @@ export class CreateReservationUsecase {
     private readonly reservationRepository: ReservationRepository,
     private readonly reservationService: ReservationService,
     private readonly dogService: DogService,
+    private readonly statusLogRepository: ReservationStatusLogRepository,
   ) {}
 
   async execute(
     body: CreateReservationRequest,
     dogOwnerId: number,
+    performedByUserId: number,
+    performedByStaff: boolean,
   ): Promise<Reservation> {
     // validate that all dogs in lines belong to this owner
     const dogIds = body.lines.map((line) => line.dogId);
@@ -87,6 +91,20 @@ export class CreateReservationUsecase {
       reservationLines,
     } as Reservation;
 
-    return this.reservationRepository.saveReservation(reservation);
+    const saved = await this.reservationRepository.saveReservation(reservation);
+
+    const label = performedByStaff
+      ? 'สร้างรายการจอง โดยพนักงาน'
+      : 'สร้างรายการจอง โดยลูกค้า';
+    const actorRole = performedByStaff ? 'STAFF' : 'DOG_OWNER';
+    await this.statusLogRepository.createAndSave(
+      String(saved.id),
+      ReservationStatusEnum.PENDING,
+      String(performedByUserId),
+      label,
+      actorRole,
+    );
+
+    return saved;
   }
 }

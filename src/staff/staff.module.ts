@@ -22,6 +22,6 @@ import { GetStaffProfileUsecase } from './use-cases/get-staff-profile.use-case';
     LoginStaffUsecase,
     GetStaffProfileUsecase,
   ],
-  exports: [StaffGuard],
+  exports: [StaffGuard, StaffRepository],
 })
 export class StaffModule {}

@@ -31,6 +31,10 @@ export class ReservationStatusLog {
   @Column({ type: 'varchar', length: 255, nullable: true })
   performedBy: string | null;
 
+  /** ผู้ทำ action: STAFF หรือ DOG_OWNER */
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  actorRole: string | null;
+
   @Column({ type: 'varchar', length: 255, nullable: true })
   label: string | null;
 }

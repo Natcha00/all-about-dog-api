@@ -18,7 +18,7 @@ import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
 import { StaffGuard } from 'src/staff/guards/staff.guard';
 import { DogOwnerDecorator } from 'src/user/decorators/dog-owner.decorator';
 import { type IUser } from 'src/user/interfaces/user.interface';
-import { CreateReservationUsecase } from './use-cases/confirm-reservation.use-case';
+import { CreateReservationUsecase } from './use-cases/create-reservation.use-case';
 import { GetReservationsUsecase } from './use-cases/get-reservations.use-case';
 import { GetReservationsRequest, GetReservationsResponse } from './dtos/get-reservations.dto';
 import { GetReservationDetailUsecase } from './use-cases/get-reservation-detail.use-case';
@@ -40,6 +40,7 @@ import { SearchReservationsUsecase } from './use-cases/search-reservations.use-c
 import { CancelReservationRequest } from './dtos/cancel-reservation.dto';
 import { CancelReservationUsecase } from './use-cases/cancel-reservation.use-case';
 import { ROLE } from 'src/user/enums/role.enum';
+import { StaffDecorator } from 'src/staff/decorators/staff.decorator';
 
 @Controller('reservation')
 export class ReservationController {
@@ -136,7 +137,12 @@ export class ReservationController {
       throw new BadRequestException('ไม่สามารถยืนยันการจองสำหรับ role นี้ได้');
     }
 
-    return this.createReservationUsecase.execute(body, dogOwnerId);
+    return this.createReservationUsecase.execute(
+      body,
+      dogOwnerId,
+      user.id,
+      user.role === ROLE.STAFF,
+    );
   }
 
   @Post('cancel')
@@ -180,8 +186,9 @@ export class ReservationController {
   @UseGuards(AccessTokenGuard, StaffGuard)
   async approveReservation(
     @Body() body: ApproveReservationRequest,
+    @StaffDecorator() user: IUser,
   ): Promise<{ success: boolean }> {
-    return this.approveReservationUsecase.execute(body.code, body.dogOwnerId);
+    return this.approveReservationUsecase.execute(body.code, user.id);
   }
 
   @Post('slip/upload')

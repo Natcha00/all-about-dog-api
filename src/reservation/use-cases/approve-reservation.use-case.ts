@@ -32,7 +32,8 @@ export class ApproveReservationUsecase {
       String(reservation.id),
       ReservationStatusEnum.WAITING_SLIP,
       String(staffId),
-      'อนุมัติการจอง รออัปโหลดสลิป',
+      'อนุมัติการจองแล้ว',
+      'STAFF',
     );
 
     return { success: true };

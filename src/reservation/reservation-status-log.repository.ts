@@ -20,11 +20,13 @@ export class ReservationStatusLogRepository {
     status: ReservationStatusEnum,
     performedBy: string | null = null,
     label: string | null = null,
+    actorRole: string | null = null,
   ): Promise<ReservationStatusLog> {
     const log = this.repo.create({
       status,
       performedBy,
       label,
+      actorRole,
     });
     log.reservation = { id: reservationId } as ReservationStatusLog['reservation'];
     return this.repo.save(log);

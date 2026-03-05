@@ -28,6 +28,6 @@ import { GetDogOwnerByIdUsecase } from './use-cases/get-dog-owner-by-id.use-case
     SearchDogOwnerUsecase,
     GetDogOwnerByIdUsecase,
   ],
-  exports: [GetDogOwnerByIdUsecase],
+  exports: [GetDogOwnerByIdUsecase, DogOwnerRepository],
 })
 export class DogOwnerModule {}

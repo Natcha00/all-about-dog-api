@@ -46,6 +46,7 @@ export class VerifyPaymentSlipUsecase {
       ReservationStatusEnum.SLIP_VERIFIED,
       String(staffId),
       'ยืนยันการชำระเงินโดยพนักงาน',
+      'STAFF',
     );
 
     return { success: true };

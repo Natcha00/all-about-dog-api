@@ -33,6 +33,7 @@ export class CheckOutReservationUsecase {
       ReservationStatusEnum.FINISHED,
       String(staffId),
       'Check-out แล้ว',
+      'STAFF',
     );
 
     return { success: true };

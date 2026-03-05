@@ -62,11 +62,13 @@ export class CancelReservationUsecase {
     const label = performedByStaff
       ? `ยกเลิกการจองโดยพนักงาน: ${cancelReason!.trim()}`
       : 'ยกเลิกการจองโดยลูกค้า';
+    const actorRole = performedByStaff ? 'STAFF' : 'DOG_OWNER';
     await this.statusLogRepository.createAndSave(
       String(reservation.id),
       ReservationStatusEnum.CANCELLED,
       String(dogOwnerId),
       label,
+      actorRole,
     );
 
     return { success: true };

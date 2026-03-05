@@ -63,6 +63,8 @@ export class GetReservationDetailTimelineItemDto {
   label: string;
   at: string | null;
   by?: string | null;
+  /** ชื่อผู้ทำ action (ค้นจาก id ใน by) */
+  performedByName?: string | null;
   /** รายละเอียดเพิ่มเติมของเหตุการณ์ เช่น เหตุผลที่ยกเลิก / ปฏิเสธสลิป */
   detail?: string | null;
   /** บทบาทของผู้ที่ทำเหตุการณ์ เช่น DOG_OWNER หรือ STAFF (ถ้ารู้ได้) */

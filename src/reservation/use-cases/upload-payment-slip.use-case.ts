@@ -36,9 +36,9 @@ export class UploadPaymentSlipUsecase {
     if (!reservation) {
       throw new NotFoundException('Reservation not found');
     }
-    if (reservation.status !== ReservationStatusEnum.WAITING_SLIP) {
+    if (reservation.status !== ReservationStatusEnum.WAITING_SLIP && reservation.status !== ReservationStatusEnum.SLIP_UPLOADED) {
       throw new BadRequestException(
-        'สามารถแนบสลิปได้เฉพาะการจองที่อยู่ในสถานะรออัปโหลดสลิปเท่านั้น',
+        'สามารถแนบสลิปได้เฉพาะการจองที่อยู่ในสถานะรออัปโหลดสลิปหรือรอตรวจสอบสลิปเท่านั้น',
       );
     }
 
@@ -83,12 +83,14 @@ export class UploadPaymentSlipUsecase {
     const label = performedByStaff
       ? 'อัปโหลดสลิปแล้ว โดยพนักงาน'
       : 'อัปโหลดสลิปแล้ว โดยลูกค้า';
+    const actorRole = performedByStaff ? 'STAFF' : 'DOG_OWNER';
 
     await this.statusLogRepository.createAndSave(
       String(reservation.id),
       ReservationStatusEnum.SLIP_UPLOADED,
       String(performedByUserId),
       label,
+      actorRole,
     );
 
     return { slipUrl };

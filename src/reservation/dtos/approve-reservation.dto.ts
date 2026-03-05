@@ -5,8 +5,5 @@ export class ApproveReservationRequest {
   @IsNotEmpty()
   code: string;
 
-  @IsInt()
-  @Min(1)
-  dogOwnerId: number;
 }
 

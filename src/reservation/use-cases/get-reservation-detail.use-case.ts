@@ -13,6 +13,9 @@ import {
   GetReservationDetailSlipDto,
   GetReservationDetailTimelineItemDto,
 } from '../dtos/get-reservation-detail.dto';
+import { ReservationStatusLog } from '../entities/reservation-status-log.entity';
+import { StaffRepository } from 'src/staff/staff.repository';
+import { GetDogOwnerByIdUsecase } from 'src/dog-owner/use-cases/get-dog-owner-by-id.use-case';
 
 const STATUS_LABELS: Record<ReservationStatusEnum, string> = {
   [ReservationStatusEnum.PENDING]: 'รอการยืนยัน',
@@ -49,20 +52,22 @@ const SERVICE_LABELS: Record<OfferingType, string> = {
   [OfferingType.SWIMMING]: 'ว่ายน้ำ',
 };
 
-const TIMELINE_STEPS: { key: ReservationStatusEnum; label: string }[] = [
-  { key: ReservationStatusEnum.PENDING, label: 'สร้างรายการจอง' },
-  { key: ReservationStatusEnum.WAITING_SLIP, label: 'รอชำระเงิน' },
-  { key: ReservationStatusEnum.SLIP_UPLOADED, label: 'อัปโหลดสลิปแล้ว' },
-  { key: ReservationStatusEnum.SLIP_VERIFIED, label: 'ยืนยันการชำระเงินโดยพนักงาน' },
-  { key: ReservationStatusEnum.CHECK_IN, label: 'Check-in' },
-  { key: ReservationStatusEnum.FINISHED, label: 'จบการใช้บริการ' },
-  { key: ReservationStatusEnum.CANCELLED, label: 'ยกเลิกการจอง' },
-];
+const STATUS_TIMELINE_LABELS: Record<ReservationStatusEnum, string> = {
+  [ReservationStatusEnum.PENDING]: 'สร้างรายการจอง',
+  [ReservationStatusEnum.WAITING_SLIP]: 'รอชำระเงิน',
+  [ReservationStatusEnum.SLIP_UPLOADED]: 'อัปโหลดสลิปแล้ว',
+  [ReservationStatusEnum.SLIP_VERIFIED]: 'ยืนยันการชำระเงินโดยพนักงาน',
+  [ReservationStatusEnum.CHECK_IN]: 'Check-in',
+  [ReservationStatusEnum.FINISHED]: 'จบการใช้บริการ',
+  [ReservationStatusEnum.CANCELLED]: 'ยกเลิกการจอง',
+};
 
 @Injectable()
 export class GetReservationDetailUsecase {
   constructor(
     private readonly reservationRepository: ReservationRepository,
+    private readonly staffRepository: StaffRepository,
+    private readonly getDogOwnerByIdUsecase: GetDogOwnerByIdUsecase,
   ) {}
 
   async execute(
@@ -76,10 +81,57 @@ export class GetReservationDetailUsecase {
     if (!reservation) {
       throw new NotFoundException('Reservation not found');
     }
-    return this.toDetailResult(reservation);
+    const performerNameMap = await this.resolvePerformerNames(
+      reservation.statusLogs ?? [],
+    );
+    return this.toDetailResult(reservation, performerNameMap);
   }
 
-  private toDetailResult(r: Reservation): GetReservationDetailResultResponse {
+  /** ค้นหาชื่อจาก id ตาม actorRole (STAFF → Staff, DOG_OWNER → DogOwner) */
+  private async resolvePerformerNames(
+    logs: ReservationStatusLog[],
+  ): Promise<Map<string, string>> {
+    const map = new Map<string, string>();
+    const seen = new Set<string>();
+    for (const log of logs) {
+      const by = log.performedBy?.trim();
+      if (!by) continue;
+      const key = `${by}-${log.actorRole ?? 'unknown'}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const id = Number(by);
+      if (Number.isNaN(id)) continue;
+      let name: string | null = null;
+      if (log.actorRole === 'STAFF') {
+        const staff = await this.staffRepository.findById(id);
+        name = staff
+          ? [staff.firstName, staff.lastName].filter(Boolean).join(' ').trim() || null
+          : null;
+      } else if (log.actorRole === 'DOG_OWNER') {
+        const owner = await this.getDogOwnerByIdUsecase.execute(id);
+        name = owner
+          ? [owner.firstName, owner.lastName].filter(Boolean).join(' ').trim() || null
+          : null;
+      } else {
+        const staff = await this.staffRepository.findById(id);
+        if (staff) {
+          name = [staff.firstName, staff.lastName].filter(Boolean).join(' ').trim() || null;
+        } else {
+          const owner = await this.getDogOwnerByIdUsecase.execute(id);
+          name = owner
+            ? [owner.firstName, owner.lastName].filter(Boolean).join(' ').trim() || null
+            : null;
+        }
+      }
+      if (name) map.set(key, name);
+    }
+    return map;
+  }
+
+  private toDetailResult(
+    r: Reservation,
+    performerNameMap: Map<string, string>,
+  ): GetReservationDetailResultResponse {
     const start = new Date(r.startDateTime);
     const end = new Date(r.endDateTime);
     const toDateStr = (d: Date) => d.toISOString().slice(0, 10);
@@ -92,7 +144,7 @@ export class GetReservationDetailUsecase {
     );
 
     const groups = this.buildGroups(r);
-    const timeline = this.buildTimeline(r);
+    const timeline = this.buildTimeline(r, performerNameMap);
     const packageDto: GetReservationDetailPackageDto = {
       code: 'standard',
       label: 'แบบมาตรฐาน',
@@ -155,31 +207,42 @@ export class GetReservationDetailUsecase {
     });
   }
 
-  private buildTimeline(r: Reservation): GetReservationDetailTimelineItemDto[] {
+  private buildTimeline(
+    r: Reservation,
+    performerNameMap: Map<string, string>,
+  ): GetReservationDetailTimelineItemDto[] {
     const logs = (r.statusLogs ?? []).slice().sort(
-      (a, b) => new Date(a.occurredAt).getTime() - new Date(b.occurredAt).getTime(),
+      (a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime(),
     );
-    const byStatus = new Map<ReservationStatusEnum, (typeof logs)[0]>();
-    for (const log of logs) {
-      byStatus.set(log.status, log);
-    }
     const owner = r.dogOwner as { id?: number; firstName?: string; lastName?: string } | undefined;
     const ownerId = owner?.id ?? null;
     const ownerName =
       [owner?.firstName, owner?.lastName].filter(Boolean).join(' ') || null;
 
-    return TIMELINE_STEPS.map(({ key, label }) => {
-      const log = byStatus.get(key);
-      const at = log?.occurredAt
+    return logs.map((log) => {
+      const at = log.occurredAt
         ? new Date(log.occurredAt).toISOString().replace('Z', '+07:00')
         : null;
-      const by = log?.performedBy ?? null;
-      const detail = log?.label ?? null;
-      let actorRole: string | null = null;
-      if (by != null && ownerId != null) {
+      const by = log.performedBy ?? null;
+      const detail = log.label ?? null;
+      let actorRole: string | null = log.actorRole ?? null;
+      if (actorRole == null && by != null && ownerId != null) {
         actorRole = Number(by) === ownerId ? 'DOG_OWNER' : 'STAFF';
       }
-      return { key, label, at, by, detail, actorRole, ownerId, ownerName };
+      const nameKey = by ? `${by}-${actorRole ?? 'unknown'}` : '';
+      const performedByName = nameKey ? performerNameMap.get(nameKey) ?? null : null;
+      const label = STATUS_TIMELINE_LABELS[log.status] ?? log.status;
+      return {
+        key: log.status,
+        label,
+        at,
+        by,
+        performedByName,
+        detail,
+        actorRole,
+        ownerId,
+        ownerName,
+      };
     });
   }
 
