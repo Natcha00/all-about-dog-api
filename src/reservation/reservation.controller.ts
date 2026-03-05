@@ -13,12 +13,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { ReservationService } from './reservation.service';
 import { Reservation } from './entities/reservation.entity';
-import { ConfirmReservationRequest } from './dtos/confirm-reservation.dto';
+import { CreateReservationRequest } from './dtos/confirm-reservation.dto';
 import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
 import { StaffGuard } from 'src/staff/guards/staff.guard';
 import { DogOwnerDecorator } from 'src/user/decorators/dog-owner.decorator';
 import { type IUser } from 'src/user/interfaces/user.interface';
-import { ConfirmReservationUsecase } from './use-cases/confirm-reservation.use-case';
+import { CreateReservationUsecase } from './use-cases/confirm-reservation.use-case';
 import { GetReservationsUsecase } from './use-cases/get-reservations.use-case';
 import { GetReservationsRequest, GetReservationsResponse } from './dtos/get-reservations.dto';
 import { GetReservationDetailUsecase } from './use-cases/get-reservation-detail.use-case';
@@ -45,7 +45,7 @@ import { ROLE } from 'src/user/enums/role.enum';
 export class ReservationController {
   constructor(
     private readonly reservationService: ReservationService,
-    private readonly confirmReservationUsecase: ConfirmReservationUsecase,
+    private readonly createReservationUsecase: CreateReservationUsecase,
     private readonly getReservationsUsecase: GetReservationsUsecase,
     private readonly getReservationDetailUsecase: GetReservationDetailUsecase,
     private readonly approveReservationUsecase: ApproveReservationUsecase,
@@ -115,10 +115,10 @@ export class ReservationController {
     return { statusCode: 200, result };
   }
 
-  @Post('confirm')
+  @Post('create')
   @UseGuards(AccessTokenGuard)
-  async confirm(
-    @Body() body: ConfirmReservationRequest,
+  async create(
+    @Body() body: CreateReservationRequest,
     @DogOwnerDecorator() user: IUser,
   ): Promise<Reservation> {
     let dogOwnerId: number;
@@ -136,7 +136,7 @@ export class ReservationController {
       throw new BadRequestException('ไม่สามารถยืนยันการจองสำหรับ role นี้ได้');
     }
 
-    return this.confirmReservationUsecase.execute(body, dogOwnerId);
+    return this.createReservationUsecase.execute(body, dogOwnerId);
   }
 
   @Post('cancel')

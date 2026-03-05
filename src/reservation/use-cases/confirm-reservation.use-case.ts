@@ -3,13 +3,13 @@ import { ReservationRepository } from '../reservation.repository';
 import { ReservationService } from '../reservation.service';
 import { Reservation } from '../entities/reservation.entity';
 import { ReservationLine } from '../entities/reservation-line.entity';
-import { ConfirmReservationRequest } from '../dtos/confirm-reservation.dto';
+import { CreateReservationRequest } from '../dtos/confirm-reservation.dto';
 import { ReservationStatusEnum } from '../enums/reservation-status.enum';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
 import { DogService } from 'src/dog/services/dog.service';
 
 @Injectable()
-export class ConfirmReservationUsecase {
+export class CreateReservationUsecase {
   private readonly SWIMMING_HOURS = [
     '10:00',
     '11:00',
@@ -28,7 +28,7 @@ export class ConfirmReservationUsecase {
   ) {}
 
   async execute(
-    body: ConfirmReservationRequest,
+    body: CreateReservationRequest,
     dogOwnerId: number,
   ): Promise<Reservation> {
     // validate that all dogs in lines belong to this owner

@@ -13,7 +13,7 @@ import { Type } from 'class-transformer';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
 import { OfferingPackage } from 'src/offering/enums/offering-package.enum';
 
-export class ConfirmReservationPeriodDto {
+export class CreateReservationPeriodDto {
   @IsDateString()
   start: string;
 
@@ -21,7 +21,7 @@ export class ConfirmReservationPeriodDto {
   end: string;
 }
 
-export class ConfirmReservationLineDto {
+export class CreateReservationLineDto {
   @IsInt()
   @Min(1)
   offeringId: number;
@@ -39,13 +39,13 @@ export class ConfirmReservationLineDto {
   groupNumber: number;
 }
 
-export class ConfirmReservationRequest {
+export class CreateReservationRequest {
   @IsEnum(OfferingType)
   offerType: OfferingType;
 
   @ValidateNested()
-  @Type(() => ConfirmReservationPeriodDto)
-  period: ConfirmReservationPeriodDto;
+  @Type(() => CreateReservationPeriodDto)
+  period: CreateReservationPeriodDto;
 
   @IsOptional()
   @IsInt()
@@ -67,6 +67,6 @@ export class ConfirmReservationRequest {
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => ConfirmReservationLineDto)
-  lines: ConfirmReservationLineDto[];
+  @Type(() => CreateReservationLineDto)
+  lines: CreateReservationLineDto[];
 }
