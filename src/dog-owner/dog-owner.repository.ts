@@ -13,8 +13,8 @@ export class DogOwnerRepository {
     return this.dogOwnerRepository.create(dogOwnerObjectEntity);
   }
 
-  async insert(dogOwnerObjectEntity: DogOwner) {
-    await this.dogOwnerRepository.save(dogOwnerObjectEntity);
+  async insert(dogOwnerObjectEntity: DogOwner): Promise<DogOwner> {
+    return await this.dogOwnerRepository.save(dogOwnerObjectEntity);
   }
   async findAll() {
     return await this.dogOwnerRepository.find();
@@ -48,5 +48,23 @@ export class DogOwnerRepository {
       .orderBy('o.firstName', 'ASC')
       .addOrderBy('o.lastName', 'ASC')
       .getMany();
+  }
+
+  async getAllDogOwners() {
+    return await this.dogOwnerRepository.find({
+      select: {
+        id: true,
+        code: true,
+        firstName: true,
+        lastName: true,
+        phoneNumber: true,
+        email: true,
+        address: true,
+      },
+      order: {
+        firstName: 'ASC',
+        lastName: 'ASC',
+      },
+    });
   }
 }

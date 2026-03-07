@@ -35,7 +35,7 @@ export class DogOwnerController {
   @Post('create')
   @UseGuards(AccessTokenGuard, StaffGuard)
   async create(@Body() body: CreateDogOwnerDto) {
-    await this.createDogOwnerUsecase.execute(body);
+    return this.createDogOwnerUsecase.execute(body);
   }
 
   @Post('register')
@@ -53,4 +53,11 @@ export class DogOwnerController {
   async profile(@DogOwnerDecorator() user: IUser) {
     return user;
   }
+
+  @Get('/all')
+  @UseGuards(AccessTokenGuard, StaffGuard)
+  async getOfferingForDogOwner() {
+    return this.getAllDogOwnersUsecase.execute();
+  }
+
 }

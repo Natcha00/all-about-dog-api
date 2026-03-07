@@ -15,7 +15,7 @@ export class DogOwner {
   @Column()
   lastName: string;
 
-  @Column()
+  @Column({ nullable: true })
   email: string;
 
   @Column()

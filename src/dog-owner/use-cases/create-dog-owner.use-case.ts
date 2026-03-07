@@ -7,7 +7,7 @@ import { CreateDogOwnerDto } from '../dtos/create-dog-owner.dto';
 export class CreateDogOwnerUsecase {
   constructor(private readonly dogOwnerRepository: DogOwnerRepository) {}
 
-  async execute(dto: CreateDogOwnerDto): Promise<void> {
+  async execute(dto: CreateDogOwnerDto): Promise<{ id: number; code: string }> {
     const code = `DO-${Date.now().toString(36).toUpperCase()}`;
     const password = await bcrypt.hash(`temp-${Date.now()}`, 10);
     const dogOwner = this.dogOwnerRepository.initiate({
@@ -19,6 +19,7 @@ export class CreateDogOwnerUsecase {
       phoneNumber: dto.phoneNumber,
       address: dto.address,
     });
-    await this.dogOwnerRepository.insert(dogOwner);
+    const saved = await this.dogOwnerRepository.insert(dogOwner);
+    return { id: saved.id, code: saved.code };
   }
 }

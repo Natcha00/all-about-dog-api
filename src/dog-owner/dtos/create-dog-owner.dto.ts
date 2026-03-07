@@ -19,8 +19,8 @@ export class CreateDogOwnerDto {
   lastName: string;
 
   @IsEmail({}, { message: 'รูปแบบอีเมลไม่ถูกต้อง' })
-  @IsNotEmpty({ message: 'กรุณาระบุอีเมล' })
-  email: string;
+  @IsOptional()
+  email?: string;
 
   @IsString()
   @IsNotEmpty({ message: 'กรุณาระบุเบอร์โทรศัพท์' })
@@ -29,9 +29,9 @@ export class CreateDogOwnerDto {
   phoneNumber: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'กรุณาระบุที่อยู่' })
+  @IsOptional()
   @MaxLength(500)
-  address: string;
+  address?: string;
 
   @IsString()
   @IsOptional()
