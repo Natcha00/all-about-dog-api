@@ -31,6 +31,7 @@ import { UpdateVaccinationRecordDto } from './dtos/update-vaccination-record.dto
 import { CreateVaccinationRecordUsecase } from './use-cases/create-vaccination-record.use-case';
 import { UpdateVaccinationRecordUsecase } from './use-cases/update-vaccination-record.use-case';
 import { DeleteVaccinationRecordUsecase } from './use-cases/delete-vaccination-record.use-case';
+import { DeleteDogUsecase } from './use-cases/delete-dog.use-case';
 import { UploadDogProfilePictureUsecase } from './use-cases/upload-dog-profile-picture.use-case';
 import { GetBreedsUsecase } from './use-cases/get-breeds.use-case';
 import { BloodGroup } from './enums/blood-group.enum';
@@ -46,6 +47,7 @@ export class DogController {
     private readonly createVaccinationRecordUsecase: CreateVaccinationRecordUsecase,
     private readonly updateVaccinationRecordUsecase: UpdateVaccinationRecordUsecase,
     private readonly deleteVaccinationRecordUsecase: DeleteVaccinationRecordUsecase,
+    private readonly deleteDogUsecase: DeleteDogUsecase,
     private readonly uploadDogProfilePictureUsecase: UploadDogProfilePictureUsecase,
     private readonly getBreedsUsecase: GetBreedsUsecase,
   ) {}
@@ -191,6 +193,26 @@ export class DogController {
       updateVaccinationRecordDto,
       file,
     );
+  }
+
+  @Delete(':id')
+  @UseGuards(AccessTokenGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteDog(
+    @Param('id') dogId: string,
+    @Query('dogOwnerId') dogOwnerIdQuery: string | undefined,
+    @DogOwnerDecorator() user: IUser,
+  ) {
+    const dogOwnerId = this.resolveDogOwnerIdFromQuery(
+      user,
+      dogOwnerIdQuery,
+      'deleteDog',
+    );
+    const id = Number(dogId);
+    if (!Number.isInteger(id) || id < 1) {
+      throw new BadRequestException('รหัสสุนัขไม่ถูกต้อง');
+    }
+    await this.deleteDogUsecase.execute(id, dogOwnerId);
   }
 
   @Delete(':id/vaccinations/:vaccinationId')
