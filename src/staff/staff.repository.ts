@@ -29,4 +29,8 @@ export class StaffRepository {
   async findById(id: number): Promise<Staff | null> {
     return this.repo.findOne({ where: { id } });
   }
+
+  async delete(id: number): Promise<void> {
+    await this.repo.delete(id);
+  }
 }
