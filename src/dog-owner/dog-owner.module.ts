@@ -18,7 +18,12 @@ import { RefreshTokenUsecase } from './use-cases/refresh-token.use-case';
 import { GetAllDogOwnersUsecase } from './use-cases/get-all-dog-owners.use-case';
 import { SearchDogOwnerUsecase } from './use-cases/search-dog-owner.use-case';
 import { GetDogOwnerByIdUsecase } from './use-cases/get-dog-owner-by-id.use-case';
+import { GetDogOwnerProfileUsecase } from './use-cases/get-dog-owner-profile.use-case';
+import { UpdateDogOwnerProfilePictureUsecase } from './use-cases/update-dog-owner-profile-picture.use-case';
+import { UpdateDogOwnerProfileUsecase } from './use-cases/update-dog-owner-profile.use-case';
+import { ChangePasswordUsecase } from './use-cases/change-password.use-case';
 import { MailModule } from 'src/mail/mail.module';
+import { StorageModule } from 'src/storage/storage.module';
 
 @Module({
   imports: [
@@ -26,6 +31,7 @@ import { MailModule } from 'src/mail/mail.module';
     UserModule,
     StaffModule,
     MailModule,
+    StorageModule,
   ],
   controllers: [DogOwnerController],
   providers: [
@@ -42,6 +48,10 @@ import { MailModule } from 'src/mail/mail.module';
     GetAllDogOwnersUsecase,
     SearchDogOwnerUsecase,
     GetDogOwnerByIdUsecase,
+    GetDogOwnerProfileUsecase,
+    UpdateDogOwnerProfilePictureUsecase,
+    UpdateDogOwnerProfileUsecase,
+    ChangePasswordUsecase,
   ],
   exports: [GetDogOwnerByIdUsecase, DogOwnerRepository],
 })
