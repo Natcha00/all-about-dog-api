@@ -3,34 +3,32 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { DogOwnerRepository } from '../dog-owner.repository';
 import { DogOwnerOtpRepository } from '../dog-owner-otp.repository';
-import { VerifyEmailOtpDto } from '../dtos/verify-email-otp.dto';
+import { ResetPasswordDto } from '../dtos/reset-password.dto';
 import { OtpType } from '../enums/otp-type.enum';
 
 @Injectable()
-export class VerifyEmailOtpUsecase {
+export class ResetPasswordUsecase {
   constructor(
     private readonly dogOwnerRepository: DogOwnerRepository,
     private readonly dogOwnerOtpRepository: DogOwnerOtpRepository,
   ) {}
 
-  async execute(dto: VerifyEmailOtpDto): Promise<{ success: boolean }> {
+  async execute(dto: ResetPasswordDto): Promise<{ success: boolean }> {
     const owner = await this.dogOwnerRepository.findOneByEmail(dto.email);
     if (!owner) {
       throw new NotFoundException('ไม่พบผู้ใช้ที่ลงทะเบียนด้วยอีเมลนี้');
     }
-    if (owner.isEmailVerified) {
-      return { success: true };
-    }
 
     const otpRecord = await this.dogOwnerOtpRepository.findOneByDogOwnerIdAndType(
       owner.id,
-      OtpType.EMAIL_VERIFICATION,
+      OtpType.PASSWORD_RESET,
     );
     if (!otpRecord) {
       throw new BadRequestException(
-        'ไม่มี OTP สำหรับอีเมลนี้ หรือหมดอายุแล้ว กรุณาลงทะเบียนใหม่หรือขอ OTP ใหม่',
+        'ไม่มี OTP สำหรับรีเซ็ตรหัสผ่าน หรือหมดอายุแล้ว กรุณาขอ OTP ใหม่ที่ forgot-password',
       );
     }
     if (otpRecord.otp !== dto.otp) {
@@ -40,8 +38,8 @@ export class VerifyEmailOtpUsecase {
       throw new BadRequestException('OTP หมดอายุแล้ว กรุณาขอ OTP ใหม่');
     }
 
-    owner.isEmailVerified = true;
-    await this.dogOwnerRepository.insert(owner);
+    const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+    await this.dogOwnerRepository.updatePassword(owner, hashedPassword);
     await this.dogOwnerOtpRepository.remove(otpRecord);
 
     return { success: true };

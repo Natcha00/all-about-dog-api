@@ -114,6 +114,10 @@ export class DogRepository {
       },
     });
   }
+
+  async softDeleteDog(dogId: number): Promise<void> {
+    await this.dogTypeormRepository.softDelete(dogId);
+  }
   createVaccination(
     VaccinationObjectEntity: Partial<VaccinationRecord>,
   ): VaccinationRecord {

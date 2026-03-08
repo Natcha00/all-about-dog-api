@@ -15,6 +15,7 @@ import { CreateVaccinationRecordUsecase } from './use-cases/create-vaccination-r
 import { UploadVaccinationEvidenceUsecase } from './use-cases/upload-vaccination-evidence.use-case';
 import { UpdateVaccinationRecordUsecase } from './use-cases/update-vaccination-record.use-case';
 import { DeleteVaccinationRecordUsecase } from './use-cases/delete-vaccination-record.use-case';
+import { DeleteDogUsecase } from './use-cases/delete-dog.use-case';
 import { UploadDogProfilePictureUsecase } from './use-cases/upload-dog-profile-picture.use-case';
 import { GetBreedsUsecase } from './use-cases/get-breeds.use-case';
 import { StorageModule } from 'src/storage/storage.module';
@@ -36,6 +37,7 @@ import { StorageModule } from 'src/storage/storage.module';
     UploadVaccinationEvidenceUsecase,
     UpdateVaccinationRecordUsecase,
     DeleteVaccinationRecordUsecase,
+    DeleteDogUsecase,
     UploadDogProfilePictureUsecase,
     GetBreedsUsecase,
   ],

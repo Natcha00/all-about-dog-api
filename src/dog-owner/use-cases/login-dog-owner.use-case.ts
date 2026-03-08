@@ -22,9 +22,9 @@ export class LoginDogOwnerUsecase {
       throw new BadRequestException('Email or password incorrect');
     }
     const isMatch = await bcrypt.compare(request.password, dogOwner.password);
-    // if (!isMatch) {
-    //   throw new BadRequestException('Email or password incorrect');
-    // }
+    if (!isMatch) {
+      throw new BadRequestException('Email or password incorrect');
+    }
     if (!dogOwner.isEmailVerified) {
       throw new UnauthorizedException(
         'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ โปรดตรวจสอบอีเมลและใช้รหัส OTP ที่ส่งให้คุณ',

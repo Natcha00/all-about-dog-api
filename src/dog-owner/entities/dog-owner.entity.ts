@@ -34,12 +34,6 @@ export class DogOwner {
   @Column({ default: false })
   isEmailVerified: boolean;
 
-  @Column({ type: 'varchar', length: 10, nullable: true })
-  emailVerificationOtp: string | null;
-
-  @Column({ type: 'datetime', nullable: true })
-  emailVerificationOtpExpiresAt: Date | null;
-
   @OneToMany(() => Dog, (dogs) => dogs.dogOwner)
   dogs: Array<Dog>;
 

@@ -21,3 +21,9 @@ export class LoginResponse {
   accessToken: string;
   refreshToken: string;
 }
+
+export class RefreshTokenRequest {
+  @IsString()
+  @IsNotEmpty({ message: 'กรุณาระบุ refreshToken' })
+  refreshToken: string;
+}
