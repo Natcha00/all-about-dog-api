@@ -10,7 +10,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, AnyFilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { DogService } from './services/dog.service';
 import { CreateDogDto } from './dtos/create-dog.dto';
@@ -87,20 +87,6 @@ export class DogController {
     return await this.getBreedsUsecase.execute();
   }
 
-  @Post('evidence/upload')
-  @UseGuards(AccessTokenGuard)
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: memoryStorage(),
-      limits: { fileSize: 5 * 1024 * 1024 },
-    }),
-  )
-  async uploadVaccinationEvidence(
-    @UploadedFile() file: Express.Multer.File,
-  ): Promise<{ evidenceImageUrl: string }> {
-    return this.uploadVaccinationEvidenceUsecase.execute(file);
-  }
-
   @Get(':id/profile')
   @UseGuards(AccessTokenGuard)
   async getProfile(
@@ -118,9 +104,16 @@ export class DogController {
 
   @Post(':id/vaccinations')
   @UseGuards(AccessTokenGuard)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
   async addVaccination(
     @Param('id') dogId: string,
     @Body() createVaccinationRecordDto: CreateVaccinationRecordDto,
+    @UploadedFile() file: Express.Multer.File | undefined,
     @DogOwnerDecorator() user: IUser,
   ) {
     const dogOwnerId = this.resolveDogOwnerId(
@@ -132,6 +125,7 @@ export class DogController {
       Number(dogId),
       dogOwnerId,
       createVaccinationRecordDto,
+      file,
     );
   }
 
