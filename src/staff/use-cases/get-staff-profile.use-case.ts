@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { StaffRepository } from '../staff.repository';
 import { StaffProfileDto } from '../dtos/profile.dto';
+import { ROLE } from 'src/user/enums/role.enum';
 
 @Injectable()
 export class GetStaffProfileUsecase {
@@ -17,6 +18,9 @@ export class GetStaffProfileUsecase {
       firstName: staff.firstName,
       lastName: staff.lastName,
       phoneNumber: staff.phoneNumber,
+      username: staff.username,
+      role: staff.role as ROLE,
+
     };
   }
 }

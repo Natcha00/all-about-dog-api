@@ -79,7 +79,7 @@ export class OfferingController {
     if (user.role === ROLE.DOG_OWNER) {
       return user.id;
     }
-    if (user.role === ROLE.STAFF) {
+    if (user.role === ROLE.STAFF || user.role === ROLE.ADMIN) {
       if (dogOwnerIdFromQuery == null) {
         throw new BadRequestException(
           `กรุณาระบุ dogOwnerId เมื่อเรียก ${endpoint} จากฝั่ง staff`,

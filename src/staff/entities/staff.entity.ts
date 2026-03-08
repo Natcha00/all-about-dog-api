@@ -12,10 +12,13 @@ export class Staff {
   id: number;
 
   @Column({ unique: true })
-  email: string;
+  username: string;
 
   @Column()
   password: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  email: string | null;
 
   @Column()
   firstName: string;
@@ -25,6 +28,9 @@ export class Staff {
 
   @Column({ type: 'varchar', length: 50, nullable: true })
   phoneNumber: string | null;
+
+  @Column()
+  role: string;
 
   @CreateDateColumn()
   createdAt: Date;

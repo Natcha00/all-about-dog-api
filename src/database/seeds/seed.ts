@@ -30,6 +30,7 @@ import reservationData from '../data/reservation.json';
 import { Size } from 'src/dog/enums/size.enum';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
 import { ReservationStatusEnum } from 'src/reservation/enums/reservation-status.enum';
+import { ROLE } from 'src/user/enums/role.enum';
 import { faker } from '@faker-js/faker';
 
 const AppDataSource = new DataSource({
@@ -154,18 +155,22 @@ async function seedStaff() {
 
   const staffList = [
     {
-      email: 'staff@example.com',
+      username: 'staff01',
       password: hashedPassword,
+      email: 'staff@example.com',
       firstName: 'Staff',
       lastName: 'One',
       phoneNumber: '0812345678',
+      role: ROLE.STAFF,
     },
     {
-      email: 'admin@example.com',
+      username: 'admin01',
       password: hashedPassword,
+      email: 'admin@example.com',
       firstName: 'Admin',
       lastName: 'User',
       phoneNumber: '0898765432',
+      role: ROLE.ADMIN,
     },
   ];
 

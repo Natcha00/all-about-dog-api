@@ -1,17 +1,19 @@
 import {
-  IsEmail,
   IsNotEmpty,
   IsString,
   MaxLength,
+  MinLength,
 } from 'class-validator';
 
 export class StaffLoginRequest {
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
+  @IsString()
+  @IsNotEmpty({ message: 'กรุณาระบุ username' })
+  @MaxLength(50)
+  username: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'กรุณาระบุ password' })
+  @MinLength(6)
   @MaxLength(100)
   password: string;
 }

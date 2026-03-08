@@ -6,8 +6,12 @@ import {
   Param,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { DogService } from './services/dog.service';
 import { CreateDogDto } from './dtos/create-dog.dto';
 import { CreateBreedDto } from './dtos/create-breed.dto';
@@ -20,8 +24,10 @@ import { GetDogProfileUsecase } from './use-cases/get-dog-profile.use-case';
 import { GetDogProfileResponse } from './dtos/get-dog-profile.dto';
 import { CreateVaccinationRecordDto } from './dtos/create-vaccination-record.dto';
 import { CreateVaccinationRecordUsecase } from './use-cases/create-vaccination-record.use-case';
+import { UploadVaccinationEvidenceUsecase } from './use-cases/upload-vaccination-evidence.use-case';
 import { GetBreedsUsecase } from './use-cases/get-breeds.use-case';
 import { BloodGroup } from './enums/blood-group.enum';
+import { VaccineType } from './enums/vaccine-type.enum';
 import { ROLE } from 'src/user/enums/role.enum';
 
 @Controller('dog')
@@ -31,6 +37,7 @@ export class DogController {
     private readonly getDogByOwnerUsecase: GetDogByOwnerUsecase,
     private readonly getDogProfileUsecase: GetDogProfileUsecase,
     private readonly createVaccinationRecordUsecase: CreateVaccinationRecordUsecase,
+    private readonly uploadVaccinationEvidenceUsecase: UploadVaccinationEvidenceUsecase,
     private readonly getBreedsUsecase: GetBreedsUsecase,
   ) {}
 
@@ -68,10 +75,30 @@ export class DogController {
     return Object.values(BloodGroup).map((value) => ({ value, label: value }));
   }
 
+  @Get('options/vaccine-types')
+  @UseGuards(AccessTokenGuard)
+  getVaccineTypes(): { value: string; label: string }[] {
+    return Object.values(VaccineType).map((value) => ({ value, label: value }));
+  }
+
   @Get('breeds')
   @UseGuards(AccessTokenGuard)
   async getBreeds() {
     return await this.getBreedsUsecase.execute();
+  }
+
+  @Post('evidence/upload')
+  @UseGuards(AccessTokenGuard)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
+  async uploadVaccinationEvidence(
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<{ evidenceImageUrl: string }> {
+    return this.uploadVaccinationEvidenceUsecase.execute(file);
   }
 
   @Get(':id/profile')
@@ -116,7 +143,7 @@ export class DogController {
     if (user.role === ROLE.DOG_OWNER) {
       return user.id;
     }
-    if (user.role === ROLE.STAFF) {
+    if (user.role === ROLE.STAFF || user.role === ROLE.ADMIN) {
       if (value == null) {
         throw new BadRequestException(
           `กรุณาระบุ dogOwnerId เมื่อเรียก ${endpoint} จากฝั่ง staff`,
@@ -135,7 +162,7 @@ export class DogController {
     if (user.role === ROLE.DOG_OWNER) {
       return user.id;
     }
-    if (user.role === ROLE.STAFF) {
+    if (user.role === ROLE.STAFF || user.role === ROLE.ADMIN) {
       const id = queryValue != null ? Number(queryValue) : NaN;
       if (!Number.isInteger(id) || id < 1) {
         throw new BadRequestException(

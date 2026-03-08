@@ -1,4 +1,5 @@
 export enum ROLE {
-    DOG_OWNER = "DOG_OWNER",
-    STAFF = "STAFF"
+    DOG_OWNER = "dog_owner",
+    STAFF = "staff",
+    ADMIN = "admin"
 }

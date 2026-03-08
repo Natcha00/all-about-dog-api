@@ -69,7 +69,7 @@ export class ReservationController {
 
     if (user.role === ROLE.DOG_OWNER) {
       dogOwnerId = user.id;
-    } else if (user.role === ROLE.STAFF) {
+    } else if (user.role === ROLE.STAFF || user.role === ROLE.ADMIN) {
       dogOwnerId = query.dogOwnerId;
     } else {
       throw new BadRequestException('ไม่สามารถดูรายการจองสำหรับ role นี้ได้');
@@ -83,6 +83,9 @@ export class ReservationController {
   async searchReservations(
     @Query() query: SearchReservationRequest,
   ): Promise<Reservation[]> {
+    console.log("SearchReservationRequest", query);
+// หรือ
+console.log("dogName", query.dogName, Buffer.from(query.dogName || "", "utf8"));
     return this.searchReservationsUsecase.execute(query);
   }
 
@@ -96,7 +99,7 @@ export class ReservationController {
 
     if (user.role === ROLE.DOG_OWNER) {
       dogOwnerId = user.id;
-    } else if (user.role === ROLE.STAFF) {
+    } else if (user.role === ROLE.STAFF || user.role === ROLE.ADMIN) {
       if (query.dogOwnerId == null) {
         throw new BadRequestException(
           'กรุณาระบุ dogOwnerId เมื่อดูรายละเอียดการจองจากฝั่ง staff',
@@ -126,7 +129,7 @@ export class ReservationController {
 
     if (user.role === ROLE.DOG_OWNER) {
       dogOwnerId = user.id;
-    } else if (user.role === ROLE.STAFF) {
+    } else if (user.role === ROLE.STAFF || user.role === ROLE.ADMIN) {
       if (body.dogOwnerId == null) {
         throw new BadRequestException(
           'กรุณาระบุ dogOwnerId เมื่อยืนยันจากฝั่ง staff',
@@ -141,7 +144,7 @@ export class ReservationController {
       body,
       dogOwnerId,
       user.id,
-      user.role === ROLE.STAFF,
+      user.role === ROLE.STAFF || user.role === ROLE.ADMIN,
     );
   }
 
@@ -157,7 +160,7 @@ export class ReservationController {
     if (user.role === ROLE.DOG_OWNER) {
       dogOwnerId = user.id;
       performedByStaff = false;
-    } else if (user.role === ROLE.STAFF) {
+    } else if (user.role === ROLE.STAFF || user.role === ROLE.ADMIN) {
       if (body.dogOwnerId == null) {
         throw new BadRequestException(
           'กรุณาระบุ dogOwnerId เมื่อยกเลิกจากฝั่ง staff',
@@ -219,7 +222,7 @@ export class ReservationController {
     if (user.role === ROLE.DOG_OWNER) {
       dogOwnerId = user.id;
       performedByStaff = false;
-    } else if (user.role === ROLE.STAFF) {
+    } else if (user.role === ROLE.STAFF || user.role === ROLE.ADMIN) {
       if (bodyDogOwnerId == null) {
         throw new BadRequestException(
           'กรุณาระบุ dogOwnerId เมื่อแนบสลิปจากฝั่ง staff',

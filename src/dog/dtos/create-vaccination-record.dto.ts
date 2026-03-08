@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl, IsInt, Min } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl, IsInt, Min, IsEnum } from "class-validator";
+import { VaccineType } from "../enums/vaccine-type.enum";
 
 export class CreateVaccinationRecordDto {
 
@@ -7,9 +8,9 @@ export class CreateVaccinationRecordDto {
 vaccinationDate: string;
 
 
-@IsString()
+@IsEnum(VaccineType)
 @IsNotEmpty()
-vaccineName: string;
+vaccineName: VaccineType;
 
 
 @IsNumber()

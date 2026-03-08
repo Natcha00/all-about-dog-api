@@ -9,14 +9,14 @@ export class VaccinationRecord {
   @Column()
   vaccineName: string;
 
-  @Column()
-  clinicName: string;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  clinicName: string | null;
 
   @Column()
   dose: number;
 
-  @Column()
-  evidenceImageUrl: string;
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  evidenceImageUrl: string | null;
 
   @Column()
   vaccineDate: Date;

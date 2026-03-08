@@ -12,6 +12,7 @@ import { GetDogByOwnerUsecase } from './use-cases/get-dog-by-owner.use-case';
 import { CreateDogUsecase } from './use-cases/create-dog.use-case';
 import { GetDogProfileUsecase } from './use-cases/get-dog-profile.use-case';
 import { CreateVaccinationRecordUsecase } from './use-cases/create-vaccination-record.use-case';
+import { UploadVaccinationEvidenceUsecase } from './use-cases/upload-vaccination-evidence.use-case';
 import { GetBreedsUsecase } from './use-cases/get-breeds.use-case';
 
 @Module({
@@ -27,6 +28,7 @@ import { GetBreedsUsecase } from './use-cases/get-breeds.use-case';
     CreateDogUsecase,
     GetDogProfileUsecase,
     CreateVaccinationRecordUsecase,
+    UploadVaccinationEvidenceUsecase,
     GetBreedsUsecase,
   ],
   exports:[DogService]

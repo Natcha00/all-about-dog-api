@@ -129,14 +129,20 @@ export class ReservationRepository {
     const { code, dogName, dogOwnerName, phone } = params;
     const qb = this.repo
       .createQueryBuilder('r')
-      .leftJoinAndSelect('r.dogOwner', 'o')
-      .leftJoinAndSelect('r.reservationLines', 'rl')
-      .leftJoinAndSelect('rl.dog', 'd');
+      .leftJoinAndSelect('r.dogOwner', 'o');
 
     const hasAny =
       !!code || !!dogName || !!dogOwnerName || !!phone;
     if (!hasAny) {
       return [];
+    }
+
+    if (dogName) {
+      qb.innerJoinAndSelect('r.reservationLines', 'rl')
+        .innerJoinAndSelect('rl.dog', 'd');
+    } else {
+      qb.leftJoinAndSelect('r.reservationLines', 'rl')
+        .leftJoinAndSelect('rl.dog', 'd');
     }
 
     if (code) {
@@ -155,6 +161,7 @@ export class ReservationRepository {
       qb.andWhere('o.phoneNumber LIKE :phone', { phone: `%${phone}%` });
     }
 
+    qb.andWhere('rl.deletedAt IS NULL').andWhere('d.deletedAt IS NULL');
     qb.orderBy('r.startDateTime', 'DESC');
     return qb.getMany();
   }

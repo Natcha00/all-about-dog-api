@@ -84,7 +84,7 @@ export class GetDogProfileUsecase {
       date: this.formatDateThai(rec.vaccineDate),
       vaccineName: rec.vaccineName,
       dose: rec.dose,
-      clinicName: rec.clinicName,
+      clinicName: rec.clinicName ?? '',
       evidenceImageUrl: rec.evidenceImageUrl ?? '',
     }));
 

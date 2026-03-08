@@ -9,6 +9,7 @@ import { type IUser } from 'src/user/interfaces/user.interface';
 import { CreateStaffUsecase } from './use-cases/create-staff.use-case';
 import { LoginStaffUsecase } from './use-cases/login-staff.use-case';
 import { GetStaffProfileUsecase } from './use-cases/get-staff-profile.use-case';
+import { ROLE } from 'src/user/enums/role.enum';
 
 @Controller('staff')
 export class StaffController {
@@ -34,5 +35,11 @@ export class StaffController {
   @UseGuards(AccessTokenGuard, StaffGuard)
   async profile(@StaffDecorator() user: IUser): Promise<StaffProfileDto> {
     return this.getStaffProfileUsecase.execute(user.id);
+  }
+
+  @Get('admin/menu')
+  @UseGuards(AccessTokenGuard, StaffGuard)
+  async adminProfile(@StaffDecorator() user: IUser): Promise<boolean> {
+    return user.role === ROLE.ADMIN 
   }
 }

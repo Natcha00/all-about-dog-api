@@ -11,7 +11,7 @@ export class StaffGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
-    if (!user || user.role !== ROLE.STAFF) {
+    if (!user || (user.role !== ROLE.STAFF && user.role !== ROLE.ADMIN)) {
       throw new ForbiddenException('Staff only');
     }
     return true;

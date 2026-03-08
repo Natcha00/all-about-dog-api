@@ -18,6 +18,10 @@ export class StaffRepository {
     return this.repo.save(staff);
   }
 
+  async findOneByUsername(username: string): Promise<Staff | null> {
+    return this.repo.findOne({ where: { username } });
+  }
+
   async findOneByEmail(email: string): Promise<Staff | null> {
     return this.repo.findOne({ where: { email } });
   }

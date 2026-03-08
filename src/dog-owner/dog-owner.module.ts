@@ -27,8 +27,6 @@ import { GetDogOwnerByIdUsecase } from './use-cases/get-dog-owner-by-id.use-case
     GetAllDogOwnersUsecase,
     SearchDogOwnerUsecase,
     GetDogOwnerByIdUsecase,
-    GetAllDogOwnersUsecase,
-
   ],
   exports: [GetDogOwnerByIdUsecase, DogOwnerRepository],
 })

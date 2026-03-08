@@ -6,6 +6,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { ROLE } from 'src/user/enums/role.enum';
 
 export class CreateStaffDto {
   @IsString()
@@ -18,9 +19,9 @@ export class CreateStaffDto {
   @MaxLength(100)
   lastName: string;
 
+  @IsOptional()
   @IsEmail()
-  @IsNotEmpty()
-  email: string;
+  email?: string;
 
   @IsString()
   @IsNotEmpty()
@@ -32,4 +33,14 @@ export class CreateStaffDto {
   @IsString()
   @MaxLength(20)
   phoneNumber?: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(20)
+  username: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(20)
+  role: ROLE;
 }

@@ -15,15 +15,15 @@ export class LoginStaffUsecase {
   async execute(
     request: StaffLoginRequest,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const staff = await this.staffRepository.findOneByEmail(request.email);
+    const staff = await this.staffRepository.findOneByUsername(request.username);
     if (!staff) {
-      throw new BadRequestException('Email or password incorrect');
+      throw new BadRequestException('Username or password incorrect');
     }
     const isMatch = await bcrypt.compare(request.password, staff.password);
     if (!isMatch) {
-      throw new BadRequestException('Email or password incorrect');
+      throw new BadRequestException('Username or password incorrect');
     }
-    const payload = { id: staff.id, role: ROLE.STAFF };
+    const payload = { id: staff.id, role: staff.role as ROLE };
     const accessToken = await this.userService.signAccessToken(payload);
     const refreshToken = await this.userService.signRefreshToken(payload);
     return { accessToken, refreshToken };

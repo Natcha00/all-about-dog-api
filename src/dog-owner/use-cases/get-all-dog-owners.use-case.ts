@@ -9,4 +9,5 @@ export class GetAllDogOwnersUsecase {
   async execute(): Promise<DogOwner[]> {
     return this.dogOwnerRepository.findAll();
   }
+
 }
