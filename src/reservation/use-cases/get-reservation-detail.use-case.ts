@@ -8,7 +8,7 @@ import {
   GetReservationDetailPackageDto,
   GetReservationDetailPeriodDto,
   GetReservationDetailGroupDto,
-  GetReservationDetailPetIdDto,
+  GetReservationDetailDogIdDto,
   GetReservationDetailActionsDto,
   GetReservationDetailSlipDto,
   GetReservationDetailTimelineItemDto,
@@ -192,8 +192,8 @@ export class GetReservationDetailUsecase {
       const offerLabel = offering
         ? `${offering.name} • ห้อง ${groupNumber}`
         : `ห้อง ${groupNumber}`;
-      const petIds: GetReservationDetailPetIdDto[] = lines.map((line) => ({
-        petId: line.dog?.id ?? 0,
+      const dogIds: GetReservationDetailDogIdDto[] = lines.map((line) => ({
+        dogId: line.dog?.id ?? 0,
         name: line.dog?.name ?? '',
         sizeLabel: line.dog?.breed?.size?.toLowerCase() ?? '',
       }));
@@ -201,8 +201,8 @@ export class GetReservationDetailUsecase {
         groupNumber,
         offerCode,
         offerLabel,
-        capacity: petIds.length,
-        petIds,
+        capacity: dogIds.length,
+        dogIds,
       };
     });
   }

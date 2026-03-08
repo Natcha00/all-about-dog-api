@@ -28,8 +28,8 @@ export class GetReservationDetailPeriodDto {
   end: string;
 }
 
-export class GetReservationDetailPetIdDto {
-  petId: number;
+export class GetReservationDetailDogIdDto {
+  dogId: number;
   name: string;
   sizeLabel: string;
 }
@@ -39,7 +39,7 @@ export class GetReservationDetailGroupDto {
   offerCode: string;
   offerLabel: string;
   capacity: number;
-  petIds: GetReservationDetailPetIdDto[];
+  dogIds: GetReservationDetailDogIdDto[];
 }
 
 

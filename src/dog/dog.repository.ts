@@ -123,4 +123,21 @@ export class DogRepository {
   async saveVaccination(VaccinationObjectEntity: VaccinationRecord) {
     return this.vaccinationRepository.save(VaccinationObjectEntity);
   }
+
+  async findVaccinationByIdAndDogId(
+    vaccinationId: number,
+    dogId: number,
+  ): Promise<VaccinationRecord | null> {
+    return this.vaccinationRepository.findOne({
+      where: {
+        id: vaccinationId,
+        dog: { id: dogId },
+      },
+      relations: { dog: true },
+    });
+  }
+
+  async softDeleteVaccination(vaccinationId: number): Promise<void> {
+    await this.vaccinationRepository.softDelete(vaccinationId);
+  }
 }

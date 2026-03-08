@@ -33,7 +33,7 @@ export class GetDogProfileUsecase {
     const genderLabel = dog.gender === Gender.FEMALE ? 'เพศเมีย' : 'เพศผู้';
 
     const header = {
-      petId: dog.id,
+      dogId: dog.id,
       displayName: dog.name,
       imageUrl: dog.dogPictureUrl,
       badges: {
@@ -81,7 +81,8 @@ export class GetDogProfileUsecase {
     };
 
     const vaccineList = (dog.vaccinationRecords ?? []).map((rec: VaccinationRecord) => ({
-      date: this.formatDateThai(rec.vaccineDate),
+      id : rec.id,
+      date: rec.vaccineDate,
       vaccineName: rec.vaccineName,
       dose: rec.dose,
       clinicName: rec.clinicName ?? '',

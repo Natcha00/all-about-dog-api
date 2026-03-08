@@ -2,7 +2,10 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -24,8 +27,10 @@ import { CreateDogUsecase } from './use-cases/create-dog.use-case';
 import { GetDogProfileUsecase } from './use-cases/get-dog-profile.use-case';
 import { GetDogProfileResponse } from './dtos/get-dog-profile.dto';
 import { CreateVaccinationRecordDto } from './dtos/create-vaccination-record.dto';
+import { UpdateVaccinationRecordDto } from './dtos/update-vaccination-record.dto';
 import { CreateVaccinationRecordUsecase } from './use-cases/create-vaccination-record.use-case';
-import { UploadVaccinationEvidenceUsecase } from './use-cases/upload-vaccination-evidence.use-case';
+import { UpdateVaccinationRecordUsecase } from './use-cases/update-vaccination-record.use-case';
+import { DeleteVaccinationRecordUsecase } from './use-cases/delete-vaccination-record.use-case';
 import { UploadDogProfilePictureUsecase } from './use-cases/upload-dog-profile-picture.use-case';
 import { GetBreedsUsecase } from './use-cases/get-breeds.use-case';
 import { BloodGroup } from './enums/blood-group.enum';
@@ -39,7 +44,8 @@ export class DogController {
     private readonly getDogByOwnerUsecase: GetDogByOwnerUsecase,
     private readonly getDogProfileUsecase: GetDogProfileUsecase,
     private readonly createVaccinationRecordUsecase: CreateVaccinationRecordUsecase,
-    private readonly uploadVaccinationEvidenceUsecase: UploadVaccinationEvidenceUsecase,
+    private readonly updateVaccinationRecordUsecase: UpdateVaccinationRecordUsecase,
+    private readonly deleteVaccinationRecordUsecase: DeleteVaccinationRecordUsecase,
     private readonly uploadDogProfilePictureUsecase: UploadDogProfilePictureUsecase,
     private readonly getBreedsUsecase: GetBreedsUsecase,
   ) {}
@@ -88,20 +94,6 @@ export class DogController {
   @UseGuards(AccessTokenGuard)
   async getBreeds() {
     return await this.getBreedsUsecase.execute();
-  }
-
-  @Post('evidence/upload')
-  @UseGuards(AccessTokenGuard)
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: memoryStorage(),
-      limits: { fileSize: 5 * 1024 * 1024 },
-    }),
-  )
-  async uploadVaccinationEvidence(
-    @UploadedFile() file: Express.Multer.File,
-  ): Promise<{ evidenceImageUrl: string }> {
-    return this.uploadVaccinationEvidenceUsecase.execute(file);
   }
 
   @Put(':id/profile-picture')
@@ -169,6 +161,56 @@ export class DogController {
       dogOwnerId,
       createVaccinationRecordDto,
       file,
+    );
+  }
+
+  @Put(':id/vaccinations/:vaccinationId')
+  @UseGuards(AccessTokenGuard)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
+  async updateVaccination(
+    @Param('id') dogId: string,
+    @Param('vaccinationId') vaccinationId: string,
+    @Body() updateVaccinationRecordDto: UpdateVaccinationRecordDto,
+    @UploadedFile() file: Express.Multer.File | undefined,
+    @DogOwnerDecorator() user: IUser,
+  ) {
+    const dogOwnerId = this.resolveDogOwnerId(
+      user,
+      updateVaccinationRecordDto.dogOwnerId,
+      'updateVaccination',
+    );
+    return await this.updateVaccinationRecordUsecase.execute(
+      Number(dogId),
+      Number(vaccinationId),
+      dogOwnerId,
+      updateVaccinationRecordDto,
+      file,
+    );
+  }
+
+  @Delete(':id/vaccinations/:vaccinationId')
+  @UseGuards(AccessTokenGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeVaccination(
+    @Param('id') dogId: string,
+    @Param('vaccinationId') vaccinationId: string,
+    @Query('dogOwnerId') dogOwnerIdQuery: string | undefined,
+    @DogOwnerDecorator() user: IUser,
+  ) {
+    const dogOwnerId = this.resolveDogOwnerIdFromQuery(
+      user,
+      dogOwnerIdQuery,
+      'removeVaccination',
+    );
+    await this.deleteVaccinationRecordUsecase.execute(
+      Number(dogId),
+      Number(vaccinationId),
+      dogOwnerId,
     );
   }
 

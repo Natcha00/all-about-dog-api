@@ -6,7 +6,7 @@ export class GetDogProfileResponse {
 }
 
 export class DogProfileHeader {
-  petId: number;
+  dogId: number;
   displayName: string;
   imageUrl: string | null;
   badges: DogProfileBadges;
@@ -63,7 +63,7 @@ export class DogProfileVaccine {
 }
 
 export class DogProfileVaccineItem {
-  date: string;
+  date: Date | string;
   vaccineName: string;
   dose: number;
   clinicName: string;
