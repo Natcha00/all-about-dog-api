@@ -13,7 +13,7 @@ export class UserService {
 
     async signAccessToken(tokenPayload: IUser): Promise<string> {
        return this.jwtService.sign(tokenPayload, { 
-            expiresIn: '10s',
+            expiresIn: '15m',
             secret : this.configService.getOrThrow('ACCESS_TOKEN_PRIVATE_KEY'),
             algorithm: 'RS256',
         });
