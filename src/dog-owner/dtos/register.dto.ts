@@ -1,9 +1,46 @@
-export class RegisterDto{
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-    phoneNumber: string;
-    address?: string;
-    profilePictureUrl?: string;
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
+
+export class RegisterDto {
+  @IsString()
+  @IsNotEmpty({ message: 'กรุณาระบุชื่อ' })
+  @MaxLength(100)
+  firstName: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'กรุณาระบุนามสกุล' })
+  @MaxLength(100)
+  lastName: string;
+
+  @IsEmail({}, { message: 'รูปแบบอีเมลไม่ถูกต้อง' })
+  @IsNotEmpty({ message: 'กรุณาระบุอีเมล' })
+  email: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'กรุณาระบุรหัสผ่าน' })
+  @MinLength(6, { message: 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร' })
+  @MaxLength(100)
+  password: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'กรุณาระบุเบอร์โทรศัพท์' })
+  @MinLength(9, { message: 'เบอร์โทรศัพท์ต้องมีอย่างน้อย 9 หลัก' })
+  @MaxLength(20)
+  phoneNumber: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  address?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  profilePictureUrl?: string;
 }

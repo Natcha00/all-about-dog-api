@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { DogOwnerRepository } from '../dog-owner.repository';
 import { LoginRequest } from '../dtos/login.dto';
@@ -25,6 +25,11 @@ export class LoginDogOwnerUsecase {
     // if (!isMatch) {
     //   throw new BadRequestException('Email or password incorrect');
     // }
+    if (!dogOwner.isEmailVerified) {
+      throw new UnauthorizedException(
+        'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ โปรดตรวจสอบอีเมลและใช้รหัส OTP ที่ส่งให้คุณ',
+      );
+    }
     const payload = { id: dogOwner.id, role: ROLE.DOG_OWNER };
     const accessToken = await this.userService.signAccessToken(payload);
     const refreshToken = await this.userService.signRefreshToken(payload);

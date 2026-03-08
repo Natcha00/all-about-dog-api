@@ -7,6 +7,7 @@ import { OfferingModule } from './offering/offering.module';
 import { DogModule } from './dog/dog.module';
 import { StorageModule } from './storage/storage.module';
 import { StaffModule } from './staff/staff.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { StaffModule } from './staff/staff.module';
       envFilePath: '.env',
     }),
     DatabaseModule,
+    MailModule,
     DogModule,
     OfferingModule,
     StorageModule,

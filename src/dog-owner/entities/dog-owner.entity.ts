@@ -1,13 +1,14 @@
 import { Dog } from 'src/dog/entities/dog.entity';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+
 @Entity()
 export class DogOwner {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  code:string
+  code: string;
 
   @Column()
   firstName: string;
@@ -29,6 +30,15 @@ export class DogOwner {
 
   @Column({ nullable: true })
   profilePictureUrl: string;
+
+  @Column({ default: false })
+  isEmailVerified: boolean;
+
+  @Column({ type: 'varchar', length: 10, nullable: true })
+  emailVerificationOtp: string | null;
+
+  @Column({ type: 'datetime', nullable: true })
+  emailVerificationOtpExpiresAt: Date | null;
 
   @OneToMany(() => Dog, (dogs) => dogs.dogOwner)
   dogs: Array<Dog>;

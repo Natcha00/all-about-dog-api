@@ -9,17 +9,20 @@ import { StaffGuard } from 'src/staff/guards/staff.guard';
 import { DogOwnerGuard } from 'src/user/guards/dog-owner.guard';
 import { CreateDogOwnerUsecase } from './use-cases/create-dog-owner.use-case';
 import { RegisterDogOwnerUsecase } from './use-cases/register-dog-owner.use-case';
+import { VerifyEmailOtpUsecase } from './use-cases/verify-email-otp.use-case';
 import { LoginDogOwnerUsecase } from './use-cases/login-dog-owner.use-case';
 import { GetAllDogOwnersUsecase } from './use-cases/get-all-dog-owners.use-case';
 import { GetDogOwnerByIdUsecase } from './use-cases/get-dog-owner-by-id.use-case';
 import { SearchDogOwnerUsecase } from './use-cases/search-dog-owner.use-case';
 import { type IUser } from 'src/user/interfaces/user.interface';
+import { VerifyEmailOtpDto } from './dtos/verify-email-otp.dto';
 
 @Controller('dog-owner')
 export class DogOwnerController {
   constructor(
     private readonly createDogOwnerUsecase: CreateDogOwnerUsecase,
     private readonly registerDogOwnerUsecase: RegisterDogOwnerUsecase,
+    private readonly verifyEmailOtpUsecase: VerifyEmailOtpUsecase,
     private readonly loginDogOwnerUsecase: LoginDogOwnerUsecase,
     private readonly getAllDogOwnersUsecase: GetAllDogOwnersUsecase,
     private readonly getDogOwnerByIdUsecase: GetDogOwnerByIdUsecase,
@@ -43,6 +46,11 @@ export class DogOwnerController {
   @Post('register')
   async register(@Body() body: RegisterDto) {
     await this.registerDogOwnerUsecase.execute(body);
+  }
+
+  @Post('verify-email')
+  async verifyEmail(@Body() body: VerifyEmailOtpDto) {
+    return this.verifyEmailOtpUsecase.execute(body);
   }
 
   @Post('login')
