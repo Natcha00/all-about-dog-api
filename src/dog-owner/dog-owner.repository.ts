@@ -16,6 +16,12 @@ export class DogOwnerRepository {
   async insert(dogOwnerObjectEntity: DogOwner): Promise<DogOwner> {
     return await this.dogOwnerRepository.save(dogOwnerObjectEntity);
   }
+
+  async updatePassword(owner: DogOwner, hashedPassword: string): Promise<void> {
+    owner.password = hashedPassword;
+    await this.dogOwnerRepository.save(owner);
+  }
+
   async findAll() {
     return await this.dogOwnerRepository.find();
   }

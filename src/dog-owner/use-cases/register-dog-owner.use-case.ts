@@ -2,30 +2,22 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { MailerService } from '@nestjs-modules/mailer';
 import { DogOwnerRepository } from '../dog-owner.repository';
+import { DogOwnerOtpRepository } from '../dog-owner-otp.repository';
 import { RegisterDto } from '../dtos/register.dto';
-
-const OTP_LENGTH = 6;
-const OTP_EXPIRY_MINUTES = 10;
-
-function generateOtp(): string {
-  const digits = '0123456789';
-  let otp = '';
-  for (let i = 0; i < OTP_LENGTH; i++) {
-    otp += digits[Math.floor(Math.random() * digits.length)];
-  }
-  return otp;
-}
+import { generateOtp, getOtpExpiresAt, OTP_EXPIRY_MINUTES } from '../utils/otp.util';
+import { OtpType } from '../enums/otp-type.enum';
 
 @Injectable()
 export class RegisterDogOwnerUsecase {
   constructor(
     private readonly dogOwnerRepository: DogOwnerRepository,
+    private readonly dogOwnerOtpRepository: DogOwnerOtpRepository,
     private readonly mailerService: MailerService,
   ) {}
 
   async execute(dto: RegisterDto): Promise<void> {
     const existing = await this.dogOwnerRepository.findOneByEmail(dto.email);
-    if (existing) {
+    if (existing?.isEmailVerified) {
       throw new BadRequestException('Dog Owner already exists');
     }
     const hashedPassword = await bcrypt.hash(dto.password, 10);
@@ -41,15 +33,20 @@ export class RegisterDogOwnerUsecase {
       profilePictureUrl: dto.profilePictureUrl ?? undefined,
       isEmailVerified: false,
     });
+    
+    if(existing) {
+      dogOwner.id = existing.id;
+    }
     const saved = await this.dogOwnerRepository.insert(dogOwner);
 
     const otp = generateOtp();
-    const expiresAt = new Date();
-    expiresAt.setMinutes(expiresAt.getMinutes() + OTP_EXPIRY_MINUTES);
-
-    saved.emailVerificationOtp = otp;
-    saved.emailVerificationOtpExpiresAt = expiresAt;
-    await this.dogOwnerRepository.insert(saved);
+    const otpRecord = this.dogOwnerOtpRepository.create({
+      dogOwner: saved,
+      type: OtpType.EMAIL_VERIFICATION,
+      otp,
+      expiresAt: getOtpExpiresAt(),
+    });
+    await this.dogOwnerOtpRepository.save(otpRecord);
 
     await this.mailerService.sendMail({
       to: dto.email,

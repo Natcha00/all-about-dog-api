@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DogOwner } from 'src/dog-owner/entities/dog-owner.entity';
+import { DogOwnerOtp } from 'src/dog-owner/entities/dog-owner-otp.entity';
 import { Breed } from 'src/dog/entities/breed.entity';
 import { Dog } from 'src/dog/entities/dog.entity';
 import { Health } from 'src/dog/entities/health.entity';
@@ -33,6 +34,7 @@ import { Staff } from 'src/staff/entities/staff.entity';
           Dog,
           Breed,
           DogOwner,
+          DogOwnerOtp,
           Health,
           VaccinationRecord,
           Reservation,

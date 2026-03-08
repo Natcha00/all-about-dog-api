@@ -1,7 +1,7 @@
 import { Body, Controller, Get, NotFoundException, Param, ParseIntPipe, Post, Query, UseGuards } from '@nestjs/common';
 import { CreateDogOwnerDto } from './dtos/create-dog-owner.dto';
 import { RegisterDto } from './dtos/register.dto';
-import { LoginRequest } from './dtos/login.dto';
+import { LoginRequest, RefreshTokenRequest } from './dtos/login.dto';
 import { SearchDogOwnerRequest, SearchDogOwnerItemDto } from './dtos/search-dog-owner.dto';
 import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
 import { DogOwnerDecorator } from 'src/user/decorators/dog-owner.decorator';
@@ -16,6 +16,13 @@ import { GetDogOwnerByIdUsecase } from './use-cases/get-dog-owner-by-id.use-case
 import { SearchDogOwnerUsecase } from './use-cases/search-dog-owner.use-case';
 import { type IUser } from 'src/user/interfaces/user.interface';
 import { VerifyEmailOtpDto } from './dtos/verify-email-otp.dto';
+import { ResendVerifyOtpDto } from './dtos/resend-verify-otp.dto';
+import { ForgotPasswordDto } from './dtos/forgot-password.dto';
+import { ResetPasswordDto } from './dtos/reset-password.dto';
+import { ResendVerifyOtpUsecase } from './use-cases/resend-verify-otp.use-case';
+import { ForgotPasswordUsecase } from './use-cases/forgot-password.use-case';
+import { ResetPasswordUsecase } from './use-cases/reset-password.use-case';
+import { RefreshTokenUsecase } from './use-cases/refresh-token.use-case';
 
 @Controller('dog-owner')
 export class DogOwnerController {
@@ -23,7 +30,11 @@ export class DogOwnerController {
     private readonly createDogOwnerUsecase: CreateDogOwnerUsecase,
     private readonly registerDogOwnerUsecase: RegisterDogOwnerUsecase,
     private readonly verifyEmailOtpUsecase: VerifyEmailOtpUsecase,
+    private readonly resendVerifyOtpUsecase: ResendVerifyOtpUsecase,
     private readonly loginDogOwnerUsecase: LoginDogOwnerUsecase,
+    private readonly refreshTokenUsecase: RefreshTokenUsecase,
+    private readonly forgotPasswordUsecase: ForgotPasswordUsecase,
+    private readonly resetPasswordUsecase: ResetPasswordUsecase,
     private readonly getAllDogOwnersUsecase: GetAllDogOwnersUsecase,
     private readonly getDogOwnerByIdUsecase: GetDogOwnerByIdUsecase,
     private readonly searchDogOwnerUsecase: SearchDogOwnerUsecase,
@@ -53,9 +64,29 @@ export class DogOwnerController {
     return this.verifyEmailOtpUsecase.execute(body);
   }
 
+  @Post('resend-verify-otp')
+  async resendVerifyOtp(@Body() body: ResendVerifyOtpDto) {
+    return this.resendVerifyOtpUsecase.execute(body);
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() body: ForgotPasswordDto) {
+    return this.forgotPasswordUsecase.execute(body);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() body: ResetPasswordDto) {
+    return this.resetPasswordUsecase.execute(body);
+  }
+
   @Post('login')
   async login(@Body() body: LoginRequest) {
     return this.loginDogOwnerUsecase.execute(body);
+  }
+
+  @Post('refresh-token')
+  async refreshToken(@Body() body: RefreshTokenRequest) {
+    return this.refreshTokenUsecase.execute(body.refreshToken);
   }
 
   @Get('me')
