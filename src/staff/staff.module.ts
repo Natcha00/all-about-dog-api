@@ -9,8 +9,10 @@ import { UserModule } from 'src/user/user.module';
 import { CreateStaffUsecase } from './use-cases/create-staff.use-case';
 import { LoginStaffUsecase } from './use-cases/login-staff.use-case';
 import { GetStaffProfileUsecase } from './use-cases/get-staff-profile.use-case';
+import { GetAllStaffUsecase } from './use-cases/get-all-staff.use-case';
 import { UpdateStaffUsecase } from './use-cases/update-staff.use-case';
 import { DeleteStaffUsecase } from './use-cases/delete-staff.use-case';
+import { ChangeStaffPasswordUsecase } from './use-cases/change-staff-password.use-case';
 
 @Module({
   imports: [
@@ -25,8 +27,10 @@ import { DeleteStaffUsecase } from './use-cases/delete-staff.use-case';
     CreateStaffUsecase,
     LoginStaffUsecase,
     GetStaffProfileUsecase,
+    GetAllStaffUsecase,
     UpdateStaffUsecase,
     DeleteStaffUsecase,
+    ChangeStaffPasswordUsecase,
   ],
   exports: [StaffGuard, AdminGuard, StaffRepository],
 })

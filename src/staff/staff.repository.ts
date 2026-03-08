@@ -30,6 +30,10 @@ export class StaffRepository {
     return this.repo.findOne({ where: { id } });
   }
 
+  async findAll(): Promise<Staff[]> {
+    return this.repo.find({ order: { id: 'ASC' } });
+  }
+
   async delete(id: number): Promise<void> {
     await this.repo.delete(id);
   }
