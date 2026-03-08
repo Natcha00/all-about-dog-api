@@ -7,8 +7,8 @@ import { ChangeStaffPasswordDto } from '../dtos/change-staff-password.dto';
 export class ChangeStaffPasswordUsecase {
   constructor(private readonly staffRepository: StaffRepository) {}
 
-  async execute(staffId: number, dto: ChangeStaffPasswordDto): Promise<void> {
-    const staff = await this.staffRepository.findById(staffId);
+  async execute(id: number, dto: ChangeStaffPasswordDto): Promise<void> {
+    const staff = await this.staffRepository.findById(id);
     if (!staff) {
       throw new NotFoundException('Staff not found');
     }

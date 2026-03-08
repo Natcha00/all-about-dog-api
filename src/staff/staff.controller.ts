@@ -60,7 +60,7 @@ export class StaffController {
   }
 
   @Patch('profile/password')
-  @UseGuards(AccessTokenGuard, StaffGuard)
+  @UseGuards(AccessTokenGuard)
   async changePassword(
     @StaffDecorator() user: IUser,
     @Body() body: ChangeStaffPasswordDto,
