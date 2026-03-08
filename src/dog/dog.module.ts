@@ -13,12 +13,15 @@ import { CreateDogUsecase } from './use-cases/create-dog.use-case';
 import { GetDogProfileUsecase } from './use-cases/get-dog-profile.use-case';
 import { CreateVaccinationRecordUsecase } from './use-cases/create-vaccination-record.use-case';
 import { UploadVaccinationEvidenceUsecase } from './use-cases/upload-vaccination-evidence.use-case';
+import { UploadDogProfilePictureUsecase } from './use-cases/upload-dog-profile-picture.use-case';
 import { GetBreedsUsecase } from './use-cases/get-breeds.use-case';
+import { StorageModule } from 'src/storage/storage.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Breed, Dog, Health, VaccinationRecord]),
     DogOwnerModule,
+    StorageModule,
   ],
   controllers: [DogController],
   providers: [
@@ -29,6 +32,7 @@ import { GetBreedsUsecase } from './use-cases/get-breeds.use-case';
     GetDogProfileUsecase,
     CreateVaccinationRecordUsecase,
     UploadVaccinationEvidenceUsecase,
+    UploadDogProfilePictureUsecase,
     GetBreedsUsecase,
   ],
   exports:[DogService]

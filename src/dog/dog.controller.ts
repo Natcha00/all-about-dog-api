@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   UploadedFile,
   UseGuards,
@@ -25,6 +26,7 @@ import { GetDogProfileResponse } from './dtos/get-dog-profile.dto';
 import { CreateVaccinationRecordDto } from './dtos/create-vaccination-record.dto';
 import { CreateVaccinationRecordUsecase } from './use-cases/create-vaccination-record.use-case';
 import { UploadVaccinationEvidenceUsecase } from './use-cases/upload-vaccination-evidence.use-case';
+import { UploadDogProfilePictureUsecase } from './use-cases/upload-dog-profile-picture.use-case';
 import { GetBreedsUsecase } from './use-cases/get-breeds.use-case';
 import { BloodGroup } from './enums/blood-group.enum';
 import { VaccineType } from './enums/vaccine-type.enum';
@@ -38,6 +40,7 @@ export class DogController {
     private readonly getDogProfileUsecase: GetDogProfileUsecase,
     private readonly createVaccinationRecordUsecase: CreateVaccinationRecordUsecase,
     private readonly uploadVaccinationEvidenceUsecase: UploadVaccinationEvidenceUsecase,
+    private readonly uploadDogProfilePictureUsecase: UploadDogProfilePictureUsecase,
     private readonly getBreedsUsecase: GetBreedsUsecase,
   ) {}
 
@@ -99,6 +102,32 @@ export class DogController {
     @UploadedFile() file: Express.Multer.File,
   ): Promise<{ evidenceImageUrl: string }> {
     return this.uploadVaccinationEvidenceUsecase.execute(file);
+  }
+
+  @Put(':id/profile-picture')
+  @UseGuards(AccessTokenGuard)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
+  async uploadDogProfilePicture(
+    @Param('id') dogId: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body('dogOwnerId') dogOwnerIdBody: string | undefined,
+    @DogOwnerDecorator() user: IUser,
+  ): Promise<{ dogPictureUrl: string }> {
+    const dogOwnerId = this.resolveDogOwnerIdForUpload(
+      user,
+      dogOwnerIdBody,
+      'profile-picture',
+    );
+    const id = Number(dogId);
+    if (!Number.isInteger(id) || id < 1) {
+      throw new BadRequestException('รหัสสุนัขไม่ถูกต้อง');
+    }
+    return this.uploadDogProfilePictureUsecase.execute(id, dogOwnerId, file);
   }
 
   @Get(':id/profile')
@@ -164,6 +193,26 @@ export class DogController {
     }
     if (user.role === ROLE.STAFF || user.role === ROLE.ADMIN) {
       const id = queryValue != null ? Number(queryValue) : NaN;
+      if (!Number.isInteger(id) || id < 1) {
+        throw new BadRequestException(
+          `กรุณาระบุ dogOwnerId เมื่อเรียก ${endpoint} จากฝั่ง staff`,
+        );
+      }
+      return id;
+    }
+    throw new BadRequestException(`ไม่สามารถเรียก ${endpoint} สำหรับ role นี้ได้`);
+  }
+
+  private resolveDogOwnerIdForUpload(
+    user: IUser,
+    bodyValue: string | undefined,
+    endpoint: string,
+  ): number {
+    if (user.role === ROLE.DOG_OWNER) {
+      return user.id;
+    }
+    if (user.role === ROLE.STAFF || user.role === ROLE.ADMIN) {
+      const id = bodyValue != null ? Number(bodyValue) : NaN;
       if (!Number.isInteger(id) || id < 1) {
         throw new BadRequestException(
           `กรุณาระบุ dogOwnerId เมื่อเรียก ${endpoint} จากฝั่ง staff`,

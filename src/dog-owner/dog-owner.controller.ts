@@ -50,6 +50,12 @@ export class DogOwnerController {
     return this.loginDogOwnerUsecase.execute(body);
   }
 
+  @Get('me')
+  @UseGuards(AccessTokenGuard, DogOwnerGuard)
+  async me(@DogOwnerDecorator() user: IUser) {
+    return user;
+  }
+
   @Get('profile')
   @UseGuards(AccessTokenGuard, DogOwnerGuard)
   async profile(@DogOwnerDecorator() user: IUser) {

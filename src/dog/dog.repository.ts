@@ -102,6 +102,18 @@ export class DogRepository {
       },
     });
   }
+
+  async findOneByIdAndDogOwnerId(
+    dogId: number,
+    dogOwnerId: number,
+  ): Promise<Dog | null> {
+    return this.dogTypeormRepository.findOne({
+      where: {
+        id: dogId,
+        dogOwner: { id: dogOwnerId },
+      },
+    });
+  }
   createVaccination(
     VaccinationObjectEntity: Partial<VaccinationRecord>,
   ): VaccinationRecord {
