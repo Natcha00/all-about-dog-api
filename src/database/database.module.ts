@@ -48,7 +48,7 @@ import { Staff } from 'src/staff/entities/staff.entity';
           OfferVipPricing,
           Staff,
         ],
-        synchronize: true,
+        synchronize:false,
         logging: configService.get<boolean>('DB_LOGGING', false),
       }),
     }),

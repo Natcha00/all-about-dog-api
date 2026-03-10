@@ -49,12 +49,8 @@ export class GetSwimmingPackagePricingUsecase {
       OfferingType.SWIMMING,
     );
 
-    // summarize swimming by hour (mock for testing: use buildMockSwimmingReservations(request.date))
-    const reservationsForSummary =
-      reservations.length > 0
-        ? reservations
-        : this.buildMockSwimmingReservations(request.date);
-    
+    const reservationsForSummary = reservations
+        
     const swimmingSummaries =
       this.reservationService.summarizeSwimmingByHour(reservationsForSummary);
 

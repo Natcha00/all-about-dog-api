@@ -13,7 +13,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { ReservationService } from './reservation.service';
 import { Reservation } from './entities/reservation.entity';
-import { CreateReservationRequest } from './dtos/confirm-reservation.dto';
+import { CreateReservationRequest } from './dtos/create-reservation.dto';
 import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
 import { StaffGuard } from 'src/staff/guards/staff.guard';
 import { DogOwnerDecorator } from 'src/user/decorators/dog-owner.decorator';

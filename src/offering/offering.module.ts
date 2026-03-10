@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { OfferingController } from './offering.controller';
 import { OfferingRepository } from './offering.repository';
 import { GetAnnouncementUsecase } from './use-cases/get-annoucement.use-case';
@@ -13,26 +13,32 @@ import { DogModule } from 'src/dog/dog.module';
 import { ReservationModule } from 'src/reservation/reservation.module';
 import { GetSwimmingPackagePricingUsecase } from './use-cases/get-swimming-package-pricing.use-case';
 import { GetOfferingAvailableUsecase } from './use-cases/get-offering-available.use-case';
-
+import { OfferingService } from './offering.service';
 @Module({
-  imports:[
+  imports: [
     TypeOrmModule.forFeature([
       OfferBreedPricing,
       OfferVipPricing,
       OfferSizePricing,
-      Offering
+      Offering,
     ]),
     DogModule,
-    ReservationModule
+    forwardRef(() => ReservationModule),
   ],
   controllers: [OfferingController],
   providers: [
     OfferingRepository,
+    OfferingService,
     GetAnnouncementUsecase,
     GetBoardingAvailableUsecase,
     GetBoardingPackagePricingUsecase,
     GetSwimmingPackagePricingUsecase,
     GetOfferingAvailableUsecase,
+  ],
+  exports: [
+    OfferingService,
+    GetBoardingPackagePricingUsecase,
+    GetSwimmingPackagePricingUsecase,
   ],
 })
 export class OfferingModule {}

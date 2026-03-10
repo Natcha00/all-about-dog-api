@@ -7,6 +7,8 @@ import { Breed } from './entities/breed.entity';
 import { Dog } from './entities/dog.entity';
 import { Health } from './entities/health.entity';
 import { VaccinationRecord } from './entities/vaccination-record.entity';
+import { forwardRef } from '@nestjs/common';
+import { ReservationModule } from 'src/reservation/reservation.module';
 import { DogOwnerModule } from 'src/dog-owner/dog-owner.module';
 import { GetDogByOwnerUsecase } from './use-cases/get-dog-by-owner.use-case';
 import { CreateDogUsecase } from './use-cases/create-dog.use-case';
@@ -25,6 +27,7 @@ import { StorageModule } from 'src/storage/storage.module';
     TypeOrmModule.forFeature([Breed, Dog, Health, VaccinationRecord]),
     DogOwnerModule,
     StorageModule,
+    forwardRef(() => ReservationModule),
   ],
   controllers: [DogController],
   providers: [
