@@ -16,6 +16,12 @@ import {
 import { ReservationStatusLog } from '../entities/reservation-status-log.entity';
 import { StaffRepository } from 'src/staff/staff.repository';
 import { GetDogOwnerByIdUsecase } from 'src/dog-owner/use-cases/get-dog-owner-by-id.use-case';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const STATUS_LABELS: Record<ReservationStatusEnum, string> = {
   [ReservationStatusEnum.PENDING]: 'รอการยืนยัน',
@@ -221,7 +227,7 @@ export class GetReservationDetailUsecase {
 
     return logs.map((log) => {
       const at = log.occurredAt
-        ? new Date(log.occurredAt).toISOString().replace('Z', '+07:00')
+        ? dayjs(log.occurredAt).add(7, 'hour').tz('Asia/Bangkok').format('YYYY-MM-DD HH:mm')
         : null;
       const by = log.performedBy ?? null;
       const detail = log.label ?? null;

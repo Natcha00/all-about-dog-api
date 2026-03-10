@@ -13,6 +13,7 @@ import { GetAllStaffUsecase } from './use-cases/get-all-staff.use-case';
 import { UpdateStaffUsecase } from './use-cases/update-staff.use-case';
 import { DeleteStaffUsecase } from './use-cases/delete-staff.use-case';
 import { ChangeStaffPasswordUsecase } from './use-cases/change-staff-password.use-case';
+import { RefreshTokenUsecase } from './use-cases/refresh-token.use-case';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ChangeStaffPasswordUsecase } from './use-cases/change-staff-password.us
     UpdateStaffUsecase,
     DeleteStaffUsecase,
     ChangeStaffPasswordUsecase,
+    RefreshTokenUsecase,
   ],
   exports: [StaffGuard, AdminGuard, StaffRepository],
 })

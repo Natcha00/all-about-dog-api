@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { CreateStaffDto } from './dtos/create-staff.dto';
 import { UpdateStaffDto } from './dtos/update-staff.dto';
-import { StaffLoginRequest } from './dtos/login.dto';
+import { StaffLoginRequest, StaffRefreshTokenRequest } from './dtos/login.dto';
 import { StaffProfileDto } from './dtos/profile.dto';
 import { ChangeStaffPasswordDto } from './dtos/change-staff-password.dto';
 import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
@@ -28,6 +28,7 @@ import { UpdateStaffUsecase } from './use-cases/update-staff.use-case';
 import { DeleteStaffUsecase } from './use-cases/delete-staff.use-case';
 import { ChangeStaffPasswordUsecase } from './use-cases/change-staff-password.use-case';
 import { ROLE } from 'src/user/enums/role.enum';
+import { RefreshTokenUsecase } from './use-cases/refresh-token.use-case';
 
 @Controller('staff')
 export class StaffController {
@@ -39,6 +40,7 @@ export class StaffController {
     private readonly updateStaffUsecase: UpdateStaffUsecase,
     private readonly deleteStaffUsecase: DeleteStaffUsecase,
     private readonly changeStaffPasswordUsecase: ChangeStaffPasswordUsecase,
+    private readonly refreshTokenUsecase: RefreshTokenUsecase,
   ) {}
 
   @Post('createStaff')
@@ -51,6 +53,17 @@ export class StaffController {
     @Body() body: StaffLoginRequest,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     return this.loginStaffUsecase.execute(body);
+  }
+
+  @Post('refresh-token')
+  async refreshToken(@Body() body: StaffRefreshTokenRequest) {
+    return this.refreshTokenUsecase.execute(body.refreshToken);
+  }
+
+  @Get('me')
+  @UseGuards(AccessTokenGuard, StaffGuard)
+  async me(@StaffDecorator() user: IUser) {
+    return user;
   }
 
   @Get('profile')
