@@ -17,6 +17,7 @@ import { ReservationStatusLog } from 'src/reservation/entities/reservation-statu
 import { ReservationLine } from 'src/reservation/entities/reservation-line.entity';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { Staff } from 'src/staff/entities/staff.entity';
+import { News } from 'src/news/entities/news.entity';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { Staff } from 'src/staff/entities/staff.entity';
           OfferSizePricing,
           OfferVipPricing,
           Staff,
+          News
         ],
         synchronize: true,
         logging: configService.get<boolean>('DB_LOGGING', false),

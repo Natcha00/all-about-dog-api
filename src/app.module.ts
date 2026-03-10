@@ -8,6 +8,7 @@ import { DogModule } from './dog/dog.module';
 import { StorageModule } from './storage/storage.module';
 import { StaffModule } from './staff/staff.module';
 import { MailModule } from './mail/mail.module';
+import { NewsModule } from './news/news.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MailModule } from './mail/mail.module';
     OfferingModule,
     StorageModule,
     StaffModule,
+    NewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
