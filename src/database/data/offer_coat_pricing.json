@@ -1,165 +1,165 @@
 [
   {
     "offeringId": 4,
-    "coat": "SHORT",
+    "coat": "ขนสั้น",
     "max_weight": 5,
     "price": 500
   },
   {
     "offeringId": 4,
-    "coat": "SHORT",
+    "coat": "ขนสั้น",
     "max_weight": 10,
     "price": 600
   },
   {
     "offeringId": 4,
-    "coat": "SHORT",
+    "coat": "ขนสั้น",
     "max_weight": 15,
     "price": 700
   },
   {
     "offeringId": 4,
-    "coat": "SHORT",
+    "coat": "ขนสั้น",
     "max_weight": 25,
     "price": 850
   },
   {
     "offeringId": 4,
-    "coat": "SHORT",
+    "coat": "ขนสั้น",
     "max_weight": 25,
     "price": 900
   },
   {
     "offeringId": 4,
-    "coat": "SHORT",
+    "coat": "ขนสั้น",
     "max_weight": 30,
     "price": 1000
   },
   {
     "offeringId": 4,
-    "coat": "SHORT",
+    "coat": "ขนสั้น",
     "max_weight": 40,
     "price": 1100
   },
   {
     "offeringId": 4,
-    "coat": "SHORT",
+    "coat": "ขนสั้น",
     "max_weight": 50,
     "price": 1200
   },
   {
     "offeringId": 4,
-    "coat": "SHORT",
+    "coat": "ขนสั้น",
     "max_weight": 10000,
     "price": 1400
   },
 
   {
     "offeringId": 4,
-    "coat": "LONG",
+    "coat": "ขนยาว",
     "max_weight": 5,
     "price": 500
   },
   {
     "offeringId": 4,
-    "coat": "LONG",
+    "coat": "ขนยาว",
     "max_weight": 10,
     "price": 650
   },
   {
     "offeringId": 4,
-    "coat": "LONG",
+    "coat": "ขนยาว",
     "max_weight": 15,
     "price": 850
   },
   {
     "offeringId": 4,
-    "coat": "LONG",
+    "coat": "ขนยาว",
     "max_weight": 25,
     "price": 950
   },
   {
     "offeringId": 4,
-    "coat": "LONG",
+    "coat": "ขนยาว",
     "max_weight": 25,
     "price": 1000
   },
   {
     "offeringId": 4,
-    "coat": "LONG",
+    "coat": "ขนยาว",
     "max_weight": 30,
     "price": 1200
   },
   {
     "offeringId": 4,
-    "coat": "LONG",
+    "coat": "ขนยาว",
     "max_weight": 40,
     "price": 1300
   },
   {
     "offeringId": 4,
-    "coat": "LONG",
+    "coat": "ขนยาว",
     "max_weight": 50,
     "price": 1400
   },
   {
     "offeringId": 4,
-    "coat": "LONG",
+    "coat": "ขนยาว",
     "max_weight": 10000,
     "price": 1500
   },
 
   {
     "offeringId": 4,
-    "coat": "DOUBLE",
+    "coat": "ขนสองชั้น",
     "max_weight": 5,
     "price": 500
   },
   {
     "offeringId": 4,
-    "coat": "DOUBLE",
+    "coat": "ขนสองชั้น",
     "max_weight": 10,
     "price": 850
   },
   {
     "offeringId": 4,
-    "coat": "DOUBLE",
+    "coat": "ขนสองชั้น",
     "max_weight": 15,
     "price": 1000
   },
   {
     "offeringId": 4,
-    "coat": "DOUBLE",
+    "coat": "ขนสองชั้น",
     "max_weight": 25,
     "price": 1150
   },
   {
     "offeringId": 4,
-    "coat": "DOUBLE",
+    "coat": "ขนสองชั้น",
     "max_weight": 25,
     "price": 1300
   },
   {
     "offeringId": 4,
-    "coat": "DOUBLE",
+    "coat": "ขนสองชั้น",
     "max_weight": 30,
     "price": 1500
   },
   {
     "offeringId": 4,
-    "coat": "DOUBLE",
+    "coat": "ขนสองชั้น",
     "max_weight": 40,
     "price": 1600
   },
   {
     "offeringId": 4,
-    "coat": "DOUBLE",
+    "coat": "ขนสองชั้น",
     "max_weight": 50,
     "price": 1700
   },
   {
     "offeringId": 4,
-    "coat": "DOUBLE",
+    "coat": "ขนสองชั้น",
     "max_weight": 10000,
     "price": 2300
   }
