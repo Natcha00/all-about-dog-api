@@ -52,6 +52,7 @@ export class GetDogProfileUsecase {
       heightCm: String(dog.height),
       breed: dog.breed?.nameTh ?? dog.breed?.nameEng ?? '-',
       color: dog.color,
+      coatType: dog.coatType,
       size: this.mapSizeToLabel(dog.breed?.size),
       birthday: this.formatDate(dog.birthdate),
     };

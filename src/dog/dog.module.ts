@@ -11,6 +11,7 @@ import { DogOwnerModule } from 'src/dog-owner/dog-owner.module';
 import { GetDogByOwnerUsecase } from './use-cases/get-dog-by-owner.use-case';
 import { CreateDogUsecase } from './use-cases/create-dog.use-case';
 import { GetDogProfileUsecase } from './use-cases/get-dog-profile.use-case';
+import { UpdateDogUsecase } from './use-cases/update-dog.use-case';
 import { CreateVaccinationRecordUsecase } from './use-cases/create-vaccination-record.use-case';
 import { UploadVaccinationEvidenceUsecase } from './use-cases/upload-vaccination-evidence.use-case';
 import { UpdateVaccinationRecordUsecase } from './use-cases/update-vaccination-record.use-case';
@@ -33,6 +34,7 @@ import { StorageModule } from 'src/storage/storage.module';
     GetDogByOwnerUsecase,
     CreateDogUsecase,
     GetDogProfileUsecase,
+    UpdateDogUsecase,
     CreateVaccinationRecordUsecase,
     UploadVaccinationEvidenceUsecase,
     UpdateVaccinationRecordUsecase,

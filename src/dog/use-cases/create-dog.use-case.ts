@@ -35,6 +35,7 @@ export class CreateDogUsecase {
       breed: breed,
       dogOwner: foundDogOwner,
       color: createDogDto.color,
+      coatType: createDogDto.coatType,
       weight: createDogDto.weight,
       height: createDogDto.height,
       birthdate: createDogDto.birthdate,

@@ -36,6 +36,7 @@ export class DogProfileGeneral {
   heightCm: string;
   breed: string;
   color: string;
+  coatType: string;
   size: string;
   birthday: string;
 }

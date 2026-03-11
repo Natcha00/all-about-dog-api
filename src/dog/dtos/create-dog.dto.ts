@@ -14,6 +14,7 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { BloodGroup } from '../enums/blood-group.enum';
+import { CoatType } from '../enums/coat-type.enum';
 
 export class HealthInfoDto {
   @IsBoolean()
@@ -80,6 +81,10 @@ export class CreateDogDto {
   @IsString()
   @IsOptional()
   color?: string;
+
+  @IsEnum(CoatType)
+  @IsNotEmpty()
+  coatType: CoatType;
 
   @IsNumber()
   @IsNotEmpty()

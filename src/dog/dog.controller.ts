@@ -18,12 +18,14 @@ import { FileInterceptor, AnyFilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { DogService } from './services/dog.service';
 import { CreateDogDto } from './dtos/create-dog.dto';
+import { UpdateDogDto } from './dtos/update-dog.dto';
 import { CreateBreedDto } from './dtos/create-breed.dto';
 import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
 import { DogOwnerDecorator } from 'src/user/decorators/dog-owner.decorator';
 import { type IUser } from 'src/user/interfaces/user.interface';
 import { GetDogByOwnerUsecase } from './use-cases/get-dog-by-owner.use-case';
 import { CreateDogUsecase } from './use-cases/create-dog.use-case';
+import { UpdateDogUsecase } from './use-cases/update-dog.use-case';
 import { GetDogProfileUsecase } from './use-cases/get-dog-profile.use-case';
 import { GetDogProfileResponse } from './dtos/get-dog-profile.dto';
 import { CreateVaccinationRecordDto } from './dtos/create-vaccination-record.dto';
@@ -35,6 +37,7 @@ import { DeleteDogUsecase } from './use-cases/delete-dog.use-case';
 import { UploadDogProfilePictureUsecase } from './use-cases/upload-dog-profile-picture.use-case';
 import { GetBreedsUsecase } from './use-cases/get-breeds.use-case';
 import { BloodGroup } from './enums/blood-group.enum';
+import { CoatType } from './enums/coat-type.enum';
 import { VaccineType } from './enums/vaccine-type.enum';
 import { ROLE } from 'src/user/enums/role.enum';
 
@@ -42,6 +45,7 @@ import { ROLE } from 'src/user/enums/role.enum';
 export class DogController {
   constructor(
     private readonly createDogUsecase: CreateDogUsecase,
+    private readonly updateDogUsecase: UpdateDogUsecase,
     private readonly getDogByOwnerUsecase: GetDogByOwnerUsecase,
     private readonly getDogProfileUsecase: GetDogProfileUsecase,
     private readonly createVaccinationRecordUsecase: CreateVaccinationRecordUsecase,
@@ -66,6 +70,25 @@ export class DogController {
     return await this.createDogUsecase.execute(createDogDto, dogOwnerId);
   }
 
+  @Put(':id')
+  @UseGuards(AccessTokenGuard)
+  async update(
+    @Param('id') dogId: string,
+    @Body() updateDogDto: UpdateDogDto,
+    @DogOwnerDecorator() user: IUser,
+  ) {
+    const dogOwnerId = this.resolveDogOwnerId(
+      user,
+      updateDogDto.dogOwnerId,
+      'update',
+    );
+    const id = Number(dogId);
+    if (!Number.isInteger(id) || id < 1) {
+      throw new BadRequestException('รหัสสุนัขไม่ถูกต้อง');
+    }
+    await this.updateDogUsecase.execute(id, updateDogDto, dogOwnerId);
+  }
+
   @Get()
   @UseGuards(AccessTokenGuard)
   async getDogs(
@@ -84,6 +107,12 @@ export class DogController {
   @UseGuards(AccessTokenGuard)
   getBloodGroups(): { value: string; label: string }[] {
     return Object.values(BloodGroup).map((value) => ({ value, label: value }));
+  }
+
+  @Get('options/coat-types')
+  @UseGuards(AccessTokenGuard)
+  getCoatTypes(): { value: string; label: string }[] {
+    return Object.values(CoatType).map((value) => ({ value, label: value }));
   }
 
   @Get('options/vaccine-types')

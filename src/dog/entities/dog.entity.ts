@@ -11,6 +11,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Breed } from './breed.entity';
+import { CoatType } from '../enums/coat-type.enum';
 import { Health } from './health.entity';
 import { VaccinationRecord } from './vaccination-record.entity';
 
@@ -30,6 +31,9 @@ export class Dog {
 
   @Column()
   color: string;
+
+  @Column({ type: 'enum', enum: CoatType })
+  coatType: CoatType;
 
   @Column()
   weight: number;
