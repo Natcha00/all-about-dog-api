@@ -175,11 +175,13 @@ export class GetSwimmingPackagePricingUsecase {
     });
   }
 
+  /**
+   * คำนวณราคาว่ายน้ำจาก coat + น้ำหนัก; ข้อยกเว้น: คอร์กี้ = 850, โกลเด้นรีทรีฟเวอร์ = 1200
+   */
   private getSwimmingPricingByCoat(
     dogs: Dog[],
     offerCoatPricings: OfferCoatPricing[],
   ): SwimmingPricingItemDto[] {
-    // Group by coat, then sort each group by max_weight ascending so we can pick the tier where max_weight >= dog.weight
     const tiersByCoat = new Map<
       CoatType,
       Array<{ max_weight: number; price: number }>
@@ -194,6 +196,25 @@ export class GetSwimmingPackagePricingUsecase {
     }
 
     return dogs.map((d) => {
+      const breedName = d.breed?.nameTh?.trim() ?? '';
+      if (breedName === 'คอร์กี้') {
+        return {
+          dogId: d.id,
+          name: d.name,
+          breed: d.breed?.nameTh ?? '-',
+          coatType: d.coatType,
+          price: 850,
+        };
+      }
+      if (breedName === 'โกลเด้นรีทรีฟเวอร์') {
+        return {
+          dogId: d.id,
+          name: d.name,
+          breed: d.breed?.nameTh ?? '-',
+          coatType: d.coatType,
+          price: 1200,
+        };
+      }
       const coat = d.coatType;
       const weight = d.weight ?? 0;
       const tiers = tiersByCoat.get(coat);

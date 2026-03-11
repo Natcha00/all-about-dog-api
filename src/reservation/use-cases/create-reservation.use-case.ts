@@ -181,7 +181,7 @@ export class CreateReservationUsecase {
 
   /**
    * คำนวณราคาว่ายน้ำต่อตัวจาก coat + น้ำหนัก ตาม tier ใน offer coat pricing
-   * (กลุ่มตาม coat, เรียง max_weight จากน้อยไปมาก, เลือก tier แรกที่ max_weight >= dog.weight)
+   * ข้อยกเว้น: คอร์กี้ = 850, โกลเด้นรีทรีฟเวอร์ = 1200
    */
   private calculateSwimmingPriceByCoat(
     dogs: Dog[],
@@ -202,6 +202,15 @@ export class CreateReservationUsecase {
 
     const result = new Map<number, number>();
     for (const d of dogs) {
+      const breedName = d.breed?.nameTh?.trim() ?? '';
+      if (breedName === 'คอร์กี้') {
+        result.set(d.id, 850);
+        continue;
+      }
+      if (breedName === 'โกลเด้นรีทรีฟเวอร์') {
+        result.set(d.id, 1200);
+        continue;
+      }
       const coat = d.coatType;
       const weight = d.weight ?? 0;
       const tiers = tiersByCoat.get(coat);
