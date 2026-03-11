@@ -2,6 +2,7 @@ import { IsArray, IsDateString, IsEnum, IsInt, IsOptional, Min } from "class-val
 import { OfferingType } from "../enums/offering-type.enum";
 import { Transform } from "class-transformer";
 import { OfferingPackage } from "../enums/offering-package.enum";
+import { CoatType } from "src/dog/enums/coat-type.enum";
 
 export class GetSwimmingPackagePricingRequest {
     @Transform(({ value }) =>
@@ -73,6 +74,7 @@ export class SwimmingPricingItemDto {
   name: string;
   breed: string;
   price: number;
+  coatType: CoatType;
 }
 
 export class SwimmingPricingDto {

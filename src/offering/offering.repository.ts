@@ -4,6 +4,7 @@ import { Offering } from './entities/offering.entity';
 import { Repository } from 'typeorm';
 import { OfferBreedPricing } from './entities/offer-breed-pricing.entity';
 import { OfferingType } from './enums/offering-type.enum';
+import { OfferCoatPricing } from './entities/offer-coat-pricing.entity';
 
 @Injectable()
 export class OfferingRepository {
@@ -12,6 +13,8 @@ export class OfferingRepository {
     private readonly offeringTypeormRepository: Repository<Offering>,
     @InjectRepository(OfferBreedPricing)
     private readonly offerBreedPricingTypeormRepository: Repository<OfferBreedPricing>,
+    @InjectRepository(OfferCoatPricing)
+    private readonly offerCoatPricingTypeormRepository: Repository<OfferCoatPricing>,
   ) {}
 
   async getOffering() {
@@ -34,6 +37,14 @@ export class OfferingRepository {
     return await this.offerBreedPricingTypeormRepository.find({
       relations: {
         breed: true,
+      },
+    });
+  }
+
+  async getOfferCoatPricing() {
+    return await this.offerCoatPricingTypeormRepository.find({
+      relations: {
+        offering: true,
       },
     });
   }

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { OfferingRepository } from './offering.repository';
 import { Offering } from './entities/offering.entity';
 import { OfferBreedPricing } from './entities/offer-breed-pricing.entity';
+import { OfferCoatPricing } from './entities/offer-coat-pricing.entity';
 
 /**
  * Reservation-related logic (assignDogs, boardingSummary, countByRange,
@@ -19,6 +20,10 @@ export class OfferingService {
   async getBreedPricing(): Promise<OfferBreedPricing[]> {
     return this.offeringRepository.getBreedPricing();
   }
+
+  async getCoatPricing(): Promise<OfferCoatPricing[]> {
+    return this.offeringRepository.getOfferCoatPricing();
+  } 
 
   async getSwimmingOffering(): Promise<Offering | null> {
     return this.offeringRepository.getSwimmingOffering();

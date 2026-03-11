@@ -26,12 +26,15 @@ import offeringData from '../data/offering.json';
 import offerBreedPricingData from '../data/offer_breed_pricing.json';
 import offerSizePricingData from '../data/offer_size_pricing.json';
 import offerVipPricingData from '../data/offer_vip_pricing.json';
+import offerCoatPricingData from '../data/offer_coat_pricing.json';
 import reservationData from '../data/reservation.json';
 import { Size } from 'src/dog/enums/size.enum';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
 import { ReservationStatusEnum } from 'src/reservation/enums/reservation-status.enum';
 import { ROLE } from 'src/user/enums/role.enum';
 import { faker } from '@faker-js/faker';
+import { OfferCoatPricing } from 'src/offering/entities/offer-coat-pricing.entity';
+import { CoatType } from 'src/dog/enums/coat-type.enum';
 
 const AppDataSource = new DataSource({
   type: 'mysql',
@@ -40,7 +43,6 @@ const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME ?? 'app',
   password: process.env.DB_PASSWORD ?? 'app',
   database: process.env.DB_DATABASE ?? 'all_about_dog',
-  timezone: 'Asia/Bangkok',
   synchronize: true, // ❗ production ใช้ migration แทน
   entities: [
     Dog,
@@ -57,6 +59,7 @@ const AppDataSource = new DataSource({
     OfferBreedPricing,
     OfferSizePricing,
     OfferVipPricing,
+    OfferCoatPricing,
     Staff,
   ],
 });
@@ -147,6 +150,19 @@ async function seedOffering() {
   await AppDataSource.destroy();
 }
 
+async function seedOfferCoatPricing() {
+  await AppDataSource.initialize();
+  const offerCoatPricingRepo = AppDataSource.getRepository(OfferCoatPricing);
+  const offerCoatPricingTransform = offerCoatPricingData.map((op) => ({
+    ...op,
+    offering: { id: op.offeringId },
+    coat: op.coat as CoatType,
+  }));
+  await offerCoatPricingRepo.save(offerCoatPricingTransform);
+  console.log('🌱 MySQL offer coat pricing seeding completed!');
+  await AppDataSource.destroy();
+}
+
 async function seedStaff() {
   await AppDataSource.initialize();
 
@@ -224,8 +240,27 @@ async function seedReservation() {
     breedId: number;
     health: Record<string, unknown>;
   }> = [];
-  const colors = ['orange', 'brown', 'white', 'black', 'gray', 'cream', 'golden', 'tan'];
-  const bloodGroups = ['DEA 1.1', 'DEA 1.2', 'DEA 3', 'DEA 4', 'DEA 5', 'DEA 6', 'DEA 7', 'DEA 8', 'UNKNOWN'];
+  const colors = [
+    'orange',
+    'brown',
+    'white',
+    'black',
+    'gray',
+    'cream',
+    'golden',
+    'tan',
+  ];
+  const bloodGroups = [
+    'DEA 1.1',
+    'DEA 1.2',
+    'DEA 3',
+    'DEA 4',
+    'DEA 5',
+    'DEA 6',
+    'DEA 7',
+    'DEA 8',
+    'UNKNOWN',
+  ];
 
   let dogIndex = 0;
   for (let o = 0; o < savedOwners.length; o++) {
@@ -245,11 +280,27 @@ async function seedReservation() {
         dogOwnerId: ownerId,
         breedId: faker.helpers.arrayElement(breedIds),
         health: {
-          detail: faker.helpers.maybe(() => faker.lorem.sentence(), { probability: 0.3 }),
+          detail: faker.helpers.maybe(() => faker.lorem.sentence(), {
+            probability: 0.3,
+          }),
           sterilization: faker.datatype.boolean(),
           microchip: faker.datatype.boolean(),
-          underlyingDisease: faker.helpers.maybe(() => faker.lorem.words(2), { probability: 0.2 }),
-          allergy: faker.helpers.maybe(() => faker.helpers.arrayElement(['peanut', 'chicken', 'beef', 'wheat', 'fish', 'soy', 'dust']), { probability: 0.3 }),
+          underlyingDisease: faker.helpers.maybe(() => faker.lorem.words(2), {
+            probability: 0.2,
+          }),
+          allergy: faker.helpers.maybe(
+            () =>
+              faker.helpers.arrayElement([
+                'peanut',
+                'chicken',
+                'beef',
+                'wheat',
+                'fish',
+                'soy',
+                'dust',
+              ]),
+            { probability: 0.3 },
+          ),
           bloodGroup: faker.helpers.arrayElement(bloodGroups),
           hasBreakfast: faker.datatype.boolean(),
           hasAfterBreakfast: faker.datatype.boolean(),
@@ -279,7 +330,10 @@ async function seedReservation() {
   // 3. สร้าง Reservation จากข้อมูลที่ generate (owner + dogs ของ owner)
   // ReservationLine เป็น OneToOne กับ Offering และ OneToOne กับ Dog → แต่ละ offering และแต่ละ dog ใช้ได้แค่ 1 line ในทั้งระบบ
   const offeringRepo = AppDataSource.getRepository(Offering);
-  const offerings = await offeringRepo.find({ where: { offeringType: OfferingType.BOARDING }, order: { id: 'ASC' } });
+  const offerings = await offeringRepo.find({
+    where: { offeringType: OfferingType.BOARDING },
+    order: { id: 'ASC' },
+  });
   const price = 1000;
 
   const reservationsToSave: Array<{
@@ -360,12 +414,16 @@ async function run() {
       await seedStaff();
       break;
 
+    case 'offerCoatPricing':
+      await seedOfferCoatPricing();
+      break;
+
     default:
-      await seedBreeds();
-      await seedDogOwner();
-      await seedDog();
-      await seedOffering();
-      await seedStaff();
+      // await seedBreeds();
+      // await seedDogOwner();
+      // await seedDog();
+      // await seedOffering();
+      // await seedStaff();
       console.log('🌱 MySQL seeding with no case!');
       break;
   }

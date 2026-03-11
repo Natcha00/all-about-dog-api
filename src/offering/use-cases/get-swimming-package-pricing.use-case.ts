@@ -14,6 +14,8 @@ import { OfferingRepository } from '../offering.repository';
 import { Dog } from 'src/dog/entities/dog.entity';
 import { OfferBreedPricing } from '../entities/offer-breed-pricing.entity';
 import { Offering } from '../entities/offering.entity';
+import { OfferCoatPricing } from '../entities/offer-coat-pricing.entity';
+import { CoatType } from 'src/dog/enums/coat-type.enum';
 
 @Injectable()
 export class GetSwimmingPackagePricingUsecase {
@@ -69,9 +71,9 @@ export class GetSwimmingPackagePricingUsecase {
       };
     });   
 
-    const offerBreedPricings =
-      await this.offeringRepository.getBreedPricing();
-    const pricingItems = this.getSwimmingPricing(dogs, offerBreedPricings);
+    const offerCoatPricings =
+      await this.offeringRepository.getOfferCoatPricing();
+    const pricingItems = this.getSwimmingPricingByCoat(dogs, offerCoatPricings);
     const total = pricingItems.reduce((sum, i) => sum + i.price, 0);
 
     const offering = await this.offeringRepository.getSwimmingOffering();
@@ -150,7 +152,7 @@ export class GetSwimmingPackagePricingUsecase {
     ];
   }
 
-  private getSwimmingPricing(
+  private getSwimmingPricingByBreed(
     dogs: Dog[],
     offerBreedPricings: OfferBreedPricing[],
   ): SwimmingPricingItemDto[] {
@@ -167,6 +169,41 @@ export class GetSwimmingPackagePricingUsecase {
         dogId: d.id,
         name: d.name,
         breed: d.breed?.nameTh ?? '-',
+        coatType: d.coatType,
+        price,
+      };
+    });
+  }
+
+  private getSwimmingPricingByCoat(
+    dogs: Dog[],
+    offerCoatPricings: OfferCoatPricing[],
+  ): SwimmingPricingItemDto[] {
+    // Group by coat, then sort each group by max_weight ascending so we can pick the tier where max_weight >= dog.weight
+    const tiersByCoat = new Map<
+      CoatType,
+      Array<{ max_weight: number; price: number }>
+    >();
+    for (const p of offerCoatPricings) {
+      const list = tiersByCoat.get(p.coat) ?? [];
+      list.push({ max_weight: p.max_weight, price: p.price });
+      tiersByCoat.set(p.coat, list);
+    }
+    for (const list of tiersByCoat.values()) {
+      list.sort((a, b) => a.max_weight - b.max_weight);
+    }
+
+    return dogs.map((d) => {
+      const coat = d.coatType;
+      const weight = d.weight ?? 0;
+      const tiers = tiersByCoat.get(coat);
+      const tier = tiers?.find((t) => t.max_weight >= weight);
+      const price = tier?.price ?? 0;
+      return {
+        dogId: d.id,
+        name: d.name,
+        breed: d.breed?.nameTh ?? '-',
+        coatType: coat,
         price,
       };
     });

@@ -4,6 +4,7 @@ import { OfferSizePricing } from "./offer-size-pricing.entity";
 import { OfferBreedPricing } from "./offer-breed-pricing.entity";
 import { OfferVipPricing } from "./offer-vip-pricing.entity";
 import { ReservationLine } from "src/reservation/entities/reservation-line.entity";
+import { OfferCoatPricing } from "./offer-coat-pricing.entity";
 
 @Entity()
 export class Offering {
@@ -36,4 +37,7 @@ export class Offering {
 
     @OneToOne(()=>OfferVipPricing,(offerVipPricing)=>offerVipPricing.offering)
     offerVipPricing: OfferVipPricing
+
+    @OneToOne(()=>OfferCoatPricing,(offerCoatPricing)=>offerCoatPricing.offering)
+    offerCoatPricing: OfferCoatPricing
 }
