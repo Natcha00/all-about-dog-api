@@ -18,6 +18,7 @@ import { ReservationLine } from 'src/reservation/entities/reservation-line.entit
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { Staff } from 'src/staff/entities/staff.entity';
 import { News } from 'src/news/entities/news.entity';
+import { OfferCoatPricing } from 'src/offering/entities/offer-coat-pricing.entity';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { News } from 'src/news/entities/news.entity';
           OfferBreedPricing,
           OfferSizePricing,
           OfferVipPricing,
+          OfferCoatPricing,
           Staff,
           News
         ],

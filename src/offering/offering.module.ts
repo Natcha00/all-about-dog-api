@@ -14,12 +14,14 @@ import { ReservationModule } from 'src/reservation/reservation.module';
 import { GetSwimmingPackagePricingUsecase } from './use-cases/get-swimming-package-pricing.use-case';
 import { GetOfferingAvailableUsecase } from './use-cases/get-offering-available.use-case';
 import { OfferingService } from './offering.service';
+import { OfferCoatPricing } from './entities/offer-coat-pricing.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       OfferBreedPricing,
       OfferVipPricing,
       OfferSizePricing,
+      OfferCoatPricing,
       Offering,
     ]),
     DogModule,

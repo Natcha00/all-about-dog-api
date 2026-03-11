@@ -246,24 +246,27 @@ console.log("dogName", query.dogName, Buffer.from(query.dogName || "", "utf8"));
   @UseGuards(AccessTokenGuard, StaffGuard)
   async verifySlip(
     @Body() body: VerifySlipRequest,
+    @StaffDecorator() user: IUser,
   ): Promise<{ success: boolean }> {
-    return this.verifyPaymentSlipUsecase.execute(body.code, body.dogOwnerId);
+    return this.verifyPaymentSlipUsecase.execute(body.code, user.id);
   }
 
   @Post('checkin')
   @UseGuards(AccessTokenGuard, StaffGuard)
   async checkIn(
     @Body() body: CheckInReservationRequest,
+    @StaffDecorator() user: IUser,
   ): Promise<{ success: boolean }> {
-    return this.checkInReservationUsecase.execute(body.code, body.dogOwnerId);
+    return this.checkInReservationUsecase.execute(body.code, user.id);
   }
 
   @Post('checkout')
   @UseGuards(AccessTokenGuard, StaffGuard)
   async checkOut(
     @Body() body: CheckOutReservationRequest,
+    @StaffDecorator() user: IUser,
   ): Promise<{ success: boolean }> {
-    return this.checkOutReservationUsecase.execute(body.code, body.dogOwnerId);
+    return this.checkOutReservationUsecase.execute(body.code, user.id);
   }
 
   @Post('slip/reject')
