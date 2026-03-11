@@ -7,9 +7,8 @@ import {
   IsOptional,
   IsString,
   Min,
-  ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
 import { OfferingPackage } from 'src/offering/enums/offering-package.enum';
 
@@ -40,33 +39,38 @@ export class CreateReservationLineDto {
 }
 
 export class CreateReservationRequest {
+  @Transform(({ value }) =>
+    typeof value === 'string'
+      ? value.split(',').map((v: string) => Number(v.trim()))
+      : value,
+  )
+  @IsArray()
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  dogIds: number[];
+
   @IsEnum(OfferingType)
-  offerType: OfferingType;
+  offeringType: OfferingType;
 
-  @ValidateNested()
-  @Type(() => CreateReservationPeriodDto)
-  period: CreateReservationPeriodDto;
+  @IsDateString()
+  start: string;
 
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  nights?: number;
+  @IsDateString()
+  end: string;
+
+  @IsEnum(OfferingPackage)
+  package: OfferingPackage;
 
   @IsOptional()
   @IsString()
   remark?: string;
 
-   /** สำหรับกรณี staff ยืนยันแทนลูกค้า */
+  /** สำหรับกรณี staff ยืนยันแทนลูกค้า */
   @IsOptional()
+  @Transform(({ value }) =>
+    value !== undefined && value !== '' ? Number(value) : undefined,
+  )
   @IsInt()
   @Min(1)
   dogOwnerId?: number;
-
-  @IsEnum(OfferingPackage)
-  package: OfferingPackage;
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateReservationLineDto)
-  lines: CreateReservationLineDto[];
 }

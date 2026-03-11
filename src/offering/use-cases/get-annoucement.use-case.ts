@@ -141,8 +141,8 @@ export class GetAnnouncementUsecase {
         priceLabel: `${o.name} (${o.maxCapacity} ห้อง)`,
         description: o.description,
         breeds: [
-          `คืนละ ${o.isVip ? o.offerVipPricing?.normalPrice : o.offerSizePricing[0]?.normalPrice} ต่อคืน`,
-          `ตัวที่ 2 นอนด้วยกัน ตัวละ ${o.isVip ? o.offerVipPricing?.specialPrice : o.offerSizePricing[0]?.specialPrice} ต่อคืน`,
+          `คืนละ ${o.isVip ? o.offerVipPricing?.normalPrice : o.offerSizePricing?.normalPrice} ต่อคืน`,
+          `ตัวที่ 2 นอนด้วยกัน ตัวละ ${o.isVip ? o.offerVipPricing?.specialPrice : o.offerSizePricing?.specialPrice} ต่อคืน`,
         ],
       };
     });

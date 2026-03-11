@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ReservationService } from './reservation.service';
 import { ReservationController } from './reservation.controller';
@@ -13,6 +13,7 @@ import { UserModule } from 'src/user/user.module';
 import { DogModule } from 'src/dog/dog.module';
 import { StaffModule } from 'src/staff/staff.module';
 import { DogOwnerModule } from 'src/dog-owner/dog-owner.module';
+import { OfferingModule } from 'src/offering/offering.module';
 import { CreateReservationUsecase } from './use-cases/create-reservation.use-case';
 import { GetReservationsUsecase } from './use-cases/get-reservations.use-case';
 import { GetReservationDetailUsecase } from './use-cases/get-reservation-detail.use-case';
@@ -34,9 +35,10 @@ import { CancelReservationUsecase } from './use-cases/cancel-reservation.use-cas
       PaymentSlip,
     ]),
     UserModule,
-    DogModule,
+    forwardRef(() => DogModule),
     StaffModule,
     DogOwnerModule,
+    forwardRef(() => OfferingModule),
   ],
   controllers: [ReservationController],
   providers: [

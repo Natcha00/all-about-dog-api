@@ -404,4 +404,19 @@ export class ReservationService {
         swimmingCounter,
       }));
   }
+
+  /**
+   * ตรวจสอบว่าสุนัขตัวนี้เคยอยู่ในรายการจองของ owner นี้หรือไม่
+   */
+  async hasDogReservationHistory(
+    dogId: number,
+    dogOwnerId: number,
+  ): Promise<boolean> {
+    const reservations = await this.reservationRepository.findByDogOwnerId(
+      dogOwnerId,
+    );
+    return reservations.some((r) =>
+      (r.reservationLines ?? []).some((line) => line.dog?.id === dogId),
+    );
+  }
 }

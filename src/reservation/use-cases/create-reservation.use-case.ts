@@ -1,13 +1,18 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ReservationRepository } from '../reservation.repository';
 import { ReservationService } from '../reservation.service';
 import { Reservation } from '../entities/reservation.entity';
 import { ReservationLine } from '../entities/reservation-line.entity';
-import { CreateReservationRequest } from '../dtos/confirm-reservation.dto';
+import { CreateReservationRequest } from '../dtos/create-reservation.dto';
 import { ReservationStatusEnum } from '../enums/reservation-status.enum';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
+import { OfferingPackage } from 'src/offering/enums/offering-package.enum';
 import { DogService } from 'src/dog/services/dog.service';
 import { ReservationStatusLogRepository } from '../reservation-status-log.repository';
+import { OfferingService } from 'src/offering/offering.service';
+import { AssignDogs } from 'src/offering/types/assign-dog.type';
+import { Dog } from 'src/dog/entities/dog.entity';
+import { ReservationLineInput } from '../types/reservation-line-input.type';
 
 @Injectable()
 export class CreateReservationUsecase {
@@ -27,6 +32,7 @@ export class CreateReservationUsecase {
     private readonly reservationService: ReservationService,
     private readonly dogService: DogService,
     private readonly statusLogRepository: ReservationStatusLogRepository,
+    private readonly offeringService: OfferingService,
   ) {}
 
   async execute(
@@ -35,20 +41,23 @@ export class CreateReservationUsecase {
     performedByUserId: number,
     performedByStaff: boolean,
   ): Promise<Reservation> {
-    // validate that all dogs in lines belong to this owner
-    const dogIds = body.lines.map((line) => line.dogId);
-    if (dogIds.length === 0) {
+    if (!body.dogIds?.length) {
       throw new BadRequestException('ต้องมีสุนัขอย่างน้อย 1 ตัวในรายการจอง');
     }
-    await this.dogService.getDogByIds(dogIds, dogOwnerId);
+    const dogs = await this.dogService.getDogByIds(body.dogIds, dogOwnerId);
 
     const code = await this.reservationService.generateReservationCode(
       new Date().toISOString(),
     );
-    let startDateTime = new Date(body.period.start);
-    let endDateTime = new Date(body.period.end);
+    console.log('body.start', body.start);
+    console.log('body.end', body.end);
+    let startDateTime = new Date(body.start);
+    let endDateTime = new Date(body.end);
+    let lines: ReservationLineInput[];
 
-    if (body.offerType === OfferingType.SWIMMING) {
+    if (body.offeringType === OfferingType.BOARDING) {
+      lines = await this.buildBoardingLines(dogs, body.start, body.end, body.package);
+    } else if (body.offeringType === OfferingType.SWIMMING) {
       const startHour = String(startDateTime.getHours()).padStart(2, '0');
       const startMinute = String(startDateTime.getMinutes()).padStart(2, '0');
       const startTimeSlot = `${startHour}:${startMinute}`;
@@ -61,20 +70,15 @@ export class CreateReservationUsecase {
       endDateTime.setMinutes(59);
       endDateTime.setSeconds(59);
       endDateTime.setMilliseconds(999);
+
+      lines = await this.buildSwimmingLines(dogs);
+    } else {
+      throw new BadRequestException('offeringType ต้องเป็น boarding หรือ swimming');
     }
 
-    const quantity =
-      body.nights ??
-      (body.offerType === OfferingType.BOARDING
-        ? this.reservationService.countByRange(
-            { start: body.period.start, end: body.period.end },
-            OfferingType.BOARDING,
-          )
-        : 1);
-
-    const reservationLines = body.lines.map((line) => ({
+    const reservationLines = lines.map((line) => ({
       price: line.price,
-      quantity,
+      quantity: line.quantity,
       groupNumber: line.groupNumber,
       offering: { id: line.offeringId } as ReservationLine['offering'],
       dog: { id: line.dogId } as ReservationLine['dog'],
@@ -86,7 +90,7 @@ export class CreateReservationUsecase {
       startDateTime,
       endDateTime,
       remark: body.remark ?? '',
-      offeringType: body.offerType,
+      offeringType: body.offeringType,
       dogOwner: { id: dogOwnerId },
       reservationLines,
     } as Reservation;
@@ -106,5 +110,80 @@ export class CreateReservationUsecase {
     );
 
     return saved;
+  }
+
+  /** Duplicated from GetBoardingPackagePricingUsecase: build lines for reservation_line from assignDogs + nights */
+  private async buildBoardingLines(
+    dogs: Dog[],
+    start: string,
+    end: string,
+    packageType: OfferingPackage,
+  ): Promise<ReservationLineInput[]> {
+    const nights = this.reservationService.countByRange(
+      { start, end },
+      OfferingType.BOARDING,
+    );
+    const offerings = await this.offeringService.getBoardingOffering();
+    const assignDogs = this.reservationService.assignDogs(
+      dogs,
+      offerings,
+      packageType,
+    );
+    return this.buildLinesFromAssignDogs(assignDogs, nights);
+  }
+
+  /** One line per dog per group; price = pricePerNight, quantity = nights */
+  private buildLinesFromAssignDogs(
+    assignDogs: AssignDogs,
+    nights: number,
+  ): ReservationLineInput[] {
+    const lines: ReservationLineInput[] = [];
+    let groupNumber = 0;
+    for (const [, offerAssign] of assignDogs) {
+      for (const set of offerAssign.set) {
+        groupNumber++;
+        const pricePerNight = offerAssign.pricePerNight.normalPrice;
+        for (const dog of set) {
+          lines.push({
+            offeringId: offerAssign.id,
+            dogId: dog.id,
+            price: pricePerNight,
+            quantity: nights,
+            groupNumber,
+          });
+        }
+      }
+    }
+    return lines;
+  }
+
+  /** Duplicated from GetSwimmingPackagePricingUsecase: get breed pricing + swimming offering, build one line per dog */
+  private async buildSwimmingLines(dogs: Dog[]): Promise<ReservationLineInput[]> {
+    const offerBreedPricings =
+      await this.offeringService.getBreedPricing();
+    const pricingByBreedId = new Map<number, number>();
+    for (const p of offerBreedPricings) {
+      if (p.breed?.id != null) {
+        pricingByBreedId.set(p.breed.id, p.normalPrice);
+      }
+    }
+    const offering = await this.offeringService.getSwimmingOffering();
+    if (!offering) {
+      throw new NotFoundException('Swimming offering not found');
+    }
+    const lines: ReservationLineInput[] = [];
+    for (let index = 0; index < dogs.length; index++) {
+      const dog = dogs[index];
+      const breedId = dog.breed?.id;
+      const price = breedId != null ? pricingByBreedId.get(breedId) ?? 0 : 0;
+      lines.push({
+        offeringId: offering.id,
+        dogId: dog.id,
+        price,
+        quantity: 1,
+        groupNumber: index + 1,
+      });
+    }
+    return lines;
   }
 }

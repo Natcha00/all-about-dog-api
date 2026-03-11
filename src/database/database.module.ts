@@ -50,7 +50,7 @@ import { News } from 'src/news/entities/news.entity';
           Staff,
           News
         ],
-        synchronize: true,
+        synchronize:false,
         logging: configService.get<boolean>('DB_LOGGING', false),
       }),
     }),
