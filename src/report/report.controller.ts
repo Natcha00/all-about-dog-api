@@ -3,10 +3,13 @@ import {
   Get,
   Query,
   StreamableFile,
+  UseGuards,
 } from '@nestjs/common';
 import { GetOfferingSummaryUsecase } from './use-cases/get-offering-summary.usecase';
 import { GetOfferingSummaryRequest } from './dtos/get-offering-summary.dto';
 import { GetOfferingSummaryResponse } from './dtos/get-offering-summary.dto';
+import { AccessTokenGuard } from 'src/user/guards/access-token.guard';
+import { AdminGuard } from 'src/staff/guards/admin.guard';
 
 const CSV_HEADERS = [
   'code',
@@ -54,6 +57,7 @@ export class ReportController {
     private readonly getOfferingSummaryUsecase: GetOfferingSummaryUsecase,
   ) {}
 
+  @UseGuards(AccessTokenGuard, AdminGuard)
   @Get('offering/summary')
   async getOfferingSummary(
     @Query() request: GetOfferingSummaryRequest,
