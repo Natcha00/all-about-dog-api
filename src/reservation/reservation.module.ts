@@ -14,6 +14,8 @@ import { DogModule } from 'src/dog/dog.module';
 import { StaffModule } from 'src/staff/staff.module';
 import { DogOwnerModule } from 'src/dog-owner/dog-owner.module';
 import { OfferingModule } from 'src/offering/offering.module';
+import { MailModule } from 'src/mail/mail.module';
+import { ReservationNotificationService } from './reservation-notification.service';
 import { CreateReservationUsecase } from './use-cases/create-reservation.use-case';
 import { GetReservationsUsecase } from './use-cases/get-reservations.use-case';
 import { GetReservationDetailUsecase } from './use-cases/get-reservation-detail.use-case';
@@ -39,11 +41,13 @@ import { CancelReservationUsecase } from './use-cases/cancel-reservation.use-cas
     StaffModule,
     DogOwnerModule,
     forwardRef(() => OfferingModule),
+    MailModule,
   ],
   controllers: [ReservationController],
   providers: [
     ReservationService,
     ReservationRepository,
+    ReservationNotificationService,
     PaymentSlipRepository,
     ReservationStatusLogRepository,
     ApproveReservationUsecase,

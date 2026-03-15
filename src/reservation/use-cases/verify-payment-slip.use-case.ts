@@ -6,6 +6,7 @@ import {
 import { ReservationRepository } from '../reservation.repository';
 import { PaymentSlipRepository } from '../payment-slip.repository';
 import { ReservationStatusLogRepository } from '../reservation-status-log.repository';
+import { ReservationNotificationService } from '../reservation-notification.service';
 import { ReservationStatusEnum } from '../enums/reservation-status.enum';
 
 @Injectable()
@@ -14,6 +15,7 @@ export class VerifyPaymentSlipUsecase {
     private readonly reservationRepository: ReservationRepository,
     private readonly paymentSlipRepository: PaymentSlipRepository,
     private readonly statusLogRepository: ReservationStatusLogRepository,
+    private readonly reservationNotificationService: ReservationNotificationService,
   ) {}
 
   async execute(code: string, staffId: number): Promise<{ success: boolean }> {
@@ -47,6 +49,11 @@ export class VerifyPaymentSlipUsecase {
       String(staffId),
       'ยืนยันการชำระเงินโดยพนักงาน',
       'STAFF',
+    );
+
+    await this.reservationNotificationService.sendStatusUpdatedEmail(
+      reservation.code,
+      ReservationStatusEnum.SLIP_VERIFIED,
     );
 
     return { success: true };

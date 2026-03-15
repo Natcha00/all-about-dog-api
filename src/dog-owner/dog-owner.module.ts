@@ -14,6 +14,7 @@ import { ResendVerifyOtpUsecase } from './use-cases/resend-verify-otp.use-case';
 import { LoginDogOwnerUsecase } from './use-cases/login-dog-owner.use-case';
 import { ForgotPasswordUsecase } from './use-cases/forgot-password.use-case';
 import { ResetPasswordUsecase } from './use-cases/reset-password.use-case';
+import { VerifyOtpResetPasswordUsecase } from './use-cases/verify-otp-reset-password.use-case';
 import { RefreshTokenUsecase } from './use-cases/refresh-token.use-case';
 import { GetAllDogOwnersUsecase } from './use-cases/get-all-dog-owners.use-case';
 import { SearchDogOwnerUsecase } from './use-cases/search-dog-owner.use-case';
@@ -45,6 +46,7 @@ import { StorageModule } from 'src/storage/storage.module';
     RefreshTokenUsecase,
     ForgotPasswordUsecase,
     ResetPasswordUsecase,
+    VerifyOtpResetPasswordUsecase,
     GetAllDogOwnersUsecase,
     SearchDogOwnerUsecase,
     GetDogOwnerByIdUsecase,

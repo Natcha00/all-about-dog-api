@@ -6,6 +6,7 @@ import {
 import { ReservationRepository } from '../reservation.repository';
 import { PaymentSlipRepository } from '../payment-slip.repository';
 import { ReservationStatusLogRepository } from '../reservation-status-log.repository';
+import { ReservationNotificationService } from '../reservation-notification.service';
 import { ReservationStatusEnum } from '../enums/reservation-status.enum';
 
 @Injectable()
@@ -14,6 +15,7 @@ export class RejectPaymentSlipUsecase {
     private readonly reservationRepository: ReservationRepository,
     private readonly paymentSlipRepository: PaymentSlipRepository,
     private readonly statusLogRepository: ReservationStatusLogRepository,
+    private readonly reservationNotificationService: ReservationNotificationService,
   ) {}
 
   async execute(
@@ -30,7 +32,6 @@ export class RejectPaymentSlipUsecase {
         'ปฏิเสธสลิปได้เฉพาะการจองที่อยู่ในสถานะรอตรวจสลิปเท่านั้น',
       );
     }
-    console.log(reservation);
     const slip = reservation.paymentSlip;
     if (!slip) {
       throw new BadRequestException('ไม่พบสลิปการชำระเงิน');
@@ -50,6 +51,11 @@ export class RejectPaymentSlipUsecase {
       String(staffId),
       `ปฏิเสธสลิป: ${reason.trim() || 'ไม่มีเหตุผล'}`,
       'STAFF',
+    );
+
+    await this.reservationNotificationService.sendStatusUpdatedEmail(
+      reservation.code,
+      ReservationStatusEnum.WAITING_SLIP,
     );
 
     return { success: true };

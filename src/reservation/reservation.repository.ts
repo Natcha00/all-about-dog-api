@@ -112,6 +112,19 @@ export class ReservationRepository {
     });
   }
 
+  /** ดึงการจองตาม code พร้อม dogOwner และรายการสุนัข (สำหรับส่งอีเมลแจ้งสถานะ) */
+  async findOneByCodeWithDogOwner(code: string): Promise<Reservation | null> {
+    return this.repo.findOne({
+      where: { code },
+      relations: [
+        'dogOwner',
+        'reservationLines',
+        'reservationLines.dog',
+        'reservationLines.dog.breed',
+      ],
+    });
+  }
+
   /**
    * ค้นหาการจองจาก key แต่ละแบบ
    * - code

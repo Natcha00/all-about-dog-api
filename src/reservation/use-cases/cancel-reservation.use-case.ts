@@ -6,6 +6,7 @@ import {
 import { Reservation } from '../entities/reservation.entity';
 import { ReservationRepository } from '../reservation.repository';
 import { ReservationStatusLogRepository } from '../reservation-status-log.repository';
+import { ReservationNotificationService } from '../reservation-notification.service';
 import { ReservationStatusEnum } from '../enums/reservation-status.enum';
 
 @Injectable()
@@ -13,6 +14,7 @@ export class CancelReservationUsecase {
   constructor(
     private readonly reservationRepository: ReservationRepository,
     private readonly statusLogRepository: ReservationStatusLogRepository,
+    private readonly reservationNotificationService: ReservationNotificationService,
   ) {}
 
   async execute(
@@ -69,6 +71,11 @@ export class CancelReservationUsecase {
       String(dogOwnerId),
       label,
       actorRole,
+    );
+
+    await this.reservationNotificationService.sendStatusUpdatedEmail(
+      reservation.code,
+      ReservationStatusEnum.CANCELLED,
     );
 
     return { success: true };

@@ -6,6 +6,7 @@ import {
 import { ReservationRepository } from '../reservation.repository';
 import { PaymentSlipRepository } from '../payment-slip.repository';
 import { ReservationStatusLogRepository } from '../reservation-status-log.repository';
+import { ReservationNotificationService } from '../reservation-notification.service';
 import { DoSpacesService } from 'src/storage/do-spaces.service';
 import { ReservationStatusEnum } from '../enums/reservation-status.enum';
 
@@ -18,6 +19,7 @@ export class UploadPaymentSlipUsecase {
     private readonly reservationRepository: ReservationRepository,
     private readonly paymentSlipRepository: PaymentSlipRepository,
     private readonly statusLogRepository: ReservationStatusLogRepository,
+    private readonly reservationNotificationService: ReservationNotificationService,
     private readonly doSpacesService: DoSpacesService,
   ) {}
 
@@ -91,6 +93,11 @@ export class UploadPaymentSlipUsecase {
       String(performedByUserId),
       label,
       actorRole,
+    );
+
+    await this.reservationNotificationService.sendStatusUpdatedEmail(
+      reservation.code,
+      ReservationStatusEnum.SLIP_UPLOADED,
     );
 
     return { slipUrl };

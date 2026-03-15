@@ -21,9 +21,11 @@ import { VerifyEmailOtpDto } from './dtos/verify-email-otp.dto';
 import { ResendVerifyOtpDto } from './dtos/resend-verify-otp.dto';
 import { ForgotPasswordDto } from './dtos/forgot-password.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
+import { VerifyOtpResetPasswordDto } from './dtos/verify-otp-reset-password.dto';
 import { ResendVerifyOtpUsecase } from './use-cases/resend-verify-otp.use-case';
 import { ForgotPasswordUsecase } from './use-cases/forgot-password.use-case';
 import { ResetPasswordUsecase } from './use-cases/reset-password.use-case';
+import { VerifyOtpResetPasswordUsecase } from './use-cases/verify-otp-reset-password.use-case';
 import { RefreshTokenUsecase } from './use-cases/refresh-token.use-case';
 import { GetDogOwnerProfileUsecase } from './use-cases/get-dog-owner-profile.use-case';
 import { UpdateDogOwnerProfilePictureUsecase } from './use-cases/update-dog-owner-profile-picture.use-case';
@@ -45,6 +47,7 @@ export class DogOwnerController {
     private readonly refreshTokenUsecase: RefreshTokenUsecase,
     private readonly forgotPasswordUsecase: ForgotPasswordUsecase,
     private readonly resetPasswordUsecase: ResetPasswordUsecase,
+    private readonly verifyOtpResetPasswordUsecase: VerifyOtpResetPasswordUsecase,
     private readonly getAllDogOwnersUsecase: GetAllDogOwnersUsecase,
     private readonly getDogOwnerByIdUsecase: GetDogOwnerByIdUsecase,
     private readonly getDogOwnerProfileUsecase: GetDogOwnerProfileUsecase,
@@ -86,6 +89,11 @@ export class DogOwnerController {
   @Post('forgot-password')
   async forgotPassword(@Body() body: ForgotPasswordDto) {
     return this.forgotPasswordUsecase.execute(body);
+  }
+
+  @Post('verify-otp-reset-password')
+  async verifyOtpResetPassword(@Body() body: VerifyOtpResetPasswordDto) {
+    return this.verifyOtpResetPasswordUsecase.execute(body);
   }
 
   @Post('reset-password')

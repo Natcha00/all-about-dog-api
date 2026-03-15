@@ -9,6 +9,7 @@ import { OfferingType } from 'src/offering/enums/offering-type.enum';
 import { OfferingPackage } from 'src/offering/enums/offering-package.enum';
 import { DogService } from 'src/dog/services/dog.service';
 import { ReservationStatusLogRepository } from '../reservation-status-log.repository';
+import { ReservationNotificationService } from '../reservation-notification.service';
 import { OfferingService } from 'src/offering/offering.service';
 import { AssignDogs } from 'src/offering/types/assign-dog.type';
 import { Dog } from 'src/dog/entities/dog.entity';
@@ -34,6 +35,7 @@ export class CreateReservationUsecase {
     private readonly reservationService: ReservationService,
     private readonly dogService: DogService,
     private readonly statusLogRepository: ReservationStatusLogRepository,
+    private readonly reservationNotificationService: ReservationNotificationService,
     private readonly offeringService: OfferingService,
   ) {}
 
@@ -107,6 +109,11 @@ export class CreateReservationUsecase {
       String(performedByUserId),
       label,
       actorRole,
+    );
+
+    await this.reservationNotificationService.sendStatusUpdatedEmail(
+      saved.code,
+      ReservationStatusEnum.PENDING,
     );
 
     return saved;
