@@ -285,9 +285,11 @@ export class ReservationService {
 
       const current = new Date(start);
       current.setHours(0, 0, 0, 0);
+      current.setHours(current.getHours() + 7);
 
       const checkout = new Date(end);
       checkout.setHours(0, 0, 0, 0);
+      checkout.setHours(checkout.getHours() + 7);
 
       // 🔥 กัน groupNumber ซ้ำ (1 group = 1 ห้อง)
       const grouped = new Map<number, number>();

@@ -18,6 +18,7 @@ export class GetOfferingAvailableUsecase {
   private getDateRange(dateStr: string): { start: Date; end: Date } {
     const start = new Date(dateStr);
     start.setHours(0, 0, 0, 0);
+    start.setHours(start.getHours() + 7);
     const end = new Date(start);
     end.setDate(end.getDate() + 1);
     return { start, end };

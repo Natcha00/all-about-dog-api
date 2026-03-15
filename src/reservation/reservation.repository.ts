@@ -53,6 +53,7 @@ export class ReservationRepository {
         'reservationLines.dog',
         'reservationLines.dog.breed',
         'dogOwner',
+        'paymentSlip',
       ],
     });
   }

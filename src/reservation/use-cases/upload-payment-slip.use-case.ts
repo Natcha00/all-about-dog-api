@@ -67,11 +67,15 @@ export class UploadPaymentSlipUsecase {
     if (reservation.paymentSlip) {
       reservation.paymentSlip.slipUrl = slipUrl;
       reservation.paymentSlip.updateBy = String(performedByUserId);
+      if (performedByStaff) {
+        reservation.paymentSlip.isApproved = true;
+        reservation.paymentSlip.approveBy = String(performedByUserId);
+      }
     } else {
       const slip = this.paymentSlipRepository.create({
         slipUrl,
-        isApproved: false,
-        approveBy: null,
+        isApproved: performedByStaff,
+        approveBy: performedByStaff ? String(performedByUserId) : null,
         updateBy: String(performedByUserId),
         rejectedReason: null,
       });
@@ -79,10 +83,13 @@ export class UploadPaymentSlipUsecase {
       reservation.paymentSlip = slip;
     }
 
-    reservation.status = ReservationStatusEnum.SLIP_UPLOADED;
+    const finalStatus = performedByStaff
+      ? ReservationStatusEnum.SLIP_VERIFIED
+      : ReservationStatusEnum.SLIP_UPLOADED;
+    reservation.status = finalStatus;
     await this.reservationRepository.saveReservation(reservation);
 
-    const label = performedByStaff
+    const uploadLabel = performedByStaff
       ? 'อัปโหลดสลิปแล้ว โดยพนักงาน'
       : 'อัปโหลดสลิปแล้ว โดยลูกค้า';
     const actorRole = performedByStaff ? 'STAFF' : 'DOG_OWNER';
@@ -91,13 +98,23 @@ export class UploadPaymentSlipUsecase {
       String(reservation.id),
       ReservationStatusEnum.SLIP_UPLOADED,
       String(performedByUserId),
-      label,
+      uploadLabel,
       actorRole,
     );
 
+    if (performedByStaff) {
+      await this.statusLogRepository.createAndSave(
+        String(reservation.id),
+        ReservationStatusEnum.SLIP_VERIFIED,
+        String(performedByUserId),
+        'ยืนยันการชำระเงินโดยพนักงาน',
+        'STAFF',
+      );
+    }
+
     await this.reservationNotificationService.sendStatusUpdatedEmail(
       reservation.code,
-      ReservationStatusEnum.SLIP_UPLOADED,
+      finalStatus,
     );
 
     return { slipUrl };
