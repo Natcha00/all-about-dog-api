@@ -53,10 +53,12 @@ export class GetBoardingAvailableResponse {
     end: string;
   };
   nights: number;
-  roomPerNight?:BoardingCounter
+  roomPerNight?: BoardingCounter;
   package: OfferingPackage;
-  need:BoardingCounter;
-  fails:Array<FailDetail>
+  need: BoardingCounter;
+  fails: Array<FailDetail>;
+  /** true ถ้ามีสุนัขตัวใดตัวหนึ่งที่กำลังอยู่ในการจองฝากเลี้ยงในช่วงเวลาที่ระบุ */
+  hasDogInReservationInPeriod: boolean;
 }
 
 export type BoardingAvailabilityStatus = 'sufficient' | 'insufficient';

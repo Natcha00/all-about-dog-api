@@ -9,6 +9,7 @@ import { BoardingCounter } from '../types/boarding-counter.type';
 import { OfferingType } from '../enums/offering-type.enum';
 import { OfferingRepository } from '../offering.repository';
 import { ReservationService } from 'src/reservation/reservation.service';
+import { ReservationStatusEnum } from 'src/reservation/enums/reservation-status.enum';
 
 @Injectable()
 export class GetBoardingAvailableUsecase {
@@ -137,6 +138,33 @@ export class GetBoardingAvailableUsecase {
     );
     const available = fails.every((f) => f.status === 'sufficient');
 
+    const dogIdSet = new Set(getBoardingAvailableRequest.dogIds);
+    const activeBoardingReservations = reservations.filter(
+      (r) =>
+        r.offeringType === OfferingType.BOARDING &&
+        r.status !== ReservationStatusEnum.CANCELLED,
+    );
+    // สำหรับ boarding นับ period ถึง end - 1 วัน (ไม่รวมวัน checkout)
+    const periodStart = new Date(getBoardingAvailableRequest.start);
+    periodStart.setHours(0, 0, 0, 0);
+    periodStart.setHours(periodStart.getHours() + 7);
+    const periodEndLastDay = new Date(getBoardingAvailableRequest.end);
+    periodEndLastDay.setDate(periodEndLastDay.getDate() - 1);
+    periodEndLastDay.setHours(23, 59, 59, 999);
+    periodEndLastDay.setHours(periodEndLastDay.getHours() + 7);
+    const inPeriod = activeBoardingReservations.filter((r) => {
+      const rEndMinusOne = new Date(r.endDateTime);
+      rEndMinusOne.setDate(rEndMinusOne.getDate() - 1);
+      return (
+        r.startDateTime <= periodEndLastDay && rEndMinusOne >= periodStart
+      );
+    });
+    const hasDogInReservationInPeriod = inPeriod.some((r) =>
+      (r.reservationLines ?? []).some(
+        (line) => line.dog?.id != null && dogIdSet.has(line.dog.id),
+      ),
+    );
+
     const result: GetBoardingAvailableResponse = {
       available,
       message: this.getBoardingAvailabilityMessage(available).message,
@@ -150,6 +178,7 @@ export class GetBoardingAvailableUsecase {
       package: getBoardingAvailableRequest.package,
       need,
       fails: available ? [] : fails,
+      hasDogInReservationInPeriod,
     };
     return result;
   }

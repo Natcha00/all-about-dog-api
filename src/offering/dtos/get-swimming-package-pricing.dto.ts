@@ -99,4 +99,6 @@ export class GetSwimmingPackagePricingResponse {
   slots: SwimmingSlotDto[];
   pricing: SwimmingPricingDto;
   lines: ReservationLineDto[];
+  /** true ถ้ามีสุนัขตัวใดตัวหนึ่งที่กำลังอยู่ในการจองว่ายน้ำในช่วงวันที่ระบุ */
+  hasDogInReservationInPeriod: boolean;
 }

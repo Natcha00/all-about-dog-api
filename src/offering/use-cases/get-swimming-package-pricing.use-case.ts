@@ -51,8 +51,18 @@ export class GetSwimmingPackagePricingUsecase {
       OfferingType.SWIMMING,
     );
 
-    const reservationsForSummary = reservations
-        
+    const reservationsForSummary = reservations;
+
+    const dogIdSet = new Set(request.dogIds);
+    const activeReservations = reservations.filter(
+      (r) => r.status !== ReservationStatusEnum.CANCELLED,
+    );
+    const hasDogInReservationInPeriod = activeReservations.some((r) =>
+      (r.reservationLines ?? []).some(
+        (line) => line.dog?.id != null && dogIdSet.has(line.dog.id),
+      ),
+    );
+
     const swimmingSummaries =
       this.reservationService.summarizeSwimmingByHour(reservationsForSummary);
 
@@ -103,6 +113,7 @@ export class GetSwimmingPackagePricingUsecase {
         total,
       },
       lines,
+      hasDogInReservationInPeriod,
     };
   }
 
