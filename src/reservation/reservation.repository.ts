@@ -3,6 +3,7 @@ import { Repository, LessThan, MoreThan, Like } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Reservation } from './entities/reservation.entity';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
+import { ReservationStatusEnum } from './enums/reservation-status.enum';
 
 @Injectable()
 export class ReservationRepository {
@@ -84,6 +85,22 @@ export class ReservationRepository {
       ],
       order: { startDateTime: 'DESC' },
     });
+  }
+
+  /**
+   * ดึงประวัติการจองที่จบแล้ว (status = FINISHED) ของสุนัขแต่ละตัว
+   */
+  async findFinishedByDogId(dogId: number): Promise<Reservation[]> {
+    return this.repo
+      .createQueryBuilder('r')
+      .innerJoinAndSelect('r.reservationLines', 'rl')
+      .innerJoinAndSelect('rl.dog', 'd')
+      .where('d.id = :dogId', { dogId })
+      .andWhere('r.status = :status', {
+        status: ReservationStatusEnum.FINISHED,
+      })
+      .orderBy('r.startDateTime', 'DESC')
+      .getMany();
   }
 
   async findOneByCodeAndDogOwnerId(

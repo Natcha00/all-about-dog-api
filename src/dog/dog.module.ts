@@ -21,6 +21,7 @@ import { DeleteVaccinationRecordUsecase } from './use-cases/delete-vaccination-r
 import { DeleteDogUsecase } from './use-cases/delete-dog.use-case';
 import { UploadDogProfilePictureUsecase } from './use-cases/upload-dog-profile-picture.use-case';
 import { GetBreedsUsecase } from './use-cases/get-breeds.use-case';
+import { GetDogReservationHistoryUsecase } from './use-cases/get-dog-reservation-history.use-case';
 import { StorageModule } from 'src/storage/storage.module';
 
 @Module({
@@ -45,6 +46,7 @@ import { StorageModule } from 'src/storage/storage.module';
     DeleteDogUsecase,
     UploadDogProfilePictureUsecase,
     GetBreedsUsecase,
+    GetDogReservationHistoryUsecase,
   ],
   exports:[DogService]
 })

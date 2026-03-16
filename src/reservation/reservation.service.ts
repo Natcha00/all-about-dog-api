@@ -254,6 +254,13 @@ export class ReservationService {
   }
 
   /**
+   * ดึงประวัติการจองที่เสร็จสิ้นแล้วของสุนัขตัวหนึ่ง (status = FINISHED)
+   */
+  async getFinishedReservationsByDogId(dogId: number): Promise<Reservation[]> {
+    return this.reservationRepository.findFinishedByDogId(dogId);
+  }
+
+  /**
    * สร้าง code รูป RSV-YYYYMMDD-NNNN โดย NNNN เป็น run number ต่อเรื่อยๆ ตามวันที่ (รีเซ็ตทุกวัน)
    */
   async generateReservationCode(dateStr: string): Promise<string> {

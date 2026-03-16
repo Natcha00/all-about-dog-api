@@ -40,6 +40,8 @@ import { BloodGroup } from './enums/blood-group.enum';
 import { CoatType } from './enums/coat-type.enum';
 import { VaccineType } from './enums/vaccine-type.enum';
 import { ROLE } from 'src/user/enums/role.enum';
+import { GetDogReservationHistoryUsecase } from './use-cases/get-dog-reservation-history.use-case';
+import { DogReservationHistoryItemDto } from './dtos/get-dog-reservation-history.dto';
 
 @Controller('dog')
 export class DogController {
@@ -54,6 +56,7 @@ export class DogController {
     private readonly deleteDogUsecase: DeleteDogUsecase,
     private readonly uploadDogProfilePictureUsecase: UploadDogProfilePictureUsecase,
     private readonly getBreedsUsecase: GetBreedsUsecase,
+    private readonly getDogReservationHistoryUsecase: GetDogReservationHistoryUsecase,
   ) {}
 
   @Post('/create-dog')
@@ -193,6 +196,18 @@ export class DogController {
       createVaccinationRecordDto,
       file,
     );
+  }
+
+  @Get(':id/reservation-histories')
+  @UseGuards(AccessTokenGuard)
+  async getReservationHistories(
+    @Param('id') dogId: string,
+  ): Promise<DogReservationHistoryItemDto[]> {
+    const id = Number(dogId);
+    if (!Number.isInteger(id) || id < 1) {
+      throw new BadRequestException('รหัสสุนัขไม่ถูกต้อง');
+    }
+    return this.getDogReservationHistoryUsecase.execute(id);
   }
 
   @Put(':id/vaccinations/:vaccinationId')
