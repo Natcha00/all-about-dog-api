@@ -24,6 +24,7 @@ export class GetReservationDetailPackageDto {
 }
 
 export class GetReservationDetailPeriodDto {
+  date: string;
   start: string;
   end: string;
 }

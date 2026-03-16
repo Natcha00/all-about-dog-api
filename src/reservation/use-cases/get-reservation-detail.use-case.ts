@@ -157,8 +157,16 @@ export class GetReservationDetailUsecase {
     };
     const period: GetReservationDetailPeriodDto =
       r.offeringType === OfferingType.SWIMMING
-        ? { start: toTimeStr(start), end: toTimeStr(end) }
-        : { start: toDateStr(start), end: toDateStr(end) };
+        ? {
+            date: toDateStr(start),
+            start: toTimeStr(start),
+            end: toTimeStr(end),
+          }
+        : {
+            date: toDateStr(start),
+            start: toDateStr(start),
+            end: toDateStr(end),
+          };
     const slip = this.buildSlip(r);
     const actions = this.buildActions(r);
 
