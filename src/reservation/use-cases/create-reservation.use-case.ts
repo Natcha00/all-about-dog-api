@@ -73,6 +73,36 @@ export class CreateReservationUsecase {
       endDateTime.setSeconds(59);
       endDateTime.setMilliseconds(999);
 
+      const conflicts = await this.reservationRepository.findSwimmingConflictsByDogIds(
+        {
+          start: startDateTime,
+          end: endDateTime,
+          dogIds: body.dogIds,
+        },
+      );
+      if (conflicts.length > 0) {
+        const conflictDogIds = new Set<number>();
+        for (const r of conflicts) {
+          for (const line of r.reservationLines ?? []) {
+            if (line.dog?.id != null) conflictDogIds.add(line.dog.id);
+          }
+        }
+
+        const conflictDogNames = dogs
+          .filter((d) => conflictDogIds.has(d.id))
+          .map((d) => d.name)
+          .filter(Boolean);
+
+        const dateStr = startDateTime.toISOString().slice(0, 10);
+        const dogsLabel =
+          conflictDogNames.length > 0
+            ? ` (${conflictDogNames.join(', ')})`
+            : '';
+        throw new BadRequestException(
+          `สุนัขตัวนี้มีการจองว่ายน้ำซ้ำในรอบเดิมของวันเดียวกันแล้ว: ${dateStr} ${startTimeSlot}${dogsLabel}`,
+        );
+      }
+
       lines = await this.buildSwimmingLines(dogs);
     } else {
       throw new BadRequestException('offeringType ต้องเป็น boarding หรือ swimming');

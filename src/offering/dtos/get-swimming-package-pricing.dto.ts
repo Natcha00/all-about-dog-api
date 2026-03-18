@@ -66,6 +66,8 @@ export class SwimmingSlotDto {
   statusLabel: string;
   isFull: boolean;
   isEmpty: boolean;
+  /** true ถ้ามีสุนัขตัวใดตัวหนึ่งใน request เคยจองรอบนี้แล้ว (วันเดียวกัน+รอบเดียวกัน) */
+  isEverReserved: boolean;
   sizeBooked: SwimmingSlotSizeBookedDto;
 }
 

@@ -59,6 +59,39 @@ export class ReservationRepository {
     });
   }
 
+  /**
+   * Prevent duplicate swimming booking: find any existing non-cancelled
+   * swimming reservations that overlap the given period for any dogId.
+   */
+  async findSwimmingConflictsByDogIds(params: {
+    start: Date;
+    end: Date;
+    dogIds: number[];
+  }): Promise<Reservation[]> {
+    const { start, end, dogIds } = params;
+    if (!dogIds?.length) return [];
+
+    return this.repo
+      .createQueryBuilder('r')
+      .innerJoinAndSelect(
+        'r.reservationLines',
+        'rl',
+        'rl.deletedAt IS NULL',
+      )
+      .innerJoinAndSelect('rl.dog', 'd', 'd.deletedAt IS NULL')
+      .where('r.offeringType = :type', { type: OfferingType.SWIMMING })
+      .andWhere('r.status != :cancelled', {
+        cancelled: ReservationStatusEnum.CANCELLED,
+      })
+      .andWhere('r.startDateTime < :end AND r.endDateTime > :start', {
+        start,
+        end,
+      })
+      .andWhere('d.id IN (:...dogIds)', { dogIds })
+      .orderBy('r.startDateTime', 'DESC')
+      .getMany();
+  }
+
   async findByDogOwnerId(dogOwnerId: number): Promise<Reservation[]> {
     return this.repo.find({
       where: { dogOwner: { id: dogOwnerId } },
@@ -69,7 +102,7 @@ export class ReservationRepository {
         'reservationLines.dog.breed',
         'dogOwner',
       ],
-      order: { startDateTime: 'DESC' },
+      order: { startDateTime: 'ASC' },
     });
   }
 
@@ -83,7 +116,7 @@ export class ReservationRepository {
         'reservationLines.dog.breed',
         'dogOwner',
       ],
-      order: { startDateTime: 'DESC' },
+      order: { startDateTime: 'ASC' },
     });
   }
 

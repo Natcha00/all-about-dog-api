@@ -69,6 +69,29 @@ export class GetSwimmingPackagePricingUsecase {
     const slotsRaw = this.reservationService.checkSwimmingAvailability(
       swimmingSummaries,
     );
+    // ปิดรอบที่สุนัข (ใน request.dogIds) เคยจองแล้วในวันเดียวกัน (non-cancelled เท่านั้น)
+    const isEverReservedByTime = new Map<string, boolean>();
+    for (const slot of slotsRaw) {
+      const hourStr = slot.time.split(':')[0];
+      const hour = Number(hourStr);
+      const slotStart = new Date(request.date);
+      slotStart.setHours(hour, 0, 0, 0);
+      const slotEnd = new Date(request.date);
+      slotEnd.setHours(hour, 59, 59, 999);
+
+      const isEverReserved = activeReservations.some((r) => {
+        const rStart = new Date(r.startDateTime);
+        const rEnd = new Date(r.endDateTime);
+        const overlaps = rStart < slotEnd && rEnd > slotStart;
+        if (!overlaps) return false;
+
+        return (r.reservationLines ?? []).some(
+          (line) => line.dog?.id != null && dogIdSet.has(line.dog.id),
+        );
+      });
+
+      isEverReservedByTime.set(slot.time, isEverReserved);
+    }
     const summaryByHour = new Map(
       swimmingSummaries.map((s) => [s.hour, s.swimmingCounter]),
     );
@@ -78,6 +101,7 @@ export class GetSwimmingPackagePricingUsecase {
         ...slot,
         isFull: totalPets > slot.remaining,
         sizeBooked: { large: counter.LARGE, small: counter.SMALL },
+        isEverReserved: isEverReservedByTime.get(slot.time) ?? false,
       };
     });   
 
@@ -113,7 +137,7 @@ export class GetSwimmingPackagePricingUsecase {
         total,
       },
       lines,
-      hasDogInReservationInPeriod,
+      hasDogInReservationInPeriod, // ใช้คู่กับ FE (เช่น แสดงว่าเคยจองแล้ว)
     };
   }
 

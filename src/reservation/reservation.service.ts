@@ -280,12 +280,8 @@ export class ReservationService {
 
     for (const reservation of reservations) {
       if (reservation.offeringType !== 'boarding') continue;
-      if (
-        reservation.status != ReservationStatusEnum.SLIP_VERIFIED &&
-        reservation.status != ReservationStatusEnum.CHECK_IN &&
-        reservation.status != ReservationStatusEnum.FINISHED
-      )
-        continue;
+      // Count everything except cancelled reservations.
+      if (reservation.status === ReservationStatusEnum.CANCELLED) continue;
 
       const start = new Date(reservation?.startDateTime);
       const end = new Date(reservation?.endDateTime);
@@ -351,12 +347,8 @@ export class ReservationService {
 
     for (const reservation of reservations) {
       if (reservation.offeringType !== OfferingType.SWIMMING) continue;
-      if (
-        reservation.status !== ReservationStatusEnum.SLIP_VERIFIED &&
-        reservation.status !== ReservationStatusEnum.CHECK_IN &&
-        reservation.status !== ReservationStatusEnum.FINISHED
-      )
-        continue;
+      // Count everything except cancelled reservations.
+      if (reservation.status === ReservationStatusEnum.CANCELLED) continue;
 
       const start = new Date(reservation.startDateTime);
       const end = new Date(reservation.endDateTime);
