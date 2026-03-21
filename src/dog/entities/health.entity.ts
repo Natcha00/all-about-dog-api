@@ -31,7 +31,7 @@ export class Health {
   @Column({ type: 'text', nullable: true })
   allergy: string | null;
 
-  @Column({ type: 'varchar', length: 30 })
+  @Column({ type: 'varchar', length: 30, nullable: true })
   bloodGroup: BloodGroup | null;
 
   @Column()

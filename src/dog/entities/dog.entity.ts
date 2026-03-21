@@ -41,8 +41,8 @@ export class Dog {
   @Column()
   height: number;
 
-  @Column()
-  birthdate: Date;
+  @Column({ type: 'date', nullable: true })
+  birthdate: Date | null;
 
   @Column({ type: 'text', nullable: true })
   dogPictureUrl: string | null;

@@ -23,6 +23,7 @@ import { GetDogOwnerProfileUsecase } from './use-cases/get-dog-owner-profile.use
 import { UpdateDogOwnerProfilePictureUsecase } from './use-cases/update-dog-owner-profile-picture.use-case';
 import { UpdateDogOwnerProfileUsecase } from './use-cases/update-dog-owner-profile.use-case';
 import { ChangePasswordUsecase } from './use-cases/change-password.use-case';
+import { VerifyDogOwnerForMeUsecase } from './use-cases/verify-dog-owner-for-me.use-case';
 import { MailModule } from 'src/mail/mail.module';
 import { StorageModule } from 'src/storage/storage.module';
 
@@ -54,6 +55,7 @@ import { StorageModule } from 'src/storage/storage.module';
     UpdateDogOwnerProfilePictureUsecase,
     UpdateDogOwnerProfileUsecase,
     ChangePasswordUsecase,
+    VerifyDogOwnerForMeUsecase,
   ],
   exports: [GetDogOwnerByIdUsecase, DogOwnerRepository],
 })

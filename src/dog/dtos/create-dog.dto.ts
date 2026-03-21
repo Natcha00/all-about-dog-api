@@ -27,7 +27,7 @@ export class HealthInfoDto {
 
   @IsOptional()
   @Transform(({ value }) =>
-    value === '' || value == null ? BloodGroup.UNKNOWN : value,
+    value === '' || value == null ? undefined : value,
   )
   @IsEnum(BloodGroup)
   bloodGroup?: BloodGroup;
@@ -96,8 +96,8 @@ export class CreateDogDto {
 
   @Type(() => Date)
   @IsDate()
-  @IsNotEmpty()
-  birthdate: Date;
+  @IsOptional()
+  birthdate?: Date;
 
   @IsOptional()
   @IsString()

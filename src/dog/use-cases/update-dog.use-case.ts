@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { DogRepository } from '../dog.repository';
 import { UpdateDogDto } from '../dtos/update-dog.dto';
-import { BloodGroup } from '../enums/blood-group.enum';
 
 @Injectable()
 export class UpdateDogUsecase {
@@ -46,7 +45,7 @@ export class UpdateDogUsecase {
       const h = updateDogDto.healthInfo;
       dog.health.sterilization = h.sterilization ?? dog.health.sterilization;
       dog.health.microchip = h.microchip ?? dog.health.microchip;
-      dog.health.bloodGroup = h.bloodGroup ?? dog.health.bloodGroup ?? BloodGroup.UNKNOWN;
+      if (h.bloodGroup !== undefined) dog.health.bloodGroup = h.bloodGroup ?? null;
       if (h.underlyingDisease !== undefined) dog.health.underlyingDisease = h.underlyingDisease ?? null;
       if (h.allergy !== undefined) dog.health.allergy = h.allergy ?? null;
       dog.health.hasBreakfast = h.hasBreakfast ?? dog.health.hasBreakfast;

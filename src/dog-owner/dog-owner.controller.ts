@@ -31,6 +31,7 @@ import { GetDogOwnerProfileUsecase } from './use-cases/get-dog-owner-profile.use
 import { UpdateDogOwnerProfilePictureUsecase } from './use-cases/update-dog-owner-profile-picture.use-case';
 import { UpdateDogOwnerProfileUsecase } from './use-cases/update-dog-owner-profile.use-case';
 import { ChangePasswordUsecase } from './use-cases/change-password.use-case';
+import { VerifyDogOwnerForMeUsecase } from './use-cases/verify-dog-owner-for-me.use-case';
 
 import { DogOwnerProfileResponse } from './dtos/get-dog-owner-profile.dto';
 import { UpdateDogOwnerProfileDto } from './dtos/update-dog-owner-profile.dto';
@@ -55,6 +56,7 @@ export class DogOwnerController {
     private readonly updateDogOwnerProfileUsecase: UpdateDogOwnerProfileUsecase,
     private readonly changePasswordUsecase: ChangePasswordUsecase,
     private readonly searchDogOwnerUsecase: SearchDogOwnerUsecase,
+    private readonly verifyDogOwnerForMeUsecase: VerifyDogOwnerForMeUsecase,
   ) {}
 
   @Get('search')
@@ -114,6 +116,7 @@ export class DogOwnerController {
   @Get('me')
   @UseGuards(AccessTokenGuard, DogOwnerGuard)
   async me(@DogOwnerDecorator() user: IUser) {
+    await this.verifyDogOwnerForMeUsecase.execute(user.id);
     return user;
   }
 

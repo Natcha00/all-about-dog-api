@@ -20,7 +20,7 @@ export class ReservationService {
   private readonly MAXIMUM_SHARED = 2;
   private readonly MAXIMUM_VIP_SHARED = 5;
   private readonly MAXIMUM_SWIMMING_CAPACITY = 5;
-  private readonly SWIMMING_HOURS = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+  private readonly SWIMMING_HOURS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
   private readonly BOARDING_MAX_CAPACITY: BoardingCounter = {
     LARGE: 9,
     SMALL: 13,

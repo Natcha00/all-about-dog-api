@@ -6,7 +6,6 @@ import {
 import { DogRepository } from '../dog.repository';
 import { CreateDogDto } from '../dtos/create-dog.dto';
 import { GetDogOwnerByIdUsecase } from 'src/dog-owner/use-cases/get-dog-owner-by-id.use-case';
-import { BloodGroup } from '../enums/blood-group.enum';
 
 @Injectable()
 export class CreateDogUsecase {
@@ -45,7 +44,7 @@ export class CreateDogUsecase {
       health: this.dogRepository.createHealth({
         sterilization: createDogDto.healthInfo.sterilization,
         microchip: createDogDto.healthInfo.microchip,
-        bloodGroup: createDogDto.healthInfo.bloodGroup ?? BloodGroup.UNKNOWN,
+        bloodGroup: createDogDto.healthInfo.bloodGroup ?? null,
         underlyingDisease: createDogDto.healthInfo.underlyingDisease,
         allergy: createDogDto.healthInfo.allergy,
         hasBreakfast: createDogDto.healthInfo.hasBreakfast,

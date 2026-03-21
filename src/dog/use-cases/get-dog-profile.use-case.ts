@@ -104,7 +104,8 @@ export class GetDogProfileUsecase {
     };
   }
 
-  private getAgeLabel(birthdate: Date): string {
+  private getAgeLabel(birthdate?: Date | null): string {
+    if (!birthdate) return '-';
     const now = new Date();
     const diffMs = now.getTime() - new Date(birthdate).getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
@@ -116,7 +117,8 @@ export class GetDogProfileUsecase {
     return `อายุ ${years} ปี ${months} เดือน`;
   }
 
-  private formatDate(date: Date): string {
+  private formatDate(date?: Date | null): string {
+    if (!date) return '-';
     const d = new Date(date);
     const dd = String(d.getDate()).padStart(2, '0');
     const mm = String(d.getMonth() + 1).padStart(2, '0');
