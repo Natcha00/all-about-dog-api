@@ -20,6 +20,7 @@ import { CoatType } from 'src/dog/enums/coat-type.enum';
 @Injectable()
 export class CreateReservationUsecase {
   private readonly SWIMMING_HOURS = [
+    '09:00',
     '10:00',
     '11:00',
     '12:00',
