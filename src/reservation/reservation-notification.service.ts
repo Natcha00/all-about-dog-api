@@ -8,6 +8,7 @@ const STATUS_LABEL: Record<ReservationStatusEnum, string> = {
   [ReservationStatusEnum.PENDING]: 'รอการยืนยัน',
   [ReservationStatusEnum.WAITING_SLIP]: 'รออัปโหลดสลิป',
   [ReservationStatusEnum.SLIP_UPLOADED]: 'รอตรวจสลิป',
+  [ReservationStatusEnum.PAY_AT_STORE]: 'รอชำระเงินหน้าร้าน',
   [ReservationStatusEnum.SLIP_VERIFIED]: 'ยืนยันแล้ว',
   [ReservationStatusEnum.CHECK_IN]: 'อยู่ระหว่างใช้บริการ',
   [ReservationStatusEnum.FINISHED]: 'เสร็จสิ้น',
@@ -18,6 +19,8 @@ const NEXT_STEP: Record<ReservationStatusEnum, string> = {
   [ReservationStatusEnum.PENDING]: 'รอการยืนยันจากพนักงาน',
   [ReservationStatusEnum.WAITING_SLIP]: 'กรุณาอัปโหลดสลิปการโอนเงิน',
   [ReservationStatusEnum.SLIP_UPLOADED]: 'รอพนักงานตรวจสอบสลิป',
+  [ReservationStatusEnum.PAY_AT_STORE]:
+    'กรุณามาชำระเงินที่ร้านตามเวลานัดหมาย (หรือเช็คอินได้เมื่อชำระแล้วตามนโยบายร้าน)',
   [ReservationStatusEnum.SLIP_VERIFIED]: 'สามารถเช็คอินได้ในวันใช้บริการ',
   [ReservationStatusEnum.CHECK_IN]: 'อยู่ระหว่างใช้บริการ',
   [ReservationStatusEnum.FINISHED]: 'ขอบคุณที่ใช้บริการ',

@@ -47,8 +47,14 @@ export class GetReservationDetailGroupDto {
 export class GetReservationDetailActionsDto {
   canViewTimeline: boolean;
   canUploadSlip: boolean;
+  /** เลือกสลิป vs หน้าร้าน (หลังอนุมัติ — waiting_slip) */
+  canSelectPaymentMethod: boolean;
   canCancel: boolean;
   cancelHint: string;
+  /** staff — Check-in หลังยืนยันสลิป (slip_verified) */
+  canCheckInAfterSlipVerified: boolean;
+  /** staff — ยืนยันรับเงินหน้าร้าน + Check-in (pay_at_store) */
+  canConfirmPayAtStoreAndCheckIn: boolean;
 }
 
 export class GetReservationDetailSlipDto {

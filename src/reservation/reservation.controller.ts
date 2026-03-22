@@ -43,6 +43,8 @@ import { ROLE } from 'src/user/enums/role.enum';
 import { StaffDecorator } from 'src/staff/decorators/staff.decorator';
 import { SelectPaymentMethodUsecase } from './use-cases/select-payment-method.use-case';
 import { SelectPaymentMethodRequest } from './dtos/select-payment-method.dto';
+import { ConfirmPayAtStoreUsecase } from './use-cases/confirm-pay-at-store.use-case';
+import { ConfirmPayAtStoreRequest } from './dtos/confirm-pay-at-store.dto';
 
 @Controller('reservation')
 export class ReservationController {
@@ -60,6 +62,7 @@ export class ReservationController {
     private readonly searchReservationsUsecase: SearchReservationsUsecase,
     private readonly cancelReservationUsecase: CancelReservationUsecase,
     private readonly selectPaymentMethodUsecase: SelectPaymentMethodUsecase,
+    private readonly confirmPayAtStoreUsecase: ConfirmPayAtStoreUsecase,
   ) {}
 
   @Get()
@@ -115,9 +118,12 @@ console.log("dogName", query.dogName, Buffer.from(query.dogName || "", "utf8"));
       );
     }
 
+    const viewerIsStaff =
+      user.role === ROLE.STAFF || user.role === ROLE.ADMIN;
     const result = await this.getReservationDetailUsecase.execute(
       query.code,
       dogOwnerId,
+      viewerIsStaff,
     );
     return { statusCode: 200, result };
   }
@@ -292,6 +298,16 @@ console.log("dogName", query.dogName, Buffer.from(query.dogName || "", "utf8"));
     @StaffDecorator() user: IUser,
   ): Promise<{ success: boolean }> {
     return this.checkInReservationUsecase.execute(body.code, user.id);
+  }
+
+  /** ยืนยันรับเงินหน้าร้าน + Check-in (สถานะ pay_at_store เท่านั้น) */
+  @Post('confirm-pay-at-store')
+  @UseGuards(AccessTokenGuard, StaffGuard)
+  async confirmPayAtStore(
+    @Body() body: ConfirmPayAtStoreRequest,
+    @StaffDecorator() user: IUser,
+  ): Promise<{ success: boolean }> {
+    return this.confirmPayAtStoreUsecase.execute(body.code, user.id);
   }
 
   @Post('checkout')

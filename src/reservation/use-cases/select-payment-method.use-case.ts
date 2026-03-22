@@ -40,23 +40,30 @@ export class SelectPaymentMethodUsecase {
     }
 
     if (method === PaymentMethodEnum.SLIP) {
+      await this.statusLogRepository.createAndSave(
+        String(reservation.id),
+        ReservationStatusEnum.WAITING_SLIP,
+        String(performedByUserId),
+        'เลือกชำระด้วยสลิปโอน',
+        performedByStaff ? 'STAFF' : 'DOG_OWNER',
+      );
       return { success: true };
     }
 
-    reservation.status = ReservationStatusEnum.SLIP_VERIFIED;
+    reservation.status = ReservationStatusEnum.PAY_AT_STORE;
     await this.reservationRepository.saveReservation(reservation);
 
     await this.statusLogRepository.createAndSave(
       String(reservation.id),
-      ReservationStatusEnum.SLIP_VERIFIED,
+      ReservationStatusEnum.PAY_AT_STORE,
       String(performedByUserId),
-      'เลือกชำระเงินสดหน้างาน',
+      'เลือกชำระเงินหน้าร้าน',
       performedByStaff ? 'STAFF' : 'DOG_OWNER',
     );
 
     await this.reservationNotificationService.sendStatusUpdatedEmail(
       reservation.code,
-      ReservationStatusEnum.SLIP_VERIFIED,
+      ReservationStatusEnum.PAY_AT_STORE,
     );
 
     return { success: true };

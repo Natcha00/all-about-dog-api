@@ -4,18 +4,19 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ReservationRepository } from '../reservation.repository';
-import { PaymentSlipRepository } from '../payment-slip.repository';
 import { ReservationStatusLogRepository } from '../reservation-status-log.repository';
 import { ReservationNotificationService } from '../reservation-notification.service';
 import { ReservationStatusEnum } from '../enums/reservation-status.enum';
 import { ReservationService } from '../reservation.service';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
 
+/**
+ * ลูกค้าชำระเงินหน้าร้านแล้ว — staff ยืนยันรับเงินและทำ Check-in ในขั้นตอนเดียว (boarding + swimming)
+ */
 @Injectable()
-export class VerifyPaymentSlipUsecase {
+export class ConfirmPayAtStoreUsecase {
   constructor(
     private readonly reservationRepository: ReservationRepository,
-    private readonly paymentSlipRepository: PaymentSlipRepository,
     private readonly statusLogRepository: ReservationStatusLogRepository,
     private readonly reservationNotificationService: ReservationNotificationService,
     private readonly reservationService: ReservationService,
@@ -27,41 +28,30 @@ export class VerifyPaymentSlipUsecase {
     if (!reservation) {
       throw new NotFoundException('ไม่พบการจอง');
     }
-    if (reservation.status !== ReservationStatusEnum.SLIP_UPLOADED) {
+    if (reservation.status !== ReservationStatusEnum.PAY_AT_STORE) {
       throw new BadRequestException(
-        'ยืนยันสลิปได้เฉพาะการจองที่อยู่ในสถานะรอตรวจสลิปเท่านั้น',
+        'ยืนยันรับเงินหน้าร้านได้เฉพาะการจองที่อยู่ในสถานะรอชำระเงินหน้าร้านเท่านั้น',
       );
     }
-    const slip = await this.paymentSlipRepository.findByReservationId(
-      String(reservation.id),
-    );
-    if (!slip) {
-      throw new BadRequestException('ไม่พบสลิปการชำระเงิน');
-    }
-
-    slip.isApproved = true;
-    slip.approveBy = String(staffId);
-    slip.updateBy = String(staffId);
-    await this.paymentSlipRepository.save(slip);
 
     if (reservation.offeringType === OfferingType.BOARDING) {
       await this.reservationService.assertBoardingReservationFits(reservation);
     }
 
-    reservation.status = ReservationStatusEnum.SLIP_VERIFIED;
+    reservation.status = ReservationStatusEnum.CHECK_IN;
     await this.reservationRepository.saveReservation(reservation);
 
     await this.statusLogRepository.createAndSave(
       String(reservation.id),
-      ReservationStatusEnum.SLIP_VERIFIED,
+      ReservationStatusEnum.CHECK_IN,
       String(staffId),
-      'ยืนยันการชำระเงินโดยพนักงาน',
+      'ยืนยันรับเงินหน้าร้านและ Check-in',
       'STAFF',
     );
 
     await this.reservationNotificationService.sendStatusUpdatedEmail(
       reservation.code,
-      ReservationStatusEnum.SLIP_VERIFIED,
+      ReservationStatusEnum.CHECK_IN,
     );
 
     return { success: true };

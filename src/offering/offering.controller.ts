@@ -1,7 +1,9 @@
 import {
+  Body,
   BadRequestException,
   Controller,
   Get,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -25,6 +27,12 @@ import { GetOfferingAvailableRequest, GetOfferingAvailableResponse } from './dto
 import { GetOfferingAvailableUsecase } from './use-cases/get-offering-available.use-case';
 import { StaffGuard } from 'src/staff/guards/staff.guard';
 import { ROLE } from 'src/user/enums/role.enum';
+import {
+  GetManagePricingResponse,
+  UpdateManagePricingRequest,
+} from './dtos/manage-pricing.dto';
+import { GetManagePricingUsecase } from './use-cases/get-manage-pricing.use-case';
+import { UpdateManagePricingUsecase } from './use-cases/update-manage-pricing.use-case';
 
 @Controller('offering')
 export class OfferingController {
@@ -34,6 +42,8 @@ export class OfferingController {
     private readonly getBoardingPackagePricingUsecase: GetBoardingPackagePricingUsecase,
     private readonly getSwimmingPackagePricingUsecase: GetSwimmingPackagePricingUsecase,
     private readonly getOfferingAvailableUsecase: GetOfferingAvailableUsecase,
+    private readonly getManagePricingUsecase: GetManagePricingUsecase,
+    private readonly updateManagePricingUsecase: UpdateManagePricingUsecase,
   ) {}
 
   @Get('/announcement')
@@ -96,5 +106,19 @@ export class OfferingController {
     @Query() query: GetOfferingAvailableRequest,
   ): Promise<GetOfferingAvailableResponse> {
     return this.getOfferingAvailableUsecase.execute(query);
+  }
+
+  @Get('/pricing/manage')
+  @UseGuards(AccessTokenGuard, StaffGuard)
+  async getManagePricing(): Promise<GetManagePricingResponse> {
+    return this.getManagePricingUsecase.execute();
+  }
+
+  @Post('/pricing/manage')
+  @UseGuards(AccessTokenGuard, StaffGuard)
+  async updateManagePricing(
+    @Body() body: UpdateManagePricingRequest,
+  ): Promise<{ success: boolean }> {
+    return this.updateManagePricingUsecase.execute(body);
   }
 }

@@ -9,6 +9,8 @@ import { ReservationStatusLogRepository } from '../reservation-status-log.reposi
 import { ReservationNotificationService } from '../reservation-notification.service';
 import { DoSpacesService } from 'src/storage/do-spaces.service';
 import { ReservationStatusEnum } from '../enums/reservation-status.enum';
+import { ReservationService } from '../reservation.service';
+import { OfferingType } from 'src/offering/enums/offering-type.enum';
 
 const ALLOWED_MIMES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
@@ -21,6 +23,7 @@ export class UploadPaymentSlipUsecase {
     private readonly statusLogRepository: ReservationStatusLogRepository,
     private readonly reservationNotificationService: ReservationNotificationService,
     private readonly doSpacesService: DoSpacesService,
+    private readonly reservationService: ReservationService,
   ) {}
 
   async execute(
@@ -42,6 +45,17 @@ export class UploadPaymentSlipUsecase {
       throw new BadRequestException(
         'สามารถแนบสลิปได้เฉพาะการจองที่อยู่ในสถานะรออัปโหลดสลิปหรือรอตรวจสอบสลิปเท่านั้น',
       );
+    }
+
+    if (reservation.status === ReservationStatusEnum.WAITING_SLIP) {
+      const choseSlipTransfer = (reservation.statusLogs ?? []).some(
+        (log) => (log.label ?? '').trim() === 'เลือกชำระด้วยสลิปโอน',
+      );
+      if (!choseSlipTransfer) {
+        throw new BadRequestException(
+          'กรุณาเลือกชำระด้วยสลิปโอนก่อนอัปโหลดสลิป',
+        );
+      }
     }
 
     if (!file?.buffer) {
@@ -86,6 +100,12 @@ export class UploadPaymentSlipUsecase {
     const finalStatus = performedByStaff
       ? ReservationStatusEnum.SLIP_VERIFIED
       : ReservationStatusEnum.SLIP_UPLOADED;
+    if (
+      finalStatus === ReservationStatusEnum.SLIP_VERIFIED &&
+      reservation.offeringType === OfferingType.BOARDING
+    ) {
+      await this.reservationService.assertBoardingReservationFits(reservation);
+    }
     reservation.status = finalStatus;
     await this.reservationRepository.saveReservation(reservation);
 

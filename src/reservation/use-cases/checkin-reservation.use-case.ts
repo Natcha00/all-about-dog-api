@@ -16,14 +16,19 @@ export class CheckInReservationUsecase {
     private readonly reservationNotificationService: ReservationNotificationService,
   ) {}
 
+  /**
+   * Check-in หลังชำระด้วยสลิป (slip_verified) เท่านั้น
+   * ชำระหน้าร้าน → ใช้ ConfirmPayAtStoreUsecase
+   */
   async execute(code: string, staffId: number): Promise<{ success: boolean }> {
-    const reservation = await this.reservationRepository.findOneByCode(code);
+    const reservation =
+      await this.reservationRepository.findOneByCodeWithStaffRelations(code);
     if (!reservation) {
       throw new NotFoundException('ไม่พบการจอง');
     }
     if (reservation.status !== ReservationStatusEnum.SLIP_VERIFIED) {
       throw new BadRequestException(
-        'เช็คอินได้เฉพาะการจองที่ยืนยันการชำระเงินแล้วเท่านั้น',
+        'เช็คอินแบบนี้ใช้ได้เฉพาะการจองที่ยืนยันสลิปแล้ว (slip_verified) หากชำระหน้าร้านให้ใช้ยืนยันรับเงินหน้าร้าน',
       );
     }
 

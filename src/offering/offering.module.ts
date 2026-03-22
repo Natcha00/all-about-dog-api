@@ -15,6 +15,8 @@ import { GetSwimmingPackagePricingUsecase } from './use-cases/get-swimming-packa
 import { GetOfferingAvailableUsecase } from './use-cases/get-offering-available.use-case';
 import { OfferingService } from './offering.service';
 import { OfferCoatPricing } from './entities/offer-coat-pricing.entity';
+import { GetManagePricingUsecase } from './use-cases/get-manage-pricing.use-case';
+import { UpdateManagePricingUsecase } from './use-cases/update-manage-pricing.use-case';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -36,6 +38,8 @@ import { OfferCoatPricing } from './entities/offer-coat-pricing.entity';
     GetBoardingPackagePricingUsecase,
     GetSwimmingPackagePricingUsecase,
     GetOfferingAvailableUsecase,
+    GetManagePricingUsecase,
+    UpdateManagePricingUsecase,
   ],
   exports: [
     OfferingService,

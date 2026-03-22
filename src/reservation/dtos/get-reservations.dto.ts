@@ -20,6 +20,7 @@ export class GetReservationsCountsDto {
   [ReservationStatusEnum.PENDING]: number;
   [ReservationStatusEnum.WAITING_SLIP]: number;
   [ReservationStatusEnum.SLIP_UPLOADED]: number;
+  [ReservationStatusEnum.PAY_AT_STORE]: number;
   [ReservationStatusEnum.SLIP_VERIFIED]: number;
   [ReservationStatusEnum.CHECK_IN]: number;
   [ReservationStatusEnum.FINISHED]: number;

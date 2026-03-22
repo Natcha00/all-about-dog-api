@@ -27,6 +27,7 @@ const STATUS_LABELS: Record<ReservationStatusEnum, string> = {
   [ReservationStatusEnum.PENDING]: 'รอการยืนยัน',
   [ReservationStatusEnum.WAITING_SLIP]: 'รออัปโหลดสลิป',
   [ReservationStatusEnum.SLIP_UPLOADED]: 'รอตรวจสลิป',
+  [ReservationStatusEnum.PAY_AT_STORE]: 'รอชำระเงินหน้าร้าน',
   [ReservationStatusEnum.SLIP_VERIFIED]: 'ยืนยันแล้ว',
   [ReservationStatusEnum.CHECK_IN]: 'อยู่ระหว่างใช้บริการ',
   [ReservationStatusEnum.FINISHED]: 'เสร็จสิ้น',
@@ -37,6 +38,7 @@ const STATUS_HINTS: Record<ReservationStatusEnum, string> = {
   [ReservationStatusEnum.PENDING]: 'รอการยืนยันจากระบบ',
   [ReservationStatusEnum.WAITING_SLIP]: 'แนบสลิปเพื่อให้พนักงานตรวจสอบ',
   [ReservationStatusEnum.SLIP_UPLOADED]: 'รอพนักงานตรวจสอบสลิป',
+  [ReservationStatusEnum.PAY_AT_STORE]: 'รอชำระเงินที่ร้าน',
   [ReservationStatusEnum.SLIP_VERIFIED]: 'ชำระเงินเรียบร้อย',
   [ReservationStatusEnum.CHECK_IN]: 'สามารถเช็คอินได้',
   [ReservationStatusEnum.FINISHED]: 'จบการใช้บริการ',
@@ -47,6 +49,7 @@ const STATUS_TONE: Record<ReservationStatusEnum, string> = {
   [ReservationStatusEnum.PENDING]: 'warning',
   [ReservationStatusEnum.WAITING_SLIP]: 'warning',
   [ReservationStatusEnum.SLIP_UPLOADED]: 'warning',
+  [ReservationStatusEnum.PAY_AT_STORE]: 'warning',
   [ReservationStatusEnum.SLIP_VERIFIED]: 'success',
   [ReservationStatusEnum.CHECK_IN]: 'info',
   [ReservationStatusEnum.FINISHED]: 'success',
@@ -62,6 +65,7 @@ const STATUS_TIMELINE_LABELS: Record<ReservationStatusEnum, string> = {
   [ReservationStatusEnum.PENDING]: 'สร้างรายการจอง',
   [ReservationStatusEnum.WAITING_SLIP]: 'รอชำระเงิน',
   [ReservationStatusEnum.SLIP_UPLOADED]: 'อัปโหลดสลิปแล้ว',
+  [ReservationStatusEnum.PAY_AT_STORE]: 'รอชำระเงินหน้าร้าน',
   [ReservationStatusEnum.SLIP_VERIFIED]: 'ยืนยันการชำระเงินโดยพนักงาน',
   [ReservationStatusEnum.CHECK_IN]: 'Check-in',
   [ReservationStatusEnum.FINISHED]: 'จบการใช้บริการ',
@@ -79,6 +83,7 @@ export class GetReservationDetailUsecase {
   async execute(
     code: string,
     dogOwnerId: number,
+    viewerIsStaff = false,
   ): Promise<GetReservationDetailResultResponse> {
     const reservation = await this.reservationRepository.findOneByCodeAndDogOwnerId(
       code,
@@ -90,7 +95,7 @@ export class GetReservationDetailUsecase {
     const performerNameMap = await this.resolvePerformerNames(
       reservation.statusLogs ?? [],
     );
-    return this.toDetailResult(reservation, performerNameMap);
+    return this.toDetailResult(reservation, performerNameMap, viewerIsStaff);
   }
 
   /** ค้นหาชื่อจาก id ตาม actorRole (STAFF → Staff, DOG_OWNER → DogOwner) */
@@ -137,6 +142,7 @@ export class GetReservationDetailUsecase {
   private toDetailResult(
     r: Reservation,
     performerNameMap: Map<string, string>,
+    viewerIsStaff: boolean,
   ): GetReservationDetailResultResponse {
     const start = new Date(r.startDateTime);
     const end = new Date(r.endDateTime);
@@ -168,14 +174,15 @@ export class GetReservationDetailUsecase {
             end: toDateStr(end),
           };
     const slip = this.buildSlip(r);
-    const actions = this.buildActions(r);
+    const actions = this.buildActions(r, viewerIsStaff);
+    const statusHint = this.resolveStatusHint(r);
 
     return {
       bookingCode: r.code,
       paymentMethod: this.resolvePaymentMethod(r),
       status: r.status,
       statusLabel: STATUS_LABELS[r.status] ?? r.status,
-      statusHint: STATUS_HINTS[r.status] ?? '',
+      statusHint,
       statusTone: STATUS_TONE[r.status] ?? 'info',
       serviceType: r.offeringType,
       serviceLabel: SERVICE_LABELS[r.offeringType] ?? r.offeringType,
@@ -195,6 +202,13 @@ export class GetReservationDetailUsecase {
       return 'slip';
     }
 
+    const selectedSlipTransfer = (r.statusLogs ?? []).some(
+      (log) => (log.label ?? '').trim() === 'เลือกชำระด้วยสลิปโอน',
+    );
+    if (selectedSlipTransfer) {
+      return 'slip';
+    }
+
     const selectedCash = (r.statusLogs ?? []).some(
       (log) => (log.label ?? '').trim() === 'เลือกชำระเงินสดหน้างาน',
     );
@@ -202,7 +216,57 @@ export class GetReservationDetailUsecase {
       return 'cash';
     }
 
+    /** ว่ายน้ำที่ staff อนุมัติแล้ว = ชำระหน้าร้าน (ไม่มีสลิป) */
+    if (
+      r.offeringType === OfferingType.SWIMMING &&
+      [
+        ReservationStatusEnum.PAY_AT_STORE,
+        ReservationStatusEnum.SLIP_VERIFIED,
+        ReservationStatusEnum.CHECK_IN,
+        ReservationStatusEnum.FINISHED,
+      ].includes(r.status)
+    ) {
+      return 'cash';
+    }
+
+    if (
+      r.offeringType === OfferingType.BOARDING &&
+      r.status === ReservationStatusEnum.PAY_AT_STORE
+    ) {
+      return 'cash';
+    }
+
     return null;
+  }
+
+  /** คำอธิบายสถานะ — flow ชำระสลิป vs หน้าร้าน + ยืนยันโดยพนักงาน */
+  private resolveStatusHint(r: Reservation): string {
+    if (
+      r.offeringType === OfferingType.BOARDING &&
+      r.status === ReservationStatusEnum.WAITING_SLIP
+    ) {
+      return 'เลือกชำระด้วยสลิปแล้วอัปโหลดสลิป หรือเลือกชำระหน้าร้าน — เมื่อมาจ่ายที่ร้านพนักงานจะยืนยันการรับเงินและทำ Check-in ให้';
+    }
+    if (
+      r.offeringType === OfferingType.BOARDING &&
+      r.status === ReservationStatusEnum.PAY_AT_STORE
+    ) {
+      return 'กรุณามาชำระเงินที่ร้าน เมื่อชำระแล้วพนักงานจะยืนยันการรับเงินและทำ Check-in ให้';
+    }
+    if (
+      r.offeringType === OfferingType.SWIMMING &&
+      r.status === ReservationStatusEnum.PAY_AT_STORE
+    ) {
+      return 'กรุณามาชั่งน้ำหนักและชำระเงินที่ร้าน — เมื่อชำระแล้วพนักงานจะยืนยันการรับเงินและทำ Check-in ให้';
+    }
+    if (
+      r.offeringType === OfferingType.SWIMMING &&
+      r.status === ReservationStatusEnum.SLIP_VERIFIED &&
+      !r.paymentSlip?.slipUrl
+    ) {
+      return 'การจองได้รับการยืนยันแล้ว — กรุณามาชั่งน้ำหนักและชำระเงินหน้าร้านตามเวลาที่จอง';
+    }
+    return STATUS_HINTS[r.status] ?? '';
   }
 
   private buildGroups(r: Reservation): GetReservationDetailGroupDto[] {
@@ -277,7 +341,11 @@ export class GetReservationDetailUsecase {
   }
 
   private buildSlip(r: Reservation): GetReservationDetailSlipDto {
-    const required = r.status === ReservationStatusEnum.WAITING_SLIP;
+    const choseSlipTransfer = (r.statusLogs ?? []).some(
+      (log) => (log.label ?? '').trim() === 'เลือกชำระด้วยสลิปโอน',
+    );
+    const required =
+      r.status === ReservationStatusEnum.WAITING_SLIP && choseSlipTransfer;
     const slip = r.paymentSlip;
     const status = slip ? 'uploaded' : 'pending';
     const imageUrl = slip?.slipUrl ?? '';
@@ -285,11 +353,32 @@ export class GetReservationDetailUsecase {
     return { required, status, imageUrl, ...(rejectedReason && { rejectedReason }) };
   }
 
-  private buildActions(r: Reservation): GetReservationDetailActionsDto {
+  private buildActions(
+    r: Reservation,
+    viewerIsStaff: boolean,
+  ): GetReservationDetailActionsDto {
     const canViewTimeline = true;
-    const canUploadSlip = r.status === ReservationStatusEnum.WAITING_SLIP;
+    const choseSlipTransfer = (r.statusLogs ?? []).some(
+      (log) => (log.label ?? '').trim() === 'เลือกชำระด้วยสลิปโอน',
+    );
+    const canUploadSlip =
+      r.status === ReservationStatusEnum.WAITING_SLIP && choseSlipTransfer;
+    const canSelectPaymentMethod =
+      r.status === ReservationStatusEnum.WAITING_SLIP;
     const canCancel = r.status === ReservationStatusEnum.PENDING;
     const cancelHint = 'การยกเลิกทำได้เฉพาะสถานะ "รอการยืนยัน"';
-    return { canViewTimeline, canUploadSlip, canCancel, cancelHint };
+    const canCheckInAfterSlipVerified =
+      viewerIsStaff && r.status === ReservationStatusEnum.SLIP_VERIFIED;
+    const canConfirmPayAtStoreAndCheckIn =
+      viewerIsStaff && r.status === ReservationStatusEnum.PAY_AT_STORE;
+    return {
+      canViewTimeline,
+      canUploadSlip,
+      canSelectPaymentMethod,
+      canCancel,
+      cancelHint,
+      canCheckInAfterSlipVerified,
+      canConfirmPayAtStoreAndCheckIn,
+    };
   }
 }

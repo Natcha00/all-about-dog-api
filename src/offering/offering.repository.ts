@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { OfferBreedPricing } from './entities/offer-breed-pricing.entity';
 import { OfferingType } from './enums/offering-type.enum';
 import { OfferCoatPricing } from './entities/offer-coat-pricing.entity';
+import { OfferSizePricing } from './entities/offer-size-pricing.entity';
+import { OfferVipPricing } from './entities/offer-vip-pricing.entity';
 
 @Injectable()
 export class OfferingRepository {
@@ -15,6 +17,10 @@ export class OfferingRepository {
     private readonly offerBreedPricingTypeormRepository: Repository<OfferBreedPricing>,
     @InjectRepository(OfferCoatPricing)
     private readonly offerCoatPricingTypeormRepository: Repository<OfferCoatPricing>,
+    @InjectRepository(OfferSizePricing)
+    private readonly offerSizePricingTypeormRepository: Repository<OfferSizePricing>,
+    @InjectRepository(OfferVipPricing)
+    private readonly offerVipPricingTypeormRepository: Repository<OfferVipPricing>,
   ) {}
 
   async getOffering() {
@@ -55,5 +61,38 @@ export class OfferingRepository {
         offeringType: OfferingType.SWIMMING,
       },
     });
+  }
+
+  async updateSizePricing(
+    pricingId: number,
+    values: { normalPrice: number; specialPrice: number },
+  ) {
+    await this.offerSizePricingTypeormRepository.update(
+      { id: pricingId },
+      {
+        normalPrice: values.normalPrice,
+        specialPrice: values.specialPrice,
+      },
+    );
+  }
+
+  async updateVipPricing(
+    pricingId: number,
+    values: { normalPrice: number; specialPrice: number },
+  ) {
+    await this.offerVipPricingTypeormRepository.update(
+      { id: pricingId },
+      {
+        normalPrice: values.normalPrice,
+        specialPrice: values.specialPrice,
+      },
+    );
+  }
+
+  async updateCoatPricing(pricingId: number, price: number) {
+    await this.offerCoatPricingTypeormRepository.update(
+      { id: pricingId },
+      { price },
+    );
   }
 }

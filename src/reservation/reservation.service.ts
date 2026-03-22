@@ -4,8 +4,11 @@ import { Reservation } from './entities/reservation.entity';
 import { ReservationLine } from './entities/reservation-line.entity';
 import { BoardingSummary } from './types/boarding-summary';
 import { BoardingCounter } from 'src/offering/types/boarding-counter.type';
-import { ReservationStatusEnum } from './enums/reservation-status.enum';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
+import {
+  countsTowardBoardingRoomCapacity,
+  countsTowardSwimmingPoolCapacity,
+} from './reservation-capacity-statuses';
 import { SwimmingCounter } from 'src/offering/types/swimming-counter.type';
 import { SwimmingSummary } from './types/swimming-summary';
 import { Dog } from 'src/dog/entities/dog.entity';
@@ -280,8 +283,7 @@ export class ReservationService {
 
     for (const reservation of reservations) {
       if (reservation.offeringType !== 'boarding') continue;
-      // Count everything except cancelled reservations.
-      if (reservation.status === ReservationStatusEnum.CANCELLED) continue;
+      if (!countsTowardBoardingRoomCapacity(reservation.status)) continue;
 
       const start = new Date(reservation?.startDateTime);
       const end = new Date(reservation?.endDateTime);
@@ -347,8 +349,7 @@ export class ReservationService {
 
     for (const reservation of reservations) {
       if (reservation.offeringType !== OfferingType.SWIMMING) continue;
-      // Count everything except cancelled reservations.
-      if (reservation.status === ReservationStatusEnum.CANCELLED) continue;
+      if (!countsTowardSwimmingPoolCapacity(reservation.status)) continue;
 
       const start = new Date(reservation.startDateTime);
       const end = new Date(reservation.endDateTime);
@@ -419,5 +420,117 @@ export class ReservationService {
     return reservations.some((r) =>
       (r.reservationLines ?? []).some((line) => line.dog?.id === dogId),
     );
+  }
+
+  /**
+   * ว่ายน้ำ: ตรวจว่ารอบเดียวกันยังรับจำนวนสุนัขในการจองนี้ได้ (รวมสถานะที่กันคิวแล้ว)
+   */
+  async assertSwimmingSlotFits(reservation: Reservation): Promise<void> {
+    if (reservation.offeringType !== OfferingType.SWIMMING) return;
+
+    const resStart = new Date(reservation.startDateTime);
+    const resEnd = new Date(reservation.endDateTime);
+    const dayStart = new Date(resStart);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(resStart);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    const all = await this.getReservationByPeriod(
+      dayStart,
+      dayEnd,
+      OfferingType.SWIMMING,
+    );
+
+    let large = 0;
+    let small = 0;
+    const addLines = (r: Reservation) => {
+      for (const line of r.reservationLines ?? []) {
+        const size = line.dog?.breed?.size?.toLowerCase?.();
+        if (size === 'large') large += 1;
+        else if (size === 'small') small += 1;
+      }
+    };
+
+    for (const r of all) {
+      if (String(r.id) === String(reservation.id)) continue;
+      if (!countsTowardSwimmingPoolCapacity(r.status)) continue;
+      const rStart = new Date(r.startDateTime);
+      const rEnd = new Date(r.endDateTime);
+      if (rEnd <= resStart || rStart >= resEnd) continue;
+      addLines(r);
+    }
+    addLines(reservation);
+
+    if (large + small > this.MAXIMUM_SWIMMING_CAPACITY) {
+      throw new BadRequestException(
+        'รอบว่ายน้ำนี้เต็มแล้ว ไม่สามารถอนุมัติเพิ่มได้',
+      );
+    }
+  }
+
+  private boardingNeedPerNight(reservation: Reservation): BoardingCounter {
+    const grouped = new Map<number, number>();
+    for (const line of reservation.reservationLines ?? []) {
+      if (!grouped.has(line.groupNumber)) {
+        grouped.set(line.groupNumber, line.offering.id);
+      }
+    }
+    const need: BoardingCounter = { LARGE: 0, SMALL: 0, VIP: 0 };
+    for (const offeringId of grouped.values()) {
+      if (offeringId === 1) need.LARGE += 1;
+      if (offeringId === 2) need.SMALL += 1;
+      if (offeringId === 3) need.VIP += 1;
+    }
+    return need;
+  }
+
+  /**
+   * ฝากเลี้ยง: ตรวจว่ายังมีห้องพอทุกคืนของการจองนี้ (เมื่อจะกันห้อง — slip_verified หรือ check-in จาก pay_at_store)
+   */
+  async assertBoardingReservationFits(reservation: Reservation): Promise<void> {
+    if (reservation.offeringType !== OfferingType.BOARDING) return;
+
+    const reservations = await this.getReservationByPeriod(
+      new Date(reservation.startDateTime),
+      new Date(reservation.endDateTime),
+      OfferingType.BOARDING,
+    );
+    const others = reservations.filter(
+      (r) =>
+        String(r.id) !== String(reservation.id) &&
+        countsTowardBoardingRoomCapacity(r.status),
+    );
+    const summaries = this.summarizeBoardingByDate(others);
+    const byDate = new Map(
+      summaries.map((s) => [s.date, s.boardingCounter]),
+    );
+
+    const needPerNight = this.boardingNeedPerNight(reservation);
+    const start = new Date(reservation.startDateTime);
+    const end = new Date(reservation.endDateTime);
+    const current = new Date(start);
+    current.setHours(0, 0, 0, 0);
+    current.setHours(current.getHours() + 7);
+
+    const checkout = new Date(end);
+    checkout.setHours(0, 0, 0, 0);
+    checkout.setHours(checkout.getHours() + 7);
+
+    const max = this.BOARDING_MAX_CAPACITY;
+
+    while (current.getTime() < checkout.getTime()) {
+      const dateKey = current.toISOString().split('T')[0];
+      const used = byDate.get(dateKey) ?? { LARGE: 0, SMALL: 0, VIP: 0 };
+      if (
+        used.LARGE + needPerNight.LARGE > max.LARGE ||
+        used.SMALL + needPerNight.SMALL > max.SMALL ||
+        used.VIP + needPerNight.VIP > max.VIP
+      ) {
+        throw new BadRequestException(
+          `ห้องฝากเลี้ยงไม่พอในช่วงวันที่ ${dateKey}`,
+        );
+      }
+      current.setDate(current.getDate() + 1);
+    }
   }
 }

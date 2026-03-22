@@ -163,6 +163,24 @@ export class ReservationRepository {
     });
   }
 
+  /** code + รายการบรรทัด/สุนัข (สำหรับ staff อนุมัติ / เช็คอิน / ยืนยันสลิป + ตรวจความจุห้องหรือสระ) */
+  async findOneByCodeWithStaffRelations(
+    code: string,
+  ): Promise<Reservation | null> {
+    return this.repo.findOne({
+      where: { code },
+      relations: [
+        'reservationLines',
+        'reservationLines.dog',
+        'reservationLines.dog.breed',
+        'reservationLines.offering',
+        'paymentSlip',
+        'statusLogs',
+        'dogOwner',
+      ],
+    });
+  }
+
   /** ดึงการจองตาม code พร้อม dogOwner และรายการสุนัข (สำหรับส่งอีเมลแจ้งสถานะ) */
   async findOneByCodeWithDogOwner(code: string): Promise<Reservation | null> {
     return this.repo.findOne({
