@@ -7,15 +7,21 @@ import { OfferingRepository } from '../offering.repository';
 import { OfferBreedPricing } from '../entities/offer-breed-pricing.entity';
 import { Offering } from '../entities/offering.entity';
 import { OfferCoatPricing } from '../entities/offer-coat-pricing.entity';
-import { CoatType } from 'src/dog/enums/coat-type.enum';
+import {
+  buildSwimmingCoatBandsByCoat,
+  formatSwimmingCoatBandLabel,
+} from '../swimming-pricing';
 
 @Injectable()
 export class GetAnnouncementUsecase {
   constructor(private readonly offeringRepository: OfferingRepository) {}
 
   async execute(): Promise<GetAnnouncementResponse> {
-    // ราคาว่ายน้ำอ้างอิงจากโครงสร้าง coat + น้ำหนัก (เหมือน use case คิดราคา)
-    const coatPricings = await this.offeringRepository.getOfferCoatPricing();
+    // ราคาว่ายน้ำอ้างอิงจากโครงสร้าง coat + น้ำหนัก + ช่วงน้ำหนักพิเศษตามสายพันธุ์ (เหมือน use case คิดราคา)
+    const [coatPricings, breedBandPricings] = await Promise.all([
+      this.offeringRepository.getOfferCoatPricing(),
+      this.offeringRepository.getSwimmingBreedWeightBandPricing(),
+    ]);
     const minCoatPrice =
       coatPricings.length > 0
         ? Math.min(...coatPricings.map((p) => p.price))
@@ -24,6 +30,7 @@ export class GetAnnouncementUsecase {
     const swimmingAnnouncement = this.getSwimmingByCoatAnnouncement(
       minCoatPrice,
       coatPricings,
+      breedBandPricings,
     );
 
 
@@ -114,30 +121,17 @@ export class GetAnnouncementUsecase {
   }
 
   /**
-   * สร้าง contents ของประกาศว่ายน้ำตามโครงสร้างการคิดราคาจริง (coat + น้ำหนัก)
-   * อ้างอิง logic จาก getSwimmingPricingByCoat (get-swimming-package-pricing.use-case.ts:192-242)
+   * สร้าง contents ของประกาศว่ายน้ำตามโครงสร้างการคิดราคาจริง (coat + น้ำหนัก + ช่วงพิเศษตามสายพันธุ์)
    */
   private buildSwimmingByCoatContents(
     coatPricings: Array<OfferCoatPricing>,
+    breedBandPricings: Array<OfferBreedPricing>,
   ): Array<{
     priceLabel: string;
     description: string;
     breeds: Array<string>;
   }> {
-    const tiersByCoat = new Map<
-      CoatType,
-      Array<{ max_weight: number; price: number }>
-    >();
-
-    for (const p of coatPricings) {
-      const list = tiersByCoat.get(p.coat) ?? [];
-      list.push({ max_weight: p.max_weight, price: p.price });
-      tiersByCoat.set(p.coat, list);
-    }
-
-    for (const list of tiersByCoat.values()) {
-      list.sort((a, b) => a.max_weight - b.max_weight);
-    }
+    const bandsByCoat = buildSwimmingCoatBandsByCoat(coatPricings);
 
     const contents: Array<{
       priceLabel: string;
@@ -145,31 +139,33 @@ export class GetAnnouncementUsecase {
       breeds: Array<string>;
     }> = [];
 
-    for (const [coat, tiers] of tiersByCoat.entries()) {
-      for (const tier of tiers) {
-        const weightLabel =
-          tier.max_weight === 10000
-            ? 'มากกว่า 50 kg'
-            : `ไม่เกิน ${tier.max_weight} kg`;
+    for (const [coat, bands] of bandsByCoat.entries()) {
+      for (const row of bands) {
+        const weightLabel = formatSwimmingCoatBandLabel(
+          row.minWeightKg,
+          row.maxWeightKg,
+        );
         contents.push({
-          priceLabel: `${coat} (${weightLabel}) ${tier.price} บาท`,
+          priceLabel: `${coat} (${weightLabel}) ${row.price} บาท`,
           description: '',
           breeds: [],
         });
       }
     }
 
-    contents.push({
-      priceLabel: 'คอร์กี้ 10-20kg 850 บาท',
-      description: '',
-      breeds: [],
-    });
-
-    contents.push({
-      priceLabel: 'โกลเด้น 25-40kg 1200 บาท',
-      description: '',
-      breeds: [],
-    });
+    for (const p of breedBandPricings) {
+      if (
+        p.breed?.nameTh &&
+        p.minWeightKg != null &&
+        p.maxWeightKg != null
+      ) {
+        contents.push({
+          priceLabel: `${p.breed.nameTh} ${p.minWeightKg}-${p.maxWeightKg} kg ${p.normalPrice} บาท`,
+          description: '',
+          breeds: [],
+        });
+      }
+    }
 
     return contents;
   }
@@ -177,8 +173,12 @@ export class GetAnnouncementUsecase {
   private getSwimmingByCoatAnnouncement(
     minPrice: number,
     coatPricings: Array<OfferCoatPricing>,
+    breedBandPricings: Array<OfferBreedPricing>,
   ) {
-    const contents = this.buildSwimmingByCoatContents(coatPricings);
+    const contents = this.buildSwimmingByCoatContents(
+      coatPricings,
+      breedBandPricings,
+    );
     return {
       title: 'สระว่ายน้ำ',
       intro: [

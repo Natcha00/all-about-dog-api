@@ -14,8 +14,12 @@ import { OfferingService } from 'src/offering/offering.service';
 import { AssignDogs } from 'src/offering/types/assign-dog.type';
 import { Dog } from 'src/dog/entities/dog.entity';
 import { ReservationLineInput } from '../types/reservation-line-input.type';
+import { OfferBreedPricing } from 'src/offering/entities/offer-breed-pricing.entity';
 import { OfferCoatPricing } from 'src/offering/entities/offer-coat-pricing.entity';
-import { CoatType } from 'src/dog/enums/coat-type.enum';
+import {
+  buildSwimmingCoatBandsByCoat,
+  swimmingPriceForDog,
+} from 'src/offering/swimming-pricing';
 
 @Injectable()
 export class CreateReservationUsecase {
@@ -197,8 +201,15 @@ export class CreateReservationUsecase {
 
   /** Duplicated from GetSwimmingPackagePricingUsecase: get coat pricing + swimming offering, build one line per dog */
   private async buildSwimmingLines(dogs: Dog[]): Promise<ReservationLineInput[]> {
-    const offerCoatPricings = await this.offeringService.getCoatPricing();
-    const priceByDogId = this.calculateSwimmingPriceByCoat(dogs, offerCoatPricings);
+    const [offerCoatPricings, breedBandPricings] = await Promise.all([
+      this.offeringService.getCoatPricing(),
+      this.offeringService.getSwimmingBreedWeightBandPricing(),
+    ]);
+    const priceByDogId = this.calculateSwimmingPriceByCoat(
+      dogs,
+      offerCoatPricings,
+      breedBandPricings,
+    );
     const offering = await this.offeringService.getSwimmingOffering();
     if (!offering) {
       throw new NotFoundException('Swimming offering not found');
@@ -218,42 +229,17 @@ export class CreateReservationUsecase {
   }
 
   /**
-   * คำนวณราคาว่ายน้ำต่อตัวจาก coat + น้ำหนัก ตาม tier ใน offer coat pricing
-   * ข้อยกเว้น: คอร์กี้ = 850, โกลเด้นรีทรีฟเวอร์ = 1200
+   * คำนวณราคาว่ายน้ำต่อตัวจาก coat + น้ำหนัก; ช่วง min–max kg ใน offer_breed_pricing ใช้ normalPrice เฉพาะในช่วงนั้น
    */
   private calculateSwimmingPriceByCoat(
     dogs: Dog[],
     offerCoatPricings: OfferCoatPricing[],
+    breedBandPricings: OfferBreedPricing[],
   ): Map<number, number> {
-    const tiersByCoat = new Map<
-      CoatType,
-      Array<{ max_weight: number; price: number }>
-    >();
-    for (const p of offerCoatPricings) {
-      const list = tiersByCoat.get(p.coat) ?? [];
-      list.push({ max_weight: p.max_weight, price: p.price });
-      tiersByCoat.set(p.coat, list);
-    }
-    for (const list of tiersByCoat.values()) {
-      list.sort((a, b) => a.max_weight - b.max_weight);
-    }
-
+    const bandsByCoat = buildSwimmingCoatBandsByCoat(offerCoatPricings);
     const result = new Map<number, number>();
     for (const d of dogs) {
-      const breedName = d.breed?.nameTh?.trim() ?? '';
-      if (breedName === 'คอร์กี้') {
-        result.set(d.id, 850);
-        continue;
-      }
-      if (breedName === 'โกลเด้นรีทรีฟเวอร์') {
-        result.set(d.id, 1200);
-        continue;
-      }
-      const coat = d.coatType;
-      const weight = d.weight ?? 0;
-      const tiers = tiersByCoat.get(coat);
-      const tier = tiers?.find((t) => t.max_weight >= weight);
-      result.set(d.id, tier?.price ?? 0);
+      result.set(d.id, swimmingPriceForDog(d, bandsByCoat, breedBandPricings));
     }
     return result;
   }

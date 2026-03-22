@@ -20,7 +20,8 @@ export class BoardingPricingItemDto {
 export class SwimmingPricingItemDto {
   pricingId: number;
   coat: string;
-  maxWeight: number;
+  minWeightKg: number;
+  maxWeightKg: number | null;
   price: number;
 }
 

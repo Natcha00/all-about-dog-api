@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Offering } from './entities/offering.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { OfferBreedPricing } from './entities/offer-breed-pricing.entity';
 import { OfferingType } from './enums/offering-type.enum';
 import { OfferCoatPricing } from './entities/offer-coat-pricing.entity';
@@ -44,6 +44,22 @@ export class OfferingRepository {
       relations: {
         breed: true,
       },
+    });
+  }
+
+  /** Swimming breed rows with a weight band (both min/max set); used instead of coat tiers only inside the band. */
+  async getSwimmingBreedWeightBandPricing(): Promise<OfferBreedPricing[]> {
+    const swimming = await this.offeringTypeormRepository.findOne({
+      where: { offeringType: OfferingType.SWIMMING },
+    });
+    if (!swimming) return [];
+    return this.offerBreedPricingTypeormRepository.find({
+      where: {
+        offering: { id: swimming.id },
+        minWeightKg: Not(IsNull()),
+        maxWeightKg: Not(IsNull()),
+      },
+      relations: { breed: true, offering: true },
     });
   }
 

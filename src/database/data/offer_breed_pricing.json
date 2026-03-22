@@ -43,10 +43,12 @@
     "breedId": 7
   },
   {
-    "normalPrice": 500,
-    "specialPrice": 500,
+    "normalPrice": 850,
+    "specialPrice": 850,
     "offeringId": 4,
-    "breedId": 8
+    "breedId": 8,
+    "minWeightKg": 10,
+    "maxWeightKg": 20
   },
   {
     "normalPrice": 500,
@@ -143,10 +145,12 @@
     "breedId": 23
   },
   {
-    "normalPrice": 650,
-    "specialPrice": 650,
+    "normalPrice": 1200,
+    "specialPrice": 1200,
     "offeringId": 4,
-    "breedId": 24
+    "breedId": 24,
+    "minWeightKg": 25,
+    "maxWeightKg": 40
   },
   {
     "normalPrice": 650,

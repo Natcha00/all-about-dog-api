@@ -109,21 +109,11 @@ async function seedDog() {
 async function seedOffering() {
   await AppDataSource.initialize();
   const offeringRepo = AppDataSource.getRepository(Offering);
-  const offerBreedPricingRepo = AppDataSource.getRepository(OfferBreedPricing);
   const offerSizePricingRepo = AppDataSource.getRepository(OfferSizePricing);
   const offerVipPricingRepo = AppDataSource.getRepository(OfferVipPricing);
   const offeringTransform = offeringData.map((o) => ({
     ...o,
     offeringType: o.offeringType as OfferingType,
-  }));
-  const offerBreedPricingTransform = offerBreedPricingData.map((op) => ({
-    ...op,
-    offering: {
-      id: op.offeringId,
-    },
-    breed: {
-      id: op.breedId,
-    },
   }));
 
   const offerVipPricingTransform = offerVipPricingData.map((op) => ({
@@ -142,11 +132,24 @@ async function seedOffering() {
   }));
 
   await offeringRepo.save(offeringTransform);
-  await offerBreedPricingRepo.save(offerBreedPricingTransform);
   await offerVipPricingRepo.save(offerVipPricingTransform);
   await offerSizePricingRepo.save(offerSizePricingTransform);
 
   console.log('🌱 MySQL offering seeding completed!');
+  await AppDataSource.destroy();
+}
+
+/** ต้อง seed offerings + breeds ก่อน (npm run seed:offerings แล้วค่อยรันคำสั่งนี้) */
+async function seedOfferBreedPricing() {
+  await AppDataSource.initialize();
+  const offerBreedPricingRepo = AppDataSource.getRepository(OfferBreedPricing);
+  const offerBreedPricingTransform = offerBreedPricingData.map((op) => ({
+    ...op,
+    offering: { id: op.offeringId },
+    breed: { id: op.breedId },
+  }));
+  await offerBreedPricingRepo.save(offerBreedPricingTransform);
+  console.log('🌱 MySQL offer breed pricing seeding completed!');
   await AppDataSource.destroy();
 }
 
@@ -416,6 +419,10 @@ async function run() {
 
     case 'offerCoatPricing':
       await seedOfferCoatPricing();
+      break;
+
+    case 'offerBreedPricing':
+      await seedOfferBreedPricing();
       break;
 
     default:

@@ -2,20 +2,28 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { CoatType } from "src/dog/enums/coat-type.enum";
 import { Offering } from "./offering.entity";
 
-@Entity()   
+@Entity()
 export class OfferCoatPricing {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    coat: CoatType
+  @Column()
+  coat: CoatType;
 
-    @Column()
-    max_weight: number
+  /**
+   * ช่วงน้ำหนัก (kg) แบบครึ่งช่วง [minWeightKg, maxWeightKg):
+   * น้ำหนักต้องเป็น weight >= min และ (maxWeightKg เป็น null หรือ weight < maxWeightKg).
+   * ตัวอย่าง: <5 → min=0,max=5 | 5-10 → min=5,max=10 | >50 → min=50,max=null
+   */
+  @Column({ type: 'double' })
+  minWeightKg: number;
 
-    @Column()
-    price: number;
+  @Column({ type: 'double', nullable: true })
+  maxWeightKg: number | null;
 
-    @ManyToOne(()=>Offering,(offering)=>offering.offerCoatPricing)
-    offering:Offering
+  @Column()
+  price: number;
+
+  @ManyToOne(() => Offering, (offering) => offering.offerCoatPricing)
+  offering: Offering;
 }

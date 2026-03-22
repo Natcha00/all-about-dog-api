@@ -13,6 +13,14 @@ export class OfferBreedPricing {
     @Column()
     specialPrice : number
 
+    /** Inclusive kg; when set with `maxWeightKg`, `normalPrice` applies only within this band (swimming). */
+    @Column({ type: 'double', nullable: true })
+    minWeightKg: number | null;
+
+    /** Inclusive kg; see `minWeightKg`. */
+    @Column({ type: 'double', nullable: true })
+    maxWeightKg: number | null;
+
     @ManyToOne(()=>Offering,(offering)=>offering.offerBreedPricing)
     offering:Offering
 

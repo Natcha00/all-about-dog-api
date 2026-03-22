@@ -34,7 +34,8 @@ export class GetManagePricingUsecase {
     const swimming: SwimmingPricingItemDto[] = swimmingCoatPricings.map((item) => ({
       pricingId: item.id,
       coat: item.coat,
-      maxWeight: item.max_weight,
+      minWeightKg: item.minWeightKg,
+      maxWeightKg: item.maxWeightKg,
       price: item.price,
     }));
 

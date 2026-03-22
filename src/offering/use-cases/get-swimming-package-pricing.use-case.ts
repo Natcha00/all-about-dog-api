@@ -15,7 +15,10 @@ import { Dog } from 'src/dog/entities/dog.entity';
 import { OfferBreedPricing } from '../entities/offer-breed-pricing.entity';
 import { Offering } from '../entities/offering.entity';
 import { OfferCoatPricing } from '../entities/offer-coat-pricing.entity';
-import { CoatType } from 'src/dog/enums/coat-type.enum';
+import {
+  buildSwimmingCoatBandsByCoat,
+  swimmingPriceForDog,
+} from '../swimming-pricing';
 
 @Injectable()
 export class GetSwimmingPackagePricingUsecase {
@@ -105,9 +108,15 @@ export class GetSwimmingPackagePricingUsecase {
       };
     });   
 
-    const offerCoatPricings =
-      await this.offeringRepository.getOfferCoatPricing();
-    const pricingItems = this.getSwimmingPricingByCoat(dogs, offerCoatPricings);
+    const [offerCoatPricings, breedBandPricings] = await Promise.all([
+      this.offeringRepository.getOfferCoatPricing(),
+      this.offeringRepository.getSwimmingBreedWeightBandPricing(),
+    ]);
+    const pricingItems = this.getSwimmingPricingByCoat(
+      dogs,
+      offerCoatPricings,
+      breedBandPricings,
+    );
     const total = pricingItems.reduce((sum, i) => sum + i.price, 0);
 
     const offering = await this.offeringRepository.getSwimmingOffering();
@@ -187,82 +196,22 @@ export class GetSwimmingPackagePricingUsecase {
     ];
   }
 
-  private getSwimmingPricingByBreed(
-    dogs: Dog[],
-    offerBreedPricings: OfferBreedPricing[],
-  ): SwimmingPricingItemDto[] {
-    const pricingByBreedId = new Map<number, number>();
-    for (const p of offerBreedPricings) {
-      if (p.breed?.id != null) {
-        pricingByBreedId.set(p.breed.id, p.normalPrice);
-      }
-    }
-    return dogs.map((d) => {
-      const breedId = d.breed?.id;
-      const price = breedId != null ? pricingByBreedId.get(breedId) ?? 0 : 0;
-      return {
-        dogId: d.id,
-        name: d.name,
-        breed: d.breed?.nameTh ?? '-',
-        coatType: d.coatType,
-        price,
-      };
-    });
-  }
-
   /**
-   * คำนวณราคาว่ายน้ำจาก coat + น้ำหนัก; ข้อยกเว้น: คอร์กี้ = 850, โกลเด้นรีทรีฟเวอร์ = 1200
+   * คำนวณราคาว่ายน้ำจาก coat + น้ำหนัก; ถ้ามี `offer_breed_pricing` ช่วง min–max kg ให้ใช้ normalPrice เฉพาะในช่วงนั้น
    */
   private getSwimmingPricingByCoat(
     dogs: Dog[],
     offerCoatPricings: OfferCoatPricing[],
+    breedBandPricings: OfferBreedPricing[],
   ): SwimmingPricingItemDto[] {
-    const tiersByCoat = new Map<
-      CoatType,
-      Array<{ max_weight: number; price: number }>
-    >();
-    for (const p of offerCoatPricings) {
-      const list = tiersByCoat.get(p.coat) ?? [];
-      list.push({ max_weight: p.max_weight, price: p.price });
-      tiersByCoat.set(p.coat, list);
-    }
-    for (const list of tiersByCoat.values()) {
-      list.sort((a, b) => a.max_weight - b.max_weight);
-    }
-
-    return dogs.map((d) => {
-      const breedName = d.breed?.nameTh?.trim() ?? '';
-      if (breedName === 'คอร์กี้') {
-        return {
-          dogId: d.id,
-          name: d.name,
-          breed: d.breed?.nameTh ?? '-',
-          coatType: d.coatType,
-          price: 850,
-        };
-      }
-      if (breedName === 'โกลเด้นรีทรีฟเวอร์') {
-        return {
-          dogId: d.id,
-          name: d.name,
-          breed: d.breed?.nameTh ?? '-',
-          coatType: d.coatType,
-          price: 1200,
-        };
-      }
-      const coat = d.coatType;
-      const weight = d.weight ?? 0;
-      const tiers = tiersByCoat.get(coat);
-      const tier = tiers?.find((t) => t.max_weight >= weight);
-      const price = tier?.price ?? 0;
-      return {
-        dogId: d.id,
-        name: d.name,
-        breed: d.breed?.nameTh ?? '-',
-        coatType: coat,
-        price,
-      };
-    });
+    const bandsByCoat = buildSwimmingCoatBandsByCoat(offerCoatPricings);
+    return dogs.map((d) => ({
+      dogId: d.id,
+      name: d.name,
+      breed: d.breed?.nameTh ?? '-',
+      coatType: d.coatType,
+      price: swimmingPriceForDog(d, bandsByCoat, breedBandPricings),
+    }));
   }
 
   private buildLines(dogs: Dog[], offering: Offering, pricingItems: SwimmingPricingItemDto[]): ReservationLineDto[] {

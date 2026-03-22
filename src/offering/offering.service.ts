@@ -21,6 +21,10 @@ export class OfferingService {
     return this.offeringRepository.getBreedPricing();
   }
 
+  async getSwimmingBreedWeightBandPricing(): Promise<OfferBreedPricing[]> {
+    return this.offeringRepository.getSwimmingBreedWeightBandPricing();
+  }
+
   async getCoatPricing(): Promise<OfferCoatPricing[]> {
     return this.offeringRepository.getOfferCoatPricing();
   } 
