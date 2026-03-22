@@ -63,7 +63,7 @@ const SERVICE_LABELS: Record<OfferingType, string> = {
 
 const STATUS_TIMELINE_LABELS: Record<ReservationStatusEnum, string> = {
   [ReservationStatusEnum.PENDING]: 'สร้างรายการจอง',
-  [ReservationStatusEnum.WAITING_SLIP]: 'รอชำระเงิน',
+  [ReservationStatusEnum.WAITING_SLIP]: 'รอแนบสลิป',
   [ReservationStatusEnum.SLIP_UPLOADED]: 'อัปโหลดสลิปแล้ว',
   [ReservationStatusEnum.PAY_AT_STORE]: 'รอชำระเงินหน้าร้าน',
   [ReservationStatusEnum.SLIP_VERIFIED]: 'ยืนยันการชำระเงินโดยพนักงาน',

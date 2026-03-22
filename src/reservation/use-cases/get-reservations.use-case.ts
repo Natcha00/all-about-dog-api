@@ -38,16 +38,19 @@ export class GetReservationsUsecase {
         : await this.reservationRepository.findAll();
 
     const counts = this.buildCounts(reservations);
-    let items = reservations.map((r) => this.toItem(r));
 
+    let forItems = reservations;
     if (tab && tab !== 'all') {
       const statusByTab = this.getStatusesByTab(tab);
       if (statusByTab.length > 0) {
-        items = items.filter((i) =>
-          statusByTab.includes(i.status as ReservationStatusEnum),
+        forItems = forItems.filter((r) =>
+          statusByTab.includes(r.status),
         );
       }
     }
+
+    forItems = this.sortByStartDateTimeUpcomingFirst(forItems);
+    const items = forItems.map((r) => this.toItem(r));
 
     return { counts, items };
   }
@@ -69,6 +72,29 @@ export class GetReservationsUsecase {
       }
     }
     return counts;
+  }
+
+  /**
+   * รายการที่ยังไม่ถึงเวลาเริ่ม (startDateTime >= now) มาก่อน เรียงจากใกล้ถึงไกล
+   * รายการที่ผ่านเวลาเริ่มแล้วอยู่ท้าย เรียงจากล่าสุดไปเก่า
+   */
+  private sortByStartDateTimeUpcomingFirst(
+    list: Reservation[],
+  ): Reservation[] {
+    const now = Date.now();
+    return [...list].sort((a, b) => {
+      const ta = new Date(a.startDateTime).getTime();
+      const tb = new Date(b.startDateTime).getTime();
+      const aPast = ta < now;
+      const bPast = tb < now;
+      if (aPast !== bPast) {
+        return aPast ? 1 : -1;
+      }
+      if (aPast) {
+        return tb - ta;
+      }
+      return ta - tb;
+    });
   }
 
   private getStatusesByTab(tab: string): ReservationStatusEnum[] {
