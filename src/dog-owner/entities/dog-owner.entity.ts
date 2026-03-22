@@ -16,7 +16,7 @@ export class DogOwner {
   @Column()
   lastName: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   email: string;
 
   @Column()
@@ -25,10 +25,10 @@ export class DogOwner {
   @Column()
   phoneNumber: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   address: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   profilePictureUrl: string;
 
   @Column({ default: false })

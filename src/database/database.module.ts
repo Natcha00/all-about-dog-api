@@ -52,7 +52,7 @@ import { OfferCoatPricing } from 'src/offering/entities/offer-coat-pricing.entit
           Staff,
           News
         ],
-        synchronize:false,
+        synchronize:true,
         logging: configService.get<boolean>('DB_LOGGING', false),
       }),
     }),

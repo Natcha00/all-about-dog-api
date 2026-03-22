@@ -31,14 +31,14 @@ export class DogProfileSection {
 export class DogProfileGeneral {
   name: string;
   gender: string;
-  age: string;
+  age: string | null;
   weightKg: string;
-  heightCm: string;
+  heightCm: string | null;
   breed: string;
-  color: string;
+  color: string | null;
   coatType: string;
   size: string;
-  birthday: string;
+  birthday: string | null;
 }
 
 export class DogProfileCareInfo {

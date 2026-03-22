@@ -242,7 +242,7 @@ export class GetAnnouncementUsecase {
     const result = offerings.map((o) => {
       return {
         priceLabel: `${o.name} (${o.maxCapacity} ห้อง)`,
-        description: o.description,
+        description: o.description ?? '',
         breeds: [
           `คืนละ ${o.isVip ? o.offerVipPricing?.normalPrice : o.offerSizePricing?.normalPrice} ต่อคืน`,
           `ตัวที่ 2 นอนด้วยกัน ตัวละ ${o.isVip ? o.offerVipPricing?.specialPrice : o.offerSizePricing?.specialPrice} ต่อคืน`,

@@ -29,8 +29,9 @@ export class Dog {
   @Column()
   gender: string;
 
-  @Column()
-  color: string;
+  /** Explicit type: union `string | null` is otherwise inferred as Object on MySQL */
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  color: string | null;
 
   @Column({ type: 'enum', enum: CoatType })
   coatType: CoatType;
@@ -38,8 +39,8 @@ export class Dog {
   @Column()
   weight: number;
 
-  @Column()
-  height: number;
+  @Column({ type: 'double', nullable: true })
+  height: number | null;
 
   @Column({ type: 'date', nullable: true })
   birthdate: Date | null;
