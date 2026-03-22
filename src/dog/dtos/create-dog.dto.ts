@@ -94,9 +94,10 @@ export class CreateDogDto {
   @IsOptional()
   height?: number;
 
+  @IsOptional()
+  @Transform(({ value }) => (value === '' || value == null ? undefined : value))
   @Type(() => Date)
   @IsDate()
-  @IsOptional()
   birthdate?: Date;
 
   @IsOptional()

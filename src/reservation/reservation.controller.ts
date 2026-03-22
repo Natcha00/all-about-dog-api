@@ -41,6 +41,8 @@ import { CancelReservationRequest } from './dtos/cancel-reservation.dto';
 import { CancelReservationUsecase } from './use-cases/cancel-reservation.use-case';
 import { ROLE } from 'src/user/enums/role.enum';
 import { StaffDecorator } from 'src/staff/decorators/staff.decorator';
+import { SelectPaymentMethodUsecase } from './use-cases/select-payment-method.use-case';
+import { SelectPaymentMethodRequest } from './dtos/select-payment-method.dto';
 
 @Controller('reservation')
 export class ReservationController {
@@ -57,6 +59,7 @@ export class ReservationController {
     private readonly checkOutReservationUsecase: CheckOutReservationUsecase,
     private readonly searchReservationsUsecase: SearchReservationsUsecase,
     private readonly cancelReservationUsecase: CancelReservationUsecase,
+    private readonly selectPaymentMethodUsecase: SelectPaymentMethodUsecase,
   ) {}
 
   @Get()
@@ -249,6 +252,37 @@ console.log("dogName", query.dogName, Buffer.from(query.dogName || "", "utf8"));
     @StaffDecorator() user: IUser,
   ): Promise<{ success: boolean }> {
     return this.verifyPaymentSlipUsecase.execute(body.code, user.id);
+  }
+
+  @Post('payment/select')
+  @UseGuards(AccessTokenGuard)
+  async selectPaymentMethod(
+    @Body() body: SelectPaymentMethodRequest,
+    @DogOwnerDecorator() user: IUser,
+  ): Promise<{ success: boolean }> {
+    let dogOwnerId: number;
+    let performedByStaff = false;
+    if (user.role === ROLE.DOG_OWNER) {
+      dogOwnerId = user.id;
+    } else if (user.role === ROLE.STAFF || user.role === ROLE.ADMIN) {
+      if (body.dogOwnerId == null) {
+        throw new BadRequestException(
+          'กรุณาระบุ dogOwnerId เมื่อเลือกวิธีชำระเงินจากฝั่ง staff',
+        );
+      }
+      dogOwnerId = body.dogOwnerId;
+      performedByStaff = true;
+    } else {
+      throw new BadRequestException('ไม่สามารถเลือกวิธีชำระเงินสำหรับ role นี้ได้');
+    }
+
+    return this.selectPaymentMethodUsecase.execute(
+      body.code,
+      body.method,
+      dogOwnerId,
+      user.id,
+      performedByStaff,
+    );
   }
 
   @Post('checkin')

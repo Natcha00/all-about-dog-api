@@ -77,6 +77,7 @@ export class GetReservationDetailTimelineItemDto {
 
 export class GetReservationDetailResultResponse {
   bookingCode: string;
+  paymentMethod: 'cash' | 'slip' | null;
   status: ReservationStatusEnum;
   statusLabel: string;
   statusHint: string;

@@ -172,6 +172,7 @@ export class GetReservationDetailUsecase {
 
     return {
       bookingCode: r.code,
+      paymentMethod: this.resolvePaymentMethod(r),
       status: r.status,
       statusLabel: STATUS_LABELS[r.status] ?? r.status,
       statusHint: STATUS_HINTS[r.status] ?? '',
@@ -187,6 +188,21 @@ export class GetReservationDetailUsecase {
       slip,
       timeline,
     };
+  }
+
+  private resolvePaymentMethod(r: Reservation): 'cash' | 'slip' | null {
+    if (r.paymentSlip?.slipUrl) {
+      return 'slip';
+    }
+
+    const selectedCash = (r.statusLogs ?? []).some(
+      (log) => (log.label ?? '').trim() === 'เลือกชำระเงินสดหน้างาน',
+    );
+    if (selectedCash) {
+      return 'cash';
+    }
+
+    return null;
   }
 
   private buildGroups(r: Reservation): GetReservationDetailGroupDto[] {

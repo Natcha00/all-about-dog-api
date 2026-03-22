@@ -196,7 +196,7 @@ export class GetAnnouncementUsecase {
         // 'VIP เหมารอบไม่มีค่ายบริการเพิ่ม แต่ต้องเป็นรอบที่ว่างสนิท',
       ],
       pricingTitle: 'อัตราค่าบริการ',
-      pricingNote: `ราคาว่ายน้ำเริ่มต้นที่ ${minPrice} บาท ขึ้นกับน้ำหนักและขนาดสายพันธุ์`,
+      pricingNote: `ราคาว่ายน้ำเริ่มต้นที่ ${minPrice} บาท (ราคาประมาณ) ขึ้นกับน้ำหนักและขนาดสายพันธุ์ ชำระเงินหน้างาน`,
       contents,
       conditionTitle: 'ข้อกำหนดการให้บริการ',
       conditions: [
