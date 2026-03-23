@@ -10,6 +10,7 @@ import { StaffModule } from './staff/staff.module';
 import { MailModule } from './mail/mail.module';
 import { NewsModule } from './news/news.module';
 import { ReportModule } from './report/report.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ReportModule } from './report/report.module';
     StaffModule,
     NewsModule,
     ReportModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
