@@ -171,21 +171,29 @@ export class CreateReservationUsecase {
       offerings,
       packageType,
     );
-    return this.buildLinesFromAssignDogs(assignDogs, nights);
+    return this.buildLinesFromAssignDogs(assignDogs, nights, packageType);
   }
 
-  /** One line per dog per group; price = pricePerNight, quantity = nights */
+  /** One line per dog per group; shared/vip use specialPrice for 2nd+ dog in each group */
   private buildLinesFromAssignDogs(
     assignDogs: AssignDogs,
     nights: number,
+    packageType: OfferingPackage,
   ): ReservationLineInput[] {
     const lines: ReservationLineInput[] = [];
     let groupNumber = 0;
     for (const [, offerAssign] of assignDogs) {
       for (const set of offerAssign.set) {
         groupNumber++;
-        const pricePerNight = offerAssign.pricePerNight.normalPrice;
-        for (const dog of set) {
+        const dogsInGroup = Array.from(set);
+        for (let i = 0; i < dogsInGroup.length; i++) {
+          const dog = dogsInGroup[i];
+          const pricePerNight =
+            (packageType === OfferingPackage.SHARED ||
+              packageType === OfferingPackage.VIP) &&
+            i > 0
+              ? offerAssign.pricePerNight.specialPrice
+              : offerAssign.pricePerNight.normalPrice;
           lines.push({
             offeringId: offerAssign.id,
             dogId: dog.id,

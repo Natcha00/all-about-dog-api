@@ -11,6 +11,7 @@ import { Offering } from '../entities/offering.entity';
 import { DogService } from 'src/dog/services/dog.service';
 import { OfferingRepository } from '../offering.repository';
 import { ReservationService } from 'src/reservation/reservation.service';
+import { OfferingPackage } from '../enums/offering-package.enum';
 
 @Injectable()
 export class GetBoardingPackagePricingUsecase {
@@ -49,7 +50,13 @@ export class GetBoardingPackagePricingUsecase {
 
     const dogLines = Array.from(assignDogs.values()).flatMap((offer) =>
       offer.set.flatMap((set) =>
-        Array.from(set).map((dog) => {
+        Array.from(set).map((dog, indexInGroup) => {
+          const perNight =
+            (request.package === OfferingPackage.SHARED ||
+              request.package === OfferingPackage.VIP) &&
+            indexInGroup > 0
+              ? offer.pricePerNight.specialPrice
+              : offer.pricePerNight.normalPrice;
           const groupNumber = groupNumberByDogId.get(dog.id) ?? 0;
           return {
             dogId: dog.id,
@@ -58,8 +65,8 @@ export class GetBoardingPackagePricingUsecase {
             sizeLabel: dog.breed.size,
             breed: dog.breed.nameTh,
             size: dog.breed.size,
-            perNight: offer.pricePerNight.normalPrice,
-            subtotal: offer.pricePerNight.normalPrice * nights,
+            perNight,
+            subtotal: perNight * nights,
           };
         }),
       ),
@@ -68,7 +75,7 @@ export class GetBoardingPackagePricingUsecase {
     const total = dogLines.reduce((sum, d) => sum + d.subtotal, 0);
 
     // lines สำหรับเอาไปบันทึก reservation_line (หนึ่ง line ต่อหนึ่ง dog ต่อหนึ่ง offering)
-    const lines = this.buildLinesFromAssignDogs(assignDogs, nights);
+    const lines = this.buildLinesFromAssignDogs(assignDogs, nights, request.package);
 
     return {
       offerType: request.offeringType,
@@ -89,14 +96,22 @@ export class GetBoardingPackagePricingUsecase {
   private buildLinesFromAssignDogs(
     assignDogs: AssignDogs,
     nights: number,
+    packageType: OfferingPackage,
   ): ReservationLineDto[] {
     const lines: ReservationLineDto[] = [];
     let groupNumber = 0;
     for (const [, offerAssign] of assignDogs) {
       for (const set of offerAssign.set) {
         groupNumber++;
-        const pricePerNight = offerAssign.pricePerNight.normalPrice;
-        for (const dog of set) {
+        const dogsInGroup = Array.from(set);
+        for (let i = 0; i < dogsInGroup.length; i++) {
+          const dog = dogsInGroup[i];
+          const pricePerNight =
+            (packageType === OfferingPackage.SHARED ||
+              packageType === OfferingPackage.VIP) &&
+            i > 0
+              ? offerAssign.pricePerNight.specialPrice
+              : offerAssign.pricePerNight.normalPrice;
           lines.push({
             offeringId: offerAssign.id,
             dogId: dog.id,

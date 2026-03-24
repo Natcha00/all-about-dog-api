@@ -89,7 +89,7 @@ export class GetBoardingAvailableUsecase {
         - Dogs are categorized as small or large.
         - Customers can choose either:
             • Standard accommodation (one dog per room), or
-            • Shared accommodation (two dogs per room at a discounted price).
+            • Shared accommodation (small: 3 dogs/room, large: 2 dogs/room).
     */
 
     // assign dogs to offerings

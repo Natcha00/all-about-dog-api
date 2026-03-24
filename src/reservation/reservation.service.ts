@@ -20,8 +20,8 @@ import { Slot } from 'src/offering/types/slot.type';
 
 @Injectable()
 export class ReservationService {
-  private readonly MAXIMUM_SHARED = 2;
-  private readonly MAXIMUM_VIP_SHARED = 5;
+  private readonly MAXIMUM_SHARED_LARGE = 2;
+  private readonly MAXIMUM_SHARED_SMALL = 3;
   private readonly MAXIMUM_SWIMMING_CAPACITY = 5;
   private readonly SWIMMING_HOURS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
   private readonly BOARDING_MAX_CAPACITY: BoardingCounter = {
@@ -49,6 +49,12 @@ export class ReservationService {
       normalPrice: offer.offerSizePricing?.normalPrice ?? 0,
       specialPrice: offer.offerSizePricing?.specialPrice ?? 0,
     };
+  }
+
+  private getSharedRoomLimit(offer: Offering): number {
+    const size = offer.offerSizePricing?.size?.toUpperCase();
+    if (size === 'SMALL') return this.MAXIMUM_SHARED_SMALL;
+    return this.MAXIMUM_SHARED_LARGE;
   }
 
   assignDogs(
@@ -90,6 +96,7 @@ export class ReservationService {
           });
         }
         const newSet: Set<Dog> = new Set();
+        const sharedRoomLimit = this.getSharedRoomLimit(offer);
 
         for (const dog of dogs) {
           if (dog.breed.size != offer.offerSizePricing?.size) {
@@ -97,7 +104,7 @@ export class ReservationService {
           }
           newSet.add(dog);
 
-          if (newSet.size >= this.MAXIMUM_SHARED) {
+          if (newSet.size >= sharedRoomLimit) {
             const found = result.get(offer.id);
             if (found) {
               found.set.push(new Set(newSet));
@@ -129,11 +136,6 @@ export class ReservationService {
         const newSet: Set<Dog> = new Set();
 
         for (const dog of dogs) {
-          if (newSet.size > this.MAXIMUM_VIP_SHARED) {
-            throw new BadRequestException(
-              'vip boarding must be less than 5 dogs',
-            );
-          }
           newSet.add(dog);
         }
         const found = result.get(offer.id);
