@@ -1,0 +1,31 @@
+services:
+  api:
+    image: natcha01/all-about-dog-api:latest
+    container_name: all-about-dog-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+
+  frontend:
+    image: natcha01/all-about-dog-frontend:latest
+    container_name: all-about-dog-frontend
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_BACKEND_API_URL: http://api:8080
+
+  staff:
+    image: natcha01/all-about-dog-staff:latest
+    container_name: all-about-dog-staff
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "3001:3000"
+    environment:
+      NEXT_BACKEND_API_URL: http://api:8080
