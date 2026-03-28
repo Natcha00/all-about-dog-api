@@ -11,6 +11,10 @@ import { OfferingRepository } from '../offering.repository';
 import { ReservationService } from 'src/reservation/reservation.service';
 import { ReservationStatusEnum } from 'src/reservation/enums/reservation-status.enum';
 
+/**
+ * ตรวจความว่างฝากเลี้ยงก่อนจอง — เทียบความต้องการห้อง (need หลัง assign สุนัข)
+ * กับจำนวนห้องที่ถูกใช้แล้วรายคืน แล้วสรุปว่าง/ไม่ว่างทั้งช่วง
+ */
 @Injectable()
 export class GetBoardingAvailableUsecase {
   constructor(
@@ -73,26 +77,12 @@ export class GetBoardingAvailableUsecase {
     getBoardingAvailableRequest: GetBoardingAvailableRequest,
     dogOwnerId: number,
   ) {
-    //query dogs
     const dogs = await this.dogService.getDogByIds(
       getBoardingAvailableRequest.dogIds,
       dogOwnerId,
     );
 
-    /* 
-        Match dogs with available offerings.
-        Offerings are divided into:
-        - Swimming offering
-        - Boarding offering
-
-        For boarding offering:
-        - Dogs are categorized as small or large.
-        - Customers can choose either:
-            • Standard accommodation (one dog per room), or
-            • Shared accommodation (small: 3 dogs/room, large: 2 dogs/room).
-    */
-
-    // assign dogs to offerings
+    /** ความต้องการห้องต่อคืน (LARGE/SMALL/VIP): assign สุนัขตามแพ็กเกจแล้วสรุป */
     const offerings = await this.offeringRepository.getBoardingOffering();
     const assignDogs = this.reservationService.assignDogs(
       dogs,
@@ -101,7 +91,7 @@ export class GetBoardingAvailableUsecase {
     );
     const need = this.reservationService.boardingSummary(assignDogs);
 
-    // count nights
+    /** จำนวนคืนในช่วงที่เลือก */
     const nights = this.reservationService.countByRange(
       {
         start: getBoardingAvailableRequest.start,
@@ -110,17 +100,17 @@ export class GetBoardingAvailableUsecase {
       OfferingType.BOARDING,
     );
 
-    // get reservations by period
+    /** ดึงการจองทุกประเภทในช่วงวันที่ (ใช้สรุปยอดใช้ห้องฝากเลี้ยง) */
     const reservations = await this.reservationService.getReservationByPeriod(
       new Date(getBoardingAvailableRequest.start),
       new Date(getBoardingAvailableRequest.end),
     );
 
-    // summarize boarding by date
+    /** สรุปว่าแต่ละวันมีห้องถูกใช้ LARGE/SMALL/VIP ไปเท่าใดแล้ว */
     const allSummaries =
       this.reservationService.summarizeBoardingByDate(reservations);
 
-    // แสดงเฉพาะช่วงวันที่ user เลือก (start <= date < end)
+    /** เฉพาะคืนในช่วงที่ user เลือก: start ถึงก่อนวัน checkout (ไม่รวมวัน checkout) */
     const startStr = getBoardingAvailableRequest.start.slice(0, 10);
     const endStr = getBoardingAvailableRequest.end.slice(0, 10);
     const summaryByDate = new Map<string, BoardingCounter>(
@@ -132,12 +122,17 @@ export class GetBoardingAvailableUsecase {
       summaryByDate,
     );
 
+    /**
+     * เช็กว่าง/ไม่ว่างจริง: เทียบ need กับยอดใช้รายคืนใน boardingSummariesInRange
+     * available = true เมื่อทุกคืนผ่าน (fails ทุกรายการ status === 'sufficient')
+     */
     const fails = this.reservationService.checkBoardingAvailability(
       assignDogs,
       boardingSummariesInRange,
     );
     const available = fails.every((f) => f.status === 'sufficient');
 
+    /** แยกจากคำว่า “ห้องเต็ม”: ตรวจว่าสุนัขในคำขอมีการจองฝากเลี้ยงทับช่วงนี้อยู่แล้วหรือไม่ */
     const dogIdSet = new Set(getBoardingAvailableRequest.dogIds);
     const activeBoardingReservations = reservations.filter(
       (r) =>
@@ -165,6 +160,7 @@ export class GetBoardingAvailableUsecase {
       ),
     );
 
+    // message/hint มาจาก available — ว่างทั้งช่วง vs มีอย่างน้อย 1 คืนที่ไม่พอ
     const result: GetBoardingAvailableResponse = {
       available,
       message: this.getBoardingAvailabilityMessage(available).message,
@@ -183,6 +179,7 @@ export class GetBoardingAvailableUsecase {
     return result;
   }
 
+  /** ข้อความสรุปผลการเช็กความว่าง (ไม่เกี่ยวกับ hasDogInReservationInPeriod) */
   private getBoardingAvailabilityMessage(isAvailable: boolean): {
     message: string;
     hint: string;

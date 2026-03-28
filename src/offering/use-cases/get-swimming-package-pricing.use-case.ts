@@ -20,6 +20,11 @@ import {
   swimmingPriceForDog,
 } from '../swimming-pricing';
 
+/**
+ * คำนวณราคา + สล็อตว่ายน้ำของวันที่เลือก (preview ก่อนจอง)
+ * flow: โหลดสุนัข → ดึงจองทั้งวัน → สรุปจำนวนต่อชั่วโมง/ที่เหลือ → ทำเครื่องหมายรอบที่สุนัขเคยจอง
+ * → คำนวณราคาต่อตัว (coat + น้ำหนัก) → สร้าง lines คู่กับ CreateReservationUsecase
+ */
 @Injectable()
 export class GetSwimmingPackagePricingUsecase {
   constructor(
@@ -33,6 +38,7 @@ export class GetSwimmingPackagePricingUsecase {
     dogOwnerId: number,
   ): Promise<GetSwimmingPackagePricingResponse> {
     const dogs = await this.dogService.getDogByIds(request.dogIds, dogOwnerId);
+    /** สรุปจำนวนสุนัขตามขนาด + ข้อความสำหรับ UI */
     const smallCount = dogs.filter((d) => d.breed?.size === 'small').length;
     const largeCount = dogs.filter((d) => d.breed?.size === 'large').length;
     const totalPets = dogs.length;
@@ -43,7 +49,7 @@ export class GetSwimmingPackagePricingUsecase {
       ? `สุนัขของฉันขนาด ${labelParts.join(' • ')}`
       : 'สุนัข';
 
-    // get reservations by period
+    /** ดึงการจองว่ายน้ำทั้งวันของวันที่ request (ใช้สรุป capacity รายชั่วโมง) */
     const start = new Date(request.date);
     start.setHours(0, 0, 0, 0);
     const end = new Date(request.date);
@@ -57,22 +63,26 @@ export class GetSwimmingPackagePricingUsecase {
     const reservationsForSummary = reservations;
 
     const dogIdSet = new Set(request.dogIds);
+    /** ไม่นับ cancelled — ใช้คู่กับการเช็กซ้ำ/เคยจอง */
     const activeReservations = reservations.filter(
       (r) => r.status !== ReservationStatusEnum.CANCELLED,
     );
+    /** true ถ้ามีสุนัขใน request อยู่ในจองใดๆ ของวันนี้ (แยกจาก “สระเต็ม”) */
     const hasDogInReservationInPeriod = activeReservations.some((r) =>
       (r.reservationLines ?? []).some(
         (line) => line.dog?.id != null && dogIdSet.has(line.dog.id),
       ),
     );
 
+    /** นับ LARGE/SMALL ต่อชั่วโมงจากจองที่สถานะนับเข้าสระแล้ว */
     const swimmingSummaries =
       this.reservationService.summarizeSwimmingByHour(reservationsForSummary);
 
+    /** ที่ว่าง/เต็มต่อรอบเวลามาตรฐาน (ยังไม่รวมจำนวนสุนัขของคำขอนี้) */
     const slotsRaw = this.reservationService.checkSwimmingAvailability(
       swimmingSummaries,
     );
-    // ปิดรอบที่สุนัข (ใน request.dogIds) เคยจองแล้วในวันเดียวกัน (non-cancelled เท่านั้น)
+    /** แต่ละรอบ: สุนัขใน request เคยมีจองทับช่วงนั้นในวันเดียวกันหรือไม่ (active เท่านั้น) */
     const isEverReservedByTime = new Map<string, boolean>();
     for (const slot of slotsRaw) {
       const hourStr = slot.time.split(':')[0];
@@ -98,6 +108,7 @@ export class GetSwimmingPackagePricingUsecase {
     const summaryByHour = new Map(
       swimmingSummaries.map((s) => [s.hour, s.swimmingCounter]),
     );
+    /** เติม isFull โดยเทียบ “จำนวนสุนัขในคำขอ” กับที่เหลือในรอบ; แยกจาก isEverReserved */
     const slots = slotsRaw.map((slot) => {
       const counter = summaryByHour.get(slot.time) ?? { LARGE: 0, SMALL: 0 };
       return {
@@ -106,8 +117,9 @@ export class GetSwimmingPackagePricingUsecase {
         sizeBooked: { large: counter.LARGE, small: counter.SMALL },
         isEverReserved: isEverReservedByTime.get(slot.time) ?? false,
       };
-    });   
+    });
 
+    /** ราคาต่อตัวจาก coat + แบนด์น้ำหนัก */
     const [offerCoatPricings, breedBandPricings] = await Promise.all([
       this.offeringRepository.getOfferCoatPricing(),
       this.offeringRepository.getSwimmingBreedWeightBandPricing(),
@@ -120,9 +132,10 @@ export class GetSwimmingPackagePricingUsecase {
     const total = pricingItems.reduce((sum, i) => sum + i.price, 0);
 
     const offering = await this.offeringRepository.getSwimmingOffering();
-    if (!offering) { 
-        throw new NotFoundException('Swimming offering not found');
+    if (!offering) {
+      throw new NotFoundException('Swimming offering not found');
     }
+    /** โครงเดียวกับตอนสร้างจองว่ายน้ำ: หนึ่ง line ต่อสุนัข quantity = 1 */
     const lines = this.buildLines(dogs, offering, pricingItems);
 
     return {
@@ -146,13 +159,14 @@ export class GetSwimmingPackagePricingUsecase {
         total,
       },
       lines,
-      hasDogInReservationInPeriod, // ใช้คู่กับ FE (เช่น แสดงว่าเคยจองแล้ว)
+      /** FE: แจ้งเตือนว่าสุนัขมีจองทับวันนี้อยู่แล้ว (ไม่ใช่แค่สระเต็ม) */
+      hasDogInReservationInPeriod,
     };
   }
 
   /**
-   * Mock reservations for testing summarizeSwimmingByHour.
-   * offering.id 1 = LARGE, 2 = SMALL (per reservation.service).
+   * ข้อมูลจำลองสำหรับทดสอบ summarizeSwimmingByHour (ยังไม่ถูกเรียกจาก execute)
+   * offering id ใน mock เป็น offering ว่ายน้ำ; ขนาดนับจาก dog.breed.size
    */
   private buildMockSwimmingReservations(dateStr: string): Reservation[] {
     const base = new Date(dateStr);
@@ -214,6 +228,7 @@ export class GetSwimmingPackagePricingUsecase {
     }));
   }
 
+  /** แปลงรายการสุนัข + ราคาที่คำนวณแล้ว เป็น ReservationLineDto สำหรับบันทึก DB */
   private buildLines(dogs: Dog[], offering: Offering, pricingItems: SwimmingPricingItemDto[]): ReservationLineDto[] {
     const lines: ReservationLineDto[] = [];
     for (const [index,dog] of dogs.entries()) {

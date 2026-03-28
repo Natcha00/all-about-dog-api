@@ -20,6 +20,7 @@ import { Slot } from 'src/offering/types/slot.type';
 
 @Injectable()
 export class ReservationService {
+  /** ความจุพื้นฐานของแต่ละบริการ/แพ็กเกจ */
   private readonly MAXIMUM_SHARED_LARGE = 2;
   private readonly MAXIMUM_SHARED_SMALL = 3;
   private readonly MAXIMUM_SWIMMING_CAPACITY = 5;
@@ -198,10 +199,12 @@ export class ReservationService {
     assignDogs: AssignDogs,
     boardingSummaries: BoardingSummary[],
   ): FailDetail[] {
+    // need = ห้องที่คำขอนี้ต้องใช้เพิ่มต่อคืน (ยังไม่รวมของเดิมที่จองไว้)
     const need = this.boardingSummary(assignDogs);
     const max = this.BOARDING_MAX_CAPACITY;
 
     return boardingSummaries.map((summary) => {
+      // used = ห้องที่ถูกใช้แล้วในวันนั้น
       const used = summary.boardingCounter;
       const left: BoardingCounter = {
         LARGE: Math.max(0, max.LARGE - used.LARGE),
@@ -222,6 +225,7 @@ export class ReservationService {
   }
 
   checkSwimmingAvailability(swimmingSummaries: SwimmingSummary[]): Slot[] {
+    // รวมยอดจองรายชั่วโมง เพื่อเอาไป map กับชั่วโมงมาตรฐานของสระ
     const summaryByHour = new Map(
       swimmingSummaries.map((s) => [s.hour, s.swimmingCounter]),
     );
@@ -281,6 +285,7 @@ export class ReservationService {
   summarizeBoardingByDate(
     reservations: Array<Reservation>,
   ): Array<BoardingSummary> {
+    // key: YYYY-MM-DD, value: จำนวนห้องที่ถูกใช้แล้วในวันนั้น (แยก LARGE/SMALL/VIP)
     const resultMap = new Map<string, BoardingCounter>();
 
     for (const reservation of reservations) {
@@ -298,7 +303,7 @@ export class ReservationService {
       checkout.setHours(0, 0, 0, 0);
       checkout.setHours(checkout.getHours() + 7);
 
-      // 🔥 กัน groupNumber ซ้ำ (1 group = 1 ห้อง)
+      // 1 groupNumber = 1 ห้อง, กันการนับซ้ำเมื่อมีหลาย line อยู่ห้องเดียวกัน
       const grouped = new Map<number, number>();
       // key = groupNumber, value = offeringId
 
@@ -443,6 +448,7 @@ export class ReservationService {
       OfferingType.SWIMMING,
     );
 
+    // นับจำนวนสุนัขที่ "ทับเวลา" กับรอบที่กำลังตรวจเท่านั้น
     let large = 0;
     let small = 0;
     const addLines = (r: Reservation) => {
@@ -458,9 +464,11 @@ export class ReservationService {
       if (!countsTowardSwimmingPoolCapacity(r.status)) continue;
       const rStart = new Date(r.startDateTime);
       const rEnd = new Date(r.endDateTime);
+      // ไม่ทับเวลา => ไม่นับรวม capacity รอบนี้
       if (rEnd <= resStart || rStart >= resEnd) continue;
       addLines(r);
     }
+    // รวมสุนัขของรายการที่กำลังจะอนุมัติ/เปลี่ยนสถานะด้วย
     addLines(reservation);
 
     if (large + small > this.MAXIMUM_SWIMMING_CAPACITY) {
@@ -471,6 +479,7 @@ export class ReservationService {
   }
 
   private boardingNeedPerNight(reservation: Reservation): BoardingCounter {
+    // แปลง reservationLines เป็น "จำนวนห้องที่ต้องใช้ต่อคืน" ของรายการนี้
     const grouped = new Map<number, number>();
     for (const line of reservation.reservationLines ?? []) {
       if (!grouped.has(line.groupNumber)) {
@@ -502,6 +511,7 @@ export class ReservationService {
         String(r.id) !== String(reservation.id) &&
         countsTowardBoardingRoomCapacity(r.status),
     );
+    // used ต่อวัน (ไม่รวมรายการปัจจุบัน)
     const summaries = this.summarizeBoardingByDate(others);
     const byDate = new Map(
       summaries.map((s) => [s.date, s.boardingCounter]),
@@ -520,6 +530,7 @@ export class ReservationService {
 
     const max = this.BOARDING_MAX_CAPACITY;
 
+    // เดินทีละคืนตั้งแต่ check-in date จนก่อน checkout date
     while (current.getTime() < checkout.getTime()) {
       const dateKey = current.toISOString().split('T')[0];
       const used = byDate.get(dateKey) ?? { LARGE: 0, SMALL: 0, VIP: 0 };

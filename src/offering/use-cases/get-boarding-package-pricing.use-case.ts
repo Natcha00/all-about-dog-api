@@ -13,6 +13,10 @@ import { OfferingRepository } from '../offering.repository';
 import { ReservationService } from 'src/reservation/reservation.service';
 import { OfferingPackage } from '../enums/offering-package.enum';
 
+/**
+ * คำนวณราคาแพ็กเกจฝากเลี้ยงก่อนจอง (preview) — logic เดียวกับตอนสร้างจองใน CreateReservationUsecase
+ * flow: นับคืน → โหลดสุนัข → assign ห้องตามแพ็กเกจ → สร้างกลุ่ม/บรรทัดราคา → สรุปยอด + payload สำหรับบันทึก reservation_line
+ */
 @Injectable()
 export class GetBoardingPackagePricingUsecase {
   constructor(
@@ -25,15 +29,14 @@ export class GetBoardingPackagePricingUsecase {
     request: GetBoardingPackagePricingRequest,
     dogOwnerId: number,
   ): Promise<GetBoardingPackagePricingResponse> {
-    // count nights
+    /** จำนวนคืนฝากเลี้ยงในช่วง start–end */
     const nights = this.reservationService.countByRange(
       { start: request.start, end: request.end },
       request.offeringType,
     );
-    // query dogs
     const dogs = await this.dogService.getDogByIds(request.dogIds, dogOwnerId);
 
-    // assign dogs to offerings
+    /** จัดสุนัขเข้าห้องตามแพ็กเกจ (standard / shared / vip) — ได้ AssignDogs เป็น Map ต่อ offering */
     const offerings = await this.offeringRepository.getBoardingOffering();
     const assignDogs = this.reservationService.assignDogs(
       dogs,
@@ -41,13 +44,14 @@ export class GetBoardingPackagePricingUsecase {
       request.package,
     );
 
-    // สร้าง groups จาก assignDogs (แต่ละ set = 1 group)
+    /** กลุ่มห้องสำหรับ UI: แต่ละ set ใน assignDogs = 1 group = 1 ห้อง */
     const groups = this.buildGroupsFromAssignDogs(assignDogs, offerings);
     const groupNumberByDogId = new Map<number, number>();
     groups.forEach((g) => {
       g.dogIds.forEach((d) => groupNumberByDogId.set(d.dogId, g.groupNumber));
     });
 
+    /** รายละเอียดราคาต่อสุนัข: shared/vip ตัวที่ 2 ในกลุ่มใช้ specialPrice × จำนวนคืน */
     const dogLines = Array.from(assignDogs.values()).flatMap((offer) =>
       offer.set.flatMap((set) =>
         Array.from(set).map((dog, indexInGroup) => {
@@ -74,7 +78,7 @@ export class GetBoardingPackagePricingUsecase {
 
     const total = dogLines.reduce((sum, d) => sum + d.subtotal, 0);
 
-    // lines สำหรับเอาไปบันทึก reservation_line (หนึ่ง line ต่อหนึ่ง dog ต่อหนึ่ง offering)
+    /** โครงเดียวกับตอนสร้างจอง: หนึ่งบรรทัดต่อสุนัข × quantity = คืน */
     const lines = this.buildLinesFromAssignDogs(assignDogs, nights, request.package);
 
     return {
@@ -92,7 +96,7 @@ export class GetBoardingPackagePricingUsecase {
     };
   }
 
-  /** สร้าง lines สำหรับบันทึก ReservationLine (หนึ่ง line ต่อหนึ่ง dog ในแต่ละ group) */
+  /** แปลง assignDogs เป็น ReservationLineDto สำหรับบันทึก DB — หนึ่ง line ต่อสุนัขต่อกลุ่ม */
   private buildLinesFromAssignDogs(
     assignDogs: AssignDogs,
     nights: number,
@@ -125,7 +129,7 @@ export class GetBoardingPackagePricingUsecase {
     return lines;
   }
 
-  /** แปลง assignDogs เป็น GroupDto[] (แต่ละ set = 1 group) */
+  /** แปลง assignDogs เป็น GroupDto[] สำหรับแสดงผล — แต่ละ set = ห้องหนึ่งห้อง */
   private buildGroupsFromAssignDogs(
     assignDogs: AssignDogs,
     offerings: Offering[],
@@ -144,7 +148,7 @@ export class GetBoardingPackagePricingUsecase {
           groupNumber,
           offerCode,
           offerLabel: `${offerAssign.name} • ห้อง ${i + 1}`,
-          capacity: set.size, // จำนวนหมาที่อยู่ในห้องนี้
+          capacity: set.size, // จำนวนสุนัขในห้องนี้
           dogIds: Array.from(set).map(
             (dog): GroupDogDto => ({
               dogId: dog.id,

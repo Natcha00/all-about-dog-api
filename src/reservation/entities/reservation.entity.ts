@@ -9,7 +9,6 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { CheckinHistory } from './checkin-history.entity';
 import { PaymentSlip } from './payment-slip.entity';
 import { ReservationStatusLog } from './reservation-status-log.entity';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
@@ -43,12 +42,6 @@ export class Reservation {
     { cascade: true },
   )
   reservationLines: Array<ReservationLine>;
-
-  @OneToMany(
-    () => CheckinHistory,
-    (checkinHistory) => checkinHistory.reservation,
-  )
-  checkinHistories: Array<CheckinHistory>;
 
   @OneToMany(
     () => ReservationStatusLog,

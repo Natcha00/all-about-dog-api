@@ -44,6 +44,7 @@ export class VerifyPaymentSlipUsecase {
     slip.updateBy = String(staffId);
     await this.paymentSlipRepository.save(slip);
 
+      /** ฝากเลี้ยง: check slot/ห้องก่อนยืนยันสลิป — กันจองเกินความจุช่วงวันที่ */
     if (reservation.offeringType === OfferingType.BOARDING) {
       await this.reservationService.assertBoardingReservationFits(reservation);
     }

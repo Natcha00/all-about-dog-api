@@ -11,7 +11,6 @@ import { OfferBreedPricing } from 'src/offering/entities/offer-breed-pricing.ent
 import { OfferSizePricing } from 'src/offering/entities/offer-size-pricing.entity';
 import { OfferVipPricing } from 'src/offering/entities/offer-vip-pricing.entity';
 import { Offering } from 'src/offering/entities/offering.entity';
-import { CheckinHistory } from 'src/reservation/entities/checkin-history.entity';
 import { PaymentSlip } from 'src/reservation/entities/payment-slip.entity';
 import { ReservationStatusLog } from 'src/reservation/entities/reservation-status-log.entity';
 import { ReservationLine } from 'src/reservation/entities/reservation-line.entity';
@@ -41,7 +40,6 @@ import { OfferCoatPricing } from 'src/offering/entities/offer-coat-pricing.entit
           VaccinationRecord,
           Reservation,
           ReservationLine,
-          CheckinHistory,
           PaymentSlip,
           ReservationStatusLog,
           Offering,
@@ -52,7 +50,7 @@ import { OfferCoatPricing } from 'src/offering/entities/offer-coat-pricing.entit
           Staff,
           News
         ],
-        synchronize:true,
+        synchronize:false,
         logging: configService.get<boolean>('DB_LOGGING', false),
       }),
     }),

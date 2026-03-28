@@ -11,7 +11,6 @@ import { VaccinationRecord } from 'src/dog/entities/vaccination-record.entity';
 import { Reservation } from 'src/reservation/entities/reservation.entity';
 import { ReservationLine } from 'src/reservation/entities/reservation-line.entity';
 import { ReservationStatusLog } from 'src/reservation/entities/reservation-status-log.entity';
-import { CheckinHistory } from 'src/reservation/entities/checkin-history.entity';
 import { PaymentSlip } from 'src/reservation/entities/payment-slip.entity';
 import { Offering } from 'src/offering/entities/offering.entity';
 import { OfferBreedPricing } from 'src/offering/entities/offer-breed-pricing.entity';
@@ -53,7 +52,6 @@ const AppDataSource = new DataSource({
     Reservation,
     ReservationLine,
     ReservationStatusLog,
-    CheckinHistory,
     PaymentSlip,
     Offering,
     OfferBreedPricing,

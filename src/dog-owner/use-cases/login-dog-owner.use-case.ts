@@ -15,7 +15,7 @@ export class LoginDogOwnerUsecase {
   async execute(
     request: LoginRequest,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const dogOwner = await this.dogOwnerRepository.findOneByEmail(
+    const dogOwner = await  this.dogOwnerRepository.findOneByEmail(
       request.email,
     );
     if (!dogOwner) {

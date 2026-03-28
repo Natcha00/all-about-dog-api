@@ -21,6 +21,11 @@ import {
   swimmingPriceForDog,
 } from 'src/offering/swimming-pricing';
 
+/**
+ * สร้างการจองใหม่ — สถานะเริ่มที่ PENDING
+ * ฝากเลี้ยง: สร้างบรรทัดรายการจากแพ็กเกจ + จำนวนคืน (ยังไม่เช็กความจุห้องที่นี่)
+ * ว่ายน้ำ: จำกัดช่วงเวลาเริ่มตามรอบที่เปิด + กันสุนัขซ้ำรอบเดียวกัน (ยังไม่เช็กเต็มสระที่นี่)
+ */
 @Injectable()
 export class CreateReservationUsecase {
   private readonly SWIMMING_HOURS = [
@@ -154,7 +159,8 @@ export class CreateReservationUsecase {
     return saved;
   }
 
-  /** Duplicated from GetBoardingPackagePricingUsecase: build lines for reservation_line from assignDogs + nights */
+    /** สร้างบรรทัดฝากเลี้ยงจาก assign ห้องตามขนาด/แพ็กเกจ × จำนวนคืน (logic คู่กับ GetBoardingPackagePricingUsecase) */
+
   private async buildBoardingLines(
     dogs: Dog[],
     start: string,
@@ -174,7 +180,7 @@ export class CreateReservationUsecase {
     return this.buildLinesFromAssignDogs(assignDogs, nights, packageType);
   }
 
-  /** One line per dog per group; shared/vip use specialPrice for 2nd+ dog in each group */
+  /**  แพ็กเกจ shared/vip ตัวที่ 2 ในกลุ่มใช้ specialPrice */
   private buildLinesFromAssignDogs(
     assignDogs: AssignDogs,
     nights: number,
@@ -207,7 +213,7 @@ export class CreateReservationUsecase {
     return lines;
   }
 
-  /** Duplicated from GetSwimmingPackagePricingUsecase: get coat pricing + swimming offering, build one line per dog */
+  /** ราคาตามขน/น้ำหนัก (logic คู่กับ GetSwimmingPackagePricingUsecase) */
   private async buildSwimmingLines(dogs: Dog[]): Promise<ReservationLineInput[]> {
     const [offerCoatPricings, breedBandPricings] = await Promise.all([
       this.offeringService.getCoatPricing(),
