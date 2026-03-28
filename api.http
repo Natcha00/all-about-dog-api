@@ -1,0 +1,10 @@
+@baseUrl = http://localhost:8080
+
+### Dog Owner - Forgot Password
+POST {{baseUrl}}/dog-owner/forgot-password
+Content-Type: application/json
+
+{
+  "email": "chananon.seen@gmail.com"
+}
+ 
