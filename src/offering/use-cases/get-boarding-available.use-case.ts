@@ -173,7 +173,7 @@ export class GetBoardingAvailableUsecase {
       roomPerNight: need,
       package: getBoardingAvailableRequest.package,
       need,
-      fails: available ? [] : fails,
+      fails: available ? [] : fails.filter((f) => f.status === 'insufficient'),
       hasDogInReservationInPeriod,
     };
     return result;

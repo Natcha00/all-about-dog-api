@@ -211,6 +211,7 @@ export class ReservationService {
         SMALL: Math.max(0, max.SMALL - used.SMALL),
         VIP: Math.max(0, max.VIP - used.VIP),
       };
+
       const sufficient =
         need.LARGE <= left.LARGE &&
         need.SMALL <= left.SMALL &&
@@ -303,9 +304,9 @@ export class ReservationService {
       checkout.setHours(0, 0, 0, 0);
       checkout.setHours(checkout.getHours() + 7);
 
-      // 1 groupNumber = 1 ห้อง, กันการนับซ้ำเมื่อมีหลาย line อยู่ห้องเดียวกัน
+      // 1 groupNumber = 1 ห้อง, กันการนับซ้ำเมื่อมีหลาย line อยู่ห้องเดียวกัน กรณีที่มีหลายสุนัขในห้องเดียวกัน
       const grouped = new Map<number, number>();
-      // key = groupNumber, value = offeringId
+      // key = groupNumber, value = offeringId ของห้องนั้น
 
       for (const line of reservation.reservationLines) {
         if (!grouped.has(line.groupNumber)) {
