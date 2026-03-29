@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { MailerSendMailService } from 'src/mail/mailersend-mail.service';
+import { NodemailerMailService } from 'src/mail/nodemailer-mail.service';
 import { DogOwnerRepository } from '../dog-owner.repository';
 import { DogOwnerOtpRepository } from '../dog-owner-otp.repository';
 import { ForgotPasswordDto } from '../dtos/forgot-password.dto';
@@ -11,7 +11,7 @@ export class ForgotPasswordUsecase {
   constructor(
     private readonly dogOwnerRepository: DogOwnerRepository,
     private readonly dogOwnerOtpRepository: DogOwnerOtpRepository,
-    private readonly mailerService: MailerSendMailService,
+    private readonly mailerService: NodemailerMailService,
   ) {}
 
   async execute(dto: ForgotPasswordDto): Promise<{ success: boolean }> {

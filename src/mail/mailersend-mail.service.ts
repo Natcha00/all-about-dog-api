@@ -32,25 +32,36 @@ function escapeHtml(text: string): string {
     .replace(/"/g, '&quot;');
 }
 
+/**
+ * MailerSend HTTP API (optional). App email traffic uses {@link NodemailerMailService}.
+ * Register for future use or inject where needed.
+ */
 @Injectable()
 export class MailerSendMailService {
   private readonly logger = new Logger(MailerSendMailService.name);
-  private readonly mailerSend: MailerSend;
+  private readonly mailerSend: MailerSend | null;
   private readonly defaultFromEmail: string;
   private readonly defaultFromName: string;
 
   constructor(private readonly configService: ConfigService) {
     const apiKey =
-      this.configService.getOrThrow<string>('MAILERSEND_API_KEY')
-    if (!apiKey) {
-      throw new Error('Missing API_KEY or MAILERSEND_API_KEY');
-    }
+      this.configService.get<string>('API_KEY') ??
+      this.configService.get<string>('MAILERSEND_API_KEY');
 
-    this.mailerSend = new MailerSend({ apiKey });
     this.defaultFromEmail =
-      this.configService.getOrThrow<string>('MAILERSEND_FROM_EMAIL') 
+      this.configService.get<string>('MAILERSEND_FROM_EMAIL') ??
+      'aboutdog@test-eqvygm0703zl0p7w.mlsender.net';
     this.defaultFromName =
-      this.configService.getOrThrow<string>('MAILERSEND_FROM_NAME') 
+      this.configService.get<string>('MAILERSEND_FROM_NAME') ?? 'All About Dog';
+
+    if (apiKey) {
+      this.mailerSend = new MailerSend({ apiKey });
+    } else {
+      this.mailerSend = null;
+      this.logger.warn(
+        'MailerSendMailService: no MAILERSEND_API_KEY — sendMail disabled until configured.',
+      );
+    }
   }
 
   private resolveSender(override?: string): { email: string; name: string } {
@@ -70,6 +81,12 @@ export class MailerSendMailService {
   }
 
   async sendMail(input: SendMailInput): Promise<void> {
+    if (!this.mailerSend) {
+      throw new Error(
+        'MailerSend is not configured (set MAILERSEND_API_KEY or API_KEY)',
+      );
+    }
+
     const { email: fromEmail, name: fromName } = this.resolveSender(
       input.from,
     );

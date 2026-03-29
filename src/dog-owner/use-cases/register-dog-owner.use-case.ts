@@ -1,18 +1,18 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { MailerSendMailService } from 'src/mail/mailersend-mail.service';
 import { DogOwnerRepository } from '../dog-owner.repository';
 import { DogOwnerOtpRepository } from '../dog-owner-otp.repository';
 import { RegisterDto } from '../dtos/register.dto';
 import { generateOtp, getOtpExpiresAt, OTP_EXPIRY_MINUTES } from '../utils/otp.util';
 import { OtpType } from '../enums/otp-type.enum';
+import { NodemailerMailService } from 'src/mail/nodemailer-mail.service';
 
 @Injectable()
 export class RegisterDogOwnerUsecase {
   constructor(
     private readonly dogOwnerRepository: DogOwnerRepository,
     private readonly dogOwnerOtpRepository: DogOwnerOtpRepository,
-    private readonly mailerService: MailerSendMailService,
+    private readonly mailerService: NodemailerMailService,
   ) {}
 
   async execute(dto: RegisterDto): Promise<void> {

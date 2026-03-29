@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { MailerSendMailService } from 'src/mail/mailersend-mail.service';
+import { NodemailerMailService } from 'src/mail/nodemailer-mail.service';
 import { ReservationRepository } from './reservation.repository';
 import { ReservationStatusEnum } from './enums/reservation-status.enum';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
@@ -38,7 +38,7 @@ export class ReservationNotificationService {
 
   constructor(
     private readonly reservationRepository: ReservationRepository,
-    private readonly mailerService: MailerSendMailService,
+    private readonly mailerService: NodemailerMailService,
   ) {}
 
   /**
