@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { MailerSendMailService } from 'src/mail/mailersend-mail.service';
+import { SmtpApiMailService } from 'src/mail/smtp-api-mail.service';
 import { ReservationRepository } from './reservation.repository';
 import { ReservationStatusEnum } from './enums/reservation-status.enum';
 import { OfferingType } from 'src/offering/enums/offering-type.enum';
@@ -38,7 +38,7 @@ export class ReservationNotificationService {
 
   constructor(
     private readonly reservationRepository: ReservationRepository,
-    private readonly mailerService: MailerSendMailService,
+    private readonly mailerService: SmtpApiMailService,
   ) {}
 
   /**
@@ -105,7 +105,11 @@ export class ReservationNotificationService {
         'ด้วยความเคารพ',
       ].join('\n');
 
-      await this.mailerService.sendMail({ to, subject, text });
+      void this.mailerService.sendMail({ to, subject, text }).catch((sendErr) => {
+        this.logger.warn(
+          `Failed to send reservation status email for ${code}: ${sendErr instanceof Error ? sendErr.message : String(sendErr)}`,
+        );
+      });
     } catch (err) {
       this.logger.warn(
         `Failed to send reservation status email for ${code}: ${err instanceof Error ? err.message : String(err)}`,
