@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { SmtpApiMailService } from 'src/mail/smtp-api-mail.service';
+import { MailerSendMailService } from 'src/mail/mailersend-mail.service';
 import { DogOwnerRepository } from '../dog-owner.repository';
 import { DogOwnerOtpRepository } from '../dog-owner-otp.repository';
 import { RegisterDto } from '../dtos/register.dto';
@@ -12,7 +12,7 @@ export class RegisterDogOwnerUsecase {
   constructor(
     private readonly dogOwnerRepository: DogOwnerRepository,
     private readonly dogOwnerOtpRepository: DogOwnerOtpRepository,
-    private readonly mailerService: SmtpApiMailService,
+    private readonly mailerService: MailerSendMailService,
   ) {}
 
   async execute(dto: RegisterDto): Promise<void> {
