@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { SmtpApiMailService } from 'src/mail/smtp-api-mail.service';
+import { MailerSendMailService } from 'src/mail/mailersend-mail.service';
 import { DogOwnerRepository } from '../dog-owner.repository';
 import { DogOwnerOtpRepository } from '../dog-owner-otp.repository';
 import { ResendVerifyOtpDto } from '../dtos/resend-verify-otp.dto';
@@ -15,7 +15,7 @@ export class ResendVerifyOtpUsecase {
   constructor(
     private readonly dogOwnerRepository: DogOwnerRepository,
     private readonly dogOwnerOtpRepository: DogOwnerOtpRepository,
-    private readonly mailerService: SmtpApiMailService,
+    private readonly mailerService: MailerSendMailService,
   ) {}
 
   async execute(dto: ResendVerifyOtpDto): Promise<{ success: boolean }> {
