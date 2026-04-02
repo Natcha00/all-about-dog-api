@@ -105,7 +105,7 @@ export class ReservationNotificationService {
         'ด้วยความเคารพ',
       ].join('\n');
 
-      void this.mailerService.sendMail({ to, subject, text }).catch((sendErr) => {
+      await this.mailerService.sendMail({ to, subject, text }).catch((sendErr) => {
         this.logger.warn(
           `Failed to send reservation status email for ${code}: ${sendErr instanceof Error ? sendErr.message : String(sendErr)}`,
         );
