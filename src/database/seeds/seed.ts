@@ -2,21 +2,21 @@ import 'reflect-metadata';
 import * as dotenv from 'dotenv';
 dotenv.config();
 import '../../set-timezone';
-import { Breed } from 'src/dog/entities/breed.entity';
+import { Breed } from '../../dog/entities/breed.entity';
 import { DataSource, In, MoreThan } from 'typeorm';
-import { Dog } from 'src/dog/entities/dog.entity';
-import { DogOwner } from 'src/dog-owner/entities/dog-owner.entity';
-import { Health } from 'src/dog/entities/health.entity';
-import { VaccinationRecord } from 'src/dog/entities/vaccination-record.entity';
-import { Reservation } from 'src/reservation/entities/reservation.entity';
-import { ReservationLine } from 'src/reservation/entities/reservation-line.entity';
-import { ReservationStatusLog } from 'src/reservation/entities/reservation-status-log.entity';
-import { PaymentSlip } from 'src/reservation/entities/payment-slip.entity';
-import { Offering } from 'src/offering/entities/offering.entity';
-import { OfferBreedPricing } from 'src/offering/entities/offer-breed-pricing.entity';
-import { OfferSizePricing } from 'src/offering/entities/offer-size-pricing.entity';
-import { OfferVipPricing } from 'src/offering/entities/offer-vip-pricing.entity';
-import { Staff } from 'src/staff/entities/staff.entity';
+import { Dog } from '../../dog/entities/dog.entity';
+import { DogOwner } from '../../dog-owner/entities/dog-owner.entity';
+import { Health } from '../../dog/entities/health.entity';
+import { VaccinationRecord } from '../../dog/entities/vaccination-record.entity';
+import { Reservation } from '../../reservation/entities/reservation.entity';
+import { ReservationLine } from '../../reservation/entities/reservation-line.entity';
+import { ReservationStatusLog } from '../../reservation/entities/reservation-status-log.entity';
+import { PaymentSlip } from '../../reservation/entities/payment-slip.entity';
+import { Offering } from '../../offering/entities/offering.entity';
+import { OfferBreedPricing } from '../../offering/entities/offer-breed-pricing.entity';
+import { OfferSizePricing } from '../../offering/entities/offer-size-pricing.entity';
+import { OfferVipPricing } from '../../offering/entities/offer-vip-pricing.entity';
+import { Staff } from '../../staff/entities/staff.entity';
 import * as bcrypt from 'bcrypt';
 import breedData from '../data/breed.json';
 import dogOwnerData from '../data/dog-owner.json';
@@ -27,22 +27,18 @@ import offerSizePricingData from '../data/offer_size_pricing.json';
 import offerVipPricingData from '../data/offer_vip_pricing.json';
 import offerCoatPricingData from '../data/offer_coat_pricing.json';
 import reservationData from '../data/reservation.json';
-import { Size } from 'src/dog/enums/size.enum';
-import { OfferingType } from 'src/offering/enums/offering-type.enum';
-import { ReservationStatusEnum } from 'src/reservation/enums/reservation-status.enum';
-import { ROLE } from 'src/user/enums/role.enum';
+import { Size } from '../../dog/enums/size.enum';
+import { OfferingType } from '../../offering/enums/offering-type.enum';
+import { ReservationStatusEnum } from '../../reservation/enums/reservation-status.enum';
+import { ROLE } from '../../user/enums/role.enum';
 import { faker } from '@faker-js/faker';
-import { OfferCoatPricing } from 'src/offering/entities/offer-coat-pricing.entity';
-import { CoatType } from 'src/dog/enums/coat-type.enum';
+import { OfferCoatPricing } from '../../offering/entities/offer-coat-pricing.entity';
+import { CoatType } from '../../dog/enums/coat-type.enum';
 
 const AppDataSource = new DataSource({
-  type: 'mysql',
-  host: process.env.DB_HOST ?? 'localhost',
-  port: parseInt(process.env.DB_PORT ?? '3306', 10),
-  username: process.env.DB_USERNAME ?? 'app',
-  password: process.env.DB_PASSWORD ?? 'app',
-  database: process.env.DB_DATABASE ?? 'all_about_dog',
-  synchronize: true, // ❗ production ใช้ migration แทน
+  type: 'sqlite',
+  database: process.env.DB_SQLITE_PATH ?? 'database.sqlite',
+  synchronize: false, // ❗ production ใช้ migration แทน
   entities: [
     Dog,
     Breed,

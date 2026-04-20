@@ -25,12 +25,11 @@ import { OfferCoatPricing } from 'src/offering/entities/offer-coat-pricing.entit
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        type: 'mysql',
-        host: configService.getOrThrow<string>('DB_HOST'),
-        port: configService.getOrThrow<number>('DB_PORT'),
-        username: configService.getOrThrow<string>('DB_USERNAME'),
-        password: configService.getOrThrow<string>('DB_PASSWORD'),
-        database: configService.getOrThrow<string>('DB_DATABASE'),
+        type: 'sqlite',
+        database: configService.get<string>(
+          'DB_SQLITE_PATH',
+          'database.sqlite',
+        ),
         entities: [
           Dog,
           Breed,
@@ -48,9 +47,9 @@ import { OfferCoatPricing } from 'src/offering/entities/offer-coat-pricing.entit
           OfferVipPricing,
           OfferCoatPricing,
           Staff,
-          News
+          News,
         ],
-        synchronize:false,
+        synchronize: false,
         logging: configService.get<boolean>('DB_LOGGING', false),
       }),
     }),

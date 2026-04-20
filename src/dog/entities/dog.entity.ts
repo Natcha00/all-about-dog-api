@@ -33,7 +33,7 @@ export class Dog {
   @Column({ type: 'varchar', length: 255, nullable: true })
   color: string | null;
 
-  @Column({ type: 'enum', enum: CoatType })
+  @Column({ type: 'varchar', length: 255 })
   coatType: CoatType;
 
   @Column()

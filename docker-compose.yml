@@ -1,12 +1,18 @@
 services:
   api:
-    image: natcha01/all-about-dog-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: all-about-dog-api
     restart: unless-stopped
     ports:
       - "8080:8080"
     env_file:
       - .env
+    environment:
+      DB_SQLITE_PATH: /data/database.sqlite
+    volumes:
+      - ./database.sqlite:/data/database.sqlite
 
   frontend:
     image: natcha01/all-about-dog-frontend:latest

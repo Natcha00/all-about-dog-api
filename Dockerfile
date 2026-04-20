@@ -29,6 +29,9 @@ COPY package.json ./
 # ติดตั้งเฉพาะ production deps
 RUN npm install --omit=dev
 
+# SQLite needs write access for journal files (-wal/-shm)
+RUN mkdir -p /data && chown -R nestjs:nestjs /data
+
 USER nestjs
 
 EXPOSE 3000
