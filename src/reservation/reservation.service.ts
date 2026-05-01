@@ -353,6 +353,32 @@ export class ReservationService {
   summarizeSwimmingByHour(
     reservations: Array<Reservation>,
   ): Array<SwimmingSummary> {
+    const formatLocalDate = (date: Date): string => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const floorToHour = (date: Date): Date =>
+      new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        date.getHours(),
+        0,
+        0,
+        0,
+      );
+
+    const ceilToHour = (date: Date): Date => {
+      const rounded = floorToHour(date);
+      if (date.getTime() !== rounded.getTime()) {
+        rounded.setHours(rounded.getHours() + 1);
+      }
+      return rounded;
+    };
+
     const resultMap = new Map<string, SwimmingCounter>();
 
     for (const reservation of reservations) {
@@ -363,24 +389,9 @@ export class ReservationService {
       const end = new Date(reservation.endDateTime);
 
       // ปัด start ลงเป็นต้นชั่วโมง (เช่น 10:30 → 10:00)
-      const slotStart = new Date(
-        start.getFullYear(),
-        start.getMonth(),
-        start.getDate(),
-        start.getHours(),
-        0,
-        0,
-        0,
-      );
-      const slotEnd = new Date(
-        end.getFullYear(),
-        end.getMonth(),
-        end.getDate(),
-        end.getHours(),
-        0,
-        0,
-        0,
-      );
+      // และปัด end ขึ้นเป็นชั่วโมงถัดไปถ้ามีเศษนาที/วินาที เพื่อให้นับทุก slot ที่ทับช่วงจริง
+      const slotStart = floorToHour(start);
+      const slotEnd = ceilToHour(end);
 
       const lineCount = { LARGE: 0, SMALL: 0 };
       for (const line of reservation.reservationLines) {
@@ -388,11 +399,10 @@ export class ReservationService {
         if (size === 'large') lineCount.LARGE += 1;
         else if (size === 'small') lineCount.SMALL += 1;
       }
-
       // กระจายจำนวนเข้าแต่ละชั่วโมงที่การจองครอบคลุม
       const current = new Date(slotStart);
       while (current.getTime() < slotEnd.getTime()) {
-        const dateKey = current.toISOString().slice(0, 10);
+        const dateKey = formatLocalDate(current);
         const hourStr = String(current.getHours()).padStart(2, '0') + ':00';
         const key = `${dateKey} ${hourStr}`;
 
